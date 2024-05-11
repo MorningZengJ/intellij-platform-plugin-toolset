@@ -6,6 +6,7 @@
     <vendor url="https://github.com/MorningZengJ" email="zengchennihon@gmail.com">Morning Zeng</vendor>
     <idea-version since-build="223.1"/>
 
+    <depends>com.intellij.modules.platform</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
