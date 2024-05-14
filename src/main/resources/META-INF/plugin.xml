@@ -11,7 +11,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="ToolsetWindow" icon="AllIcons.Nodes.Toolbox" anchor="bottom"
+        <toolWindow id="Toolset" icon="/images/svg/box.svg" anchor="bottom"
                     factoryClass="com.github.morningzeng.toolset.ToolsetWindow"/>
     </extensions>
 
