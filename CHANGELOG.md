@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.0.1] - 2024-05-14
+
+### Added
+
+- **AES** Add key pair persistence
+
+### Changed
+
+- **AES** GUI reconstitution
+
 ## [1.0.0] - 2024-05-11
 
 ### Added

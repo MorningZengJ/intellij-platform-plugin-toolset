@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.enums;
 
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
@@ -21,15 +22,15 @@ import java.util.Arrays;
 public enum TabEnum implements TabSupport {
     SYMMETRIC_CRYPTO("Symmetric Crypto", null, "Crypto Encrypt and Decrypt") {
         @Override
-        public Component component() {
+        public Component component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
-            Arrays.stream(CryptoTabEnum.values()).forEach(tab -> tab.putTab(tabbedPane));
+            Arrays.stream(CryptoTabEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
             return tabbedPane;
         }
     },
     BASE64("Encoding & Decoding", null, "Encoding and Decoding") {
         @Override
-        public Component component() {
+        public Component component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },

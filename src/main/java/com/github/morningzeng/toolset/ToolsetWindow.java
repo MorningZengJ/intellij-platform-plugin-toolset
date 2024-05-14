@@ -20,7 +20,7 @@ public class ToolsetWindow implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(final @NotNull Project project, final @NotNull ToolWindow toolWindow) {
         final JBTabbedPane tabbedPane = new JBTabbedPane();
-        Arrays.stream(TabEnum.values()).forEach(tab -> tab.putTab(tabbedPane));
+        Arrays.stream(TabEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
         final Content content = ContentFactory.getInstance().createContent(tabbedPane, "", false);
         toolWindow.getContentManager().addContent(content);
     }

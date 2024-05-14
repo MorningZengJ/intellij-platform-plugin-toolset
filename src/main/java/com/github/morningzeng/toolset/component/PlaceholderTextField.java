@@ -10,6 +10,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Objects;
 
 /**
  * @author Morning Zeng
@@ -19,27 +20,19 @@ import java.awt.event.FocusEvent;
 public class PlaceholderTextField extends JBTextField implements DocumentListener {
 
     private String placeholder;
-    private volatile boolean hint;
 
     {
-        this.hint = true;
         super.setForeground(JBColor.GRAY);
         this.getDocument().addDocumentListener(this);
         this.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(final FocusEvent e) {
-                PlaceholderTextField.this.hint = false;
-                setText("");
-                setForeground(JBColor.BLACK);
+                PlaceholderTextField.this.focusGained();
             }
 
             @Override
             public void focusLost(final FocusEvent e) {
-                if (StringUtil.isEmpty(PlaceholderTextField.super.getText())) {
-                    PlaceholderTextField.this.hint = true;
-                    setText(PlaceholderTextField.this.placeholder);
-                    setForeground(JBColor.GRAY);
-                }
+                PlaceholderTextField.this.focusLost();
             }
         });
     }
@@ -62,11 +55,13 @@ public class PlaceholderTextField extends JBTextField implements DocumentListene
     public PlaceholderTextField(@Nls final String text, final int columns, final String placeholder) {
         super(text, columns);
         this.placeholder(placeholder);
+        this.focusLost();
     }
 
     public PlaceholderTextField(final int columns, final String placeholder) {
         super(columns);
         this.placeholder(placeholder);
+        this.focusLost();
     }
 
     public void placeholder(final String placeholder) {
@@ -76,25 +71,29 @@ public class PlaceholderTextField extends JBTextField implements DocumentListene
 
     @Override
     public void insertUpdate(final DocumentEvent e) {
-        this.hint();
     }
 
     @Override
     public void removeUpdate(final DocumentEvent e) {
-        this.hint();
     }
 
     @Override
     public void changedUpdate(final DocumentEvent e) {
-        this.hint();
     }
 
-    @Override
-    public String getText() {
-        return this.hint ? "" : super.getText();
+
+    void focusGained() {
+        if (Objects.equals(this.getText(), this.placeholder)) {
+            setText("");
+        }
+        setForeground(JBColor.BLACK);
     }
 
-    void hint() {
+    void focusLost() {
+        if (StringUtil.isEmpty(this.getText())) {
+            setText(this.placeholder);
+            setForeground(JBColor.GRAY);
+        }
     }
 
 }

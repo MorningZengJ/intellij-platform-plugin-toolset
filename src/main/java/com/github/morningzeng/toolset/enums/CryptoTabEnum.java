@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.enums;
 
 import com.github.morningzeng.toolset.ui.AESComponent;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import lombok.AllArgsConstructor;
@@ -21,20 +22,20 @@ public enum CryptoTabEnum implements TabSupport {
 
     DES("DES", null, "DES") {
         @Override
-        public Component component() {
+        public Component component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },
     AES("AES", null, "AES") {
         @Override
-        public Component component() {
-            return new AESComponent();
+        public Component component(final Project project) {
+            return new AESComponent(project);
         }
 
     },
     BLOWFISH("Blowfish", null, "Blowfish") {
         @Override
-        public Component component() {
+        public Component component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },

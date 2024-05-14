@@ -1,5 +1,7 @@
 package com.github.morningzeng.toolset.enums;
 
+import com.intellij.openapi.project.Project;
+
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
 import java.awt.Component;
@@ -16,10 +18,10 @@ public sealed interface TabSupport permits TabEnum, CryptoTabEnum {
 
     String tips();
 
-    Component component();
+    Component component(final Project project);
 
-    default void putTab(JTabbedPane tabbedPane) {
-        tabbedPane.addTab(this.title(), this.icon(), this.component(), this.tips());
+    default void putTab(final Project project, JTabbedPane tabbedPane) {
+        tabbedPane.addTab(this.title(), this.icon(), this.component(project), this.tips());
     }
 
 }
