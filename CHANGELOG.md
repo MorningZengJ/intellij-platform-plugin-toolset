@@ -13,6 +13,7 @@
 ### Changed
 
 - **AES** GUI reconstitution
+- Replaces the default icon of the plugin
 
 ## [1.0.0] - 2024-05-11
 
