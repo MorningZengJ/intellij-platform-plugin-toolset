@@ -171,9 +171,9 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).add(this.decryptArea)
-                .newRow().add(btnPanel)
-                .newRow().add(this.encryptArea);
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
+                .newRow().weightY(0).add(btnPanel)
+                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
     }
 
     /**

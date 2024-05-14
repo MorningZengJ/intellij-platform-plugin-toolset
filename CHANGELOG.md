@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.0.2]
+
+### Changed
+
+- Adjusted the GUI layout of AES in symmetric crypto
+
 ## [1.0.1] - 2024-05-14
 
 ### Added
