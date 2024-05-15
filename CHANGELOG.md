@@ -9,6 +9,7 @@
 ### Changed
 
 - Adjusted the GUI layout of AES in symmetric crypto
+- Add some feature descriptions
 
 ## [1.0.1] - 2024-05-14
 
