@@ -68,7 +68,7 @@ public enum SymmetricCrypto {
      * 3DES
      */
     @SuppressWarnings("SpellCheckingInspection")
-    DES_EDE("DESede", "DESede") {
+    DES_EDE("DES", "DESede") {
         @SneakyThrows
         @Override
         public String enc(String data, String key, String iv) {

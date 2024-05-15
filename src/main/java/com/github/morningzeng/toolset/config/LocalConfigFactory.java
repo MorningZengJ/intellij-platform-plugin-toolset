@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -61,11 +62,28 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @AllArgsConstructor
     @Accessors(chain = true)
     public static class SymmetricCryptoProp {
+        private String group;
         private String key;
         private String iv;
         private String title;
         private String desc;
+        private String type;
         private int sorted;
+
+        public String typeOrDefault() {
+            return Optional.ofNullable(this.type)
+                    .orElse("Default Type");
+        }
+
+        public String groupOrDefault() {
+            return Optional.ofNullable(this.group)
+                    .orElse("Default Group");
+        }
+
+        @Override
+        public String toString() {
+            return this.title;
+        }
     }
 
 }

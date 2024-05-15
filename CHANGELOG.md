@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.0.3]
+
+### Changed
+
+- The updated key pair configuration pop-up box is displayed in a tree structure and groups are added
+- Textarea adds line breaks and vertical scrollbars
+
 ## [1.0.2]
 
 ### Changed

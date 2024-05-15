@@ -13,6 +13,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.GridBag;
 
@@ -21,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -30,7 +32,11 @@ import java.util.Objects;
  */
 public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
 
-    final SymmetricCrypto[] cryptos = SymmetricCrypto.values();
+    private final static String TYPE = "AES";
+
+    final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
+            .filter(crypto -> TYPE.equals(crypto.getType()))
+            .toArray(SymmetricCrypto[]::new);
     final LocalConfigFactory localConfigFactory;
     final Project project;
     /**
@@ -137,6 +143,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
     public AESComponent(final Project project) {
         this.project = project;
         this.localConfigFactory = LocalConfigFactory.getInstance();
+        this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
+
         this.cryptoPropComboBox = new ComboBox<>(this.localConfigFactory.symmetricCryptos().stream()
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
                 .toArray(SymmetricCryptoProp[]::new));
@@ -144,7 +152,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             if (Objects.isNull(value)) {
                 return new JLabel();
             }
-            return new JLabel(value.getTitle().concat(" - ").concat(value.getDesc()));
+            final String template = "%s - %s ( %s / %s )";
+            return new JLabel(template.formatted(value.getTitle(), value.getDesc(), value.getKey(), value.getIv()));
         });
 
         this.initLayout();
@@ -166,14 +175,25 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
 
         this.decryptArea.addFocusListener(ContentBorderListener.builder().component(this.decryptArea).init());
         this.encryptArea.addFocusListener(ContentBorderListener.builder().component(this.encryptArea).init());
+        this.decryptArea.setLineWrap(true);
+        this.decryptArea.setWrapStyleWord(true);
+        this.encryptArea.setLineWrap(true);
+        this.encryptArea.setWrapStyleWord(true);
+
+        final JBScrollPane decryptScrollPane = new JBScrollPane(this.decryptArea);
+        final JBScrollPane encryptScrollPane = new JBScrollPane(this.encryptArea);
+        decryptScrollPane.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        decryptScrollPane.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        encryptScrollPane.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        encryptScrollPane.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(decryptScrollPane)
                 .newRow().weightY(0).add(btnPanel)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
+                .newRow().weightY(1).gridWidth(3).add(encryptScrollPane);
     }
 
     /**
@@ -212,7 +232,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
-            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project);
+            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, TYPE);
             dialog.showAndGet();
             this.refresh();
         });
