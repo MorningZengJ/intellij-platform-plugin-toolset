@@ -6,7 +6,5 @@ package com.github.morningzeng.toolset.dialog;
  */
 public interface DialogSupport {
 
-    void create();
-
     void delete();
 }

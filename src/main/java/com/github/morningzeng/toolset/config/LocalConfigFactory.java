@@ -1,6 +1,6 @@
 package com.github.morningzeng.toolset.config;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.Service;
@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Optional;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,17 +43,17 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
         XmlSerializerUtil.copyBean(state, this.state);
     }
 
-    public Set<SymmetricCryptoProp> symmetricCryptos() {
-        return this.state.symmetricCryptoProps;
+    public Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap() {
+        return this.state.symmetricCryptoPropsMap;
     }
 
-    public void symmetricCryptos(final Set<SymmetricCryptoProp> symmetricCryptoProps) {
-        this.state.symmetricCryptoProps = symmetricCryptoProps;
+    public void symmetricCryptoPropsMap(final Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap) {
+        this.state.symmetricCryptoPropsMap = symmetricCryptoPropsMap;
     }
 
     @Data
     public static class State {
-        private Set<SymmetricCryptoProp> symmetricCryptoProps = Sets.newHashSet();
+        private Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap = Maps.newHashMap();
     }
 
     @Data
@@ -62,23 +62,11 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @AllArgsConstructor
     @Accessors(chain = true)
     public static class SymmetricCryptoProp {
-        private String group;
         private String key;
         private String iv;
         private String title;
         private String desc;
-        private String type;
         private int sorted;
-
-        public String typeOrDefault() {
-            return Optional.ofNullable(this.type)
-                    .orElse("Default Type");
-        }
-
-        public String groupOrDefault() {
-            return Optional.ofNullable(this.group)
-                    .orElse("Default Group");
-        }
 
         @Override
         public String toString() {

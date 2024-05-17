@@ -30,11 +30,13 @@ import java.awt.Dimension;
 public final class DialogGroupAction extends JBPanel<JBPanelWithEmptyText> {
 
     final DialogSupport dialogSupport;
+    final AnAction[] actions;
 
-    public DialogGroupAction(final DialogSupport dialogSupport, final JComponent component) {
+    public DialogGroupAction(final DialogSupport dialogSupport, final JComponent component, final AnAction... actions) {
         this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         this.setBorder(Borders.customLineBottom(JBColor.GRAY));
         this.dialogSupport = dialogSupport;
+        this.actions = actions;
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
         final DefaultActionGroup actionGroup = this.createDialogGroupAction();
         final AnAction popupAction = new AnAction("Add Item", "New create crypto prop item", General.Add) {
@@ -60,14 +62,7 @@ public final class DialogGroupAction extends JBPanel<JBPanelWithEmptyText> {
 
         final DefaultActionGroup actionGroup = new DefaultActionGroup("Add Item", "New create crypto prop item", icon);
 
-        actionGroup.addAll(
-                new AnAction("Add") {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        dialogSupport.create();
-                    }
-                }
-        );
+        actionGroup.addAll(this.actions);
         actionGroup.setPopup(true);
         return actionGroup;
     }

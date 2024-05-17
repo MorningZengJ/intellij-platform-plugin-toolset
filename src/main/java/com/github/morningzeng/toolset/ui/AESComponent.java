@@ -23,6 +23,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 
@@ -79,7 +80,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * It is declared as 'private final', indicating that it cannot be modified or reassigned once initialized.
      * The generic type parameter is 'SymmetricCrypto', representing the type of items contained in the combo box.
      * <p>
-     * The combo box is initialized with the cryptos items, which are options for selecting a symmetric encryption algorithm.
+     * The combo box is initialized with the crypto items,
+     * which are options for selecting a symmetric encryption algorithm.
      * <p>
      * This combo box is used in the AESComponent class to allow the user to choose the encryption algorithm.
      *
@@ -104,7 +106,9 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
     /**
      * TextArea used for displaying decrypted text.
      * <p>
-     * This variable is declared as private and final, meaning it cannot be accessed or modified outside of the class where it is defined, and its value cannot be changed once set
+     * This variable is declared as private and final,
+     * meaning it cannot be accessed or modified outside the class where it is defined,
+     * and its value cannot be changed once set
      * .
      * <p>
      * The textarea has an initial size of 5 rows and 20 columns.
@@ -126,8 +130,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * <p>
      * Example usage:
      * <p>
-     * AESComponent aesComponent = new AESComponent();
-     * JButton decryptBtn = aesComponent.getDecryptBtn();
+     * AESComponent component = new AESComponent();
+     * JButton decryptBtn = component.getDecryptBtn();
      * decryptBtn.addActionListener(e -> {
      * // Perform decryption logic here
      * });
@@ -145,7 +149,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         this.localConfigFactory = LocalConfigFactory.getInstance();
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
 
-        this.cryptoPropComboBox = new ComboBox<>(this.localConfigFactory.symmetricCryptos().stream()
+        this.cryptoPropComboBox = new ComboBox<>(this.localConfigFactory.symmetricCryptoPropsMap().values().stream()
+                .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
                 .toArray(SymmetricCryptoProp[]::new));
         this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
@@ -232,7 +237,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
-            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, TYPE);
+            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project);
             dialog.showAndGet();
             this.refresh();
         });
@@ -240,7 +245,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
 
     void refresh() {
         this.cryptoPropComboBox.removeAllItems();
-        this.localConfigFactory.symmetricCryptos().stream()
+        this.localConfigFactory.symmetricCryptoPropsMap().values().stream()
+                .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
                 .forEach(this.cryptoPropComboBox::addItem);
     }

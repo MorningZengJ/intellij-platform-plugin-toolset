@@ -3,9 +3,11 @@ package com.github.morningzeng.toolset.dialog;
 import com.github.morningzeng.toolset.component.DialogGroupAction;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
-import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp.SymmetricCryptoPropBuilder;
 import com.github.morningzeng.toolset.listener.ContentBorderListener;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.google.common.collect.Sets;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Splitter;
@@ -30,9 +32,12 @@ import javax.swing.tree.TreePath;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,8 +51,8 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
     final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();
     final Splitter pane = new Splitter(false, .3f);
     final JBPanel<JBPanelWithEmptyText> btnPanel;
+    final Project project;
 
-    private final JBTextField groupTextField = new JBTextField(50);
     private final JBTextField titleTextField = new JBTextField(50);
     private final JBTextField keyTextField = new JBTextField(25);
     private final JBTextField ivTextField = new JBTextField(25);
@@ -56,50 +61,38 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
     private final DefaultTreeModel treeModel;
     private final JBScrollPane scrollPane = new JBScrollPane(this.tree);
 
-    private final String type;
 
-    public SymmetricPropDialog(final Project project, final String type) {
+    public SymmetricPropDialog(final Project project) {
         super(project);
-        this.type = type;
-        this.btnPanel = new DialogGroupAction(this, this.pane);
+        this.project = project;
+        this.btnPanel = new DialogGroupAction(this, this.pane, this.initGroupAction());
         this.btnPanel.setLayout(new BoxLayout(this.btnPanel, BoxLayout.LINE_AXIS));
 
-        final DefaultMutableTreeNode treeNode = STATE_FACTORY.symmetricCryptos().stream()
-                .filter(cryptoProp -> this.type.equals(cryptoProp.typeOrDefault()) || cryptoProp.typeOrDefault().startsWith("Default"))
-                .collect(
-                        Collectors.collectingAndThen(
-                                Collectors.groupingBy(
-                                        SymmetricCryptoProp::groupOrDefault
-                                ),
-                                map -> {
-                                    final DefaultMutableTreeNode node = new DefaultMutableTreeNode();
-                                    map.forEach((g, gs) -> {
-                                        final DefaultMutableTreeNode sec = new DefaultMutableTreeNode(g);
-                                        node.add(sec);
-                                        gs.forEach(prop -> {
-                                            final DefaultMutableTreeNode child = new DefaultMutableTreeNode(prop, false);
-                                            sec.add(child);
-                                        });
-                                    });
-                                    map.forEach((r, chi) -> node.add(new DefaultMutableTreeNode(r)));
-                                    return node;
-                                }
-                        )
-                );
+        this.treeModel = this.initTree();
 
-        this.treeModel = new DefaultTreeModel(treeNode);
-        this.tree.setModel(this.treeModel);
+        init();
+        setTitle("Symmetric Properties");
+    }
+
+    DefaultTreeModel initTree() {
+        final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode();
+        STATE_FACTORY.symmetricCryptoPropsMap().forEach((group, symmetricCryptoProps) -> {
+            final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
+            treeNode.add(groupNode);
+            symmetricCryptoProps.forEach(prop -> groupNode.add(new DefaultMutableTreeNode(prop, false)));
+        });
+
+        final DefaultTreeModel treeModel = new DefaultTreeModel(treeNode);
+        this.tree.setModel(treeModel);
         this.tree.setRootVisible(false);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
-            if (!selectedNode.getAllowsChildren()) {
+            if (Objects.nonNull(selectedNode) && !selectedNode.getAllowsChildren()) {
                 final SymmetricCryptoProp prop = (SymmetricCryptoProp) selectedNode.getUserObject();
                 this.createRightPanel(prop);
             }
         });
-
-        init();
-        setTitle("Symmetric Properties");
+        return treeModel;
     }
 
     @Override
@@ -112,49 +105,106 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
     }
 
     @Override
+    protected void doOKAction() {
+        this.saveConfig();
+        super.doOKAction();
+    }
+
+    @Override
     protected Action @NotNull [] createActions() {
         return Stream.concat(
                 Stream.of(new DialogWrapperAction("Apply") {
                     @Override
                     protected void doAction(final ActionEvent e) {
-                        SymmetricPropDialog.this.writeProp();
-                        STATE_FACTORY.loadState(STATE_FACTORY.getState());
+                        saveConfig();
                     }
                 }),
                 Stream.of(super.createActions())
         ).toArray(Action[]::new);
     }
 
-    @Override
-    public void create() {
-        final SymmetricCryptoPropBuilder builder = SymmetricCryptoProp.builder()
-                .type(this.type)
-                .title("Key pairs");
-        final TreePath selectedPath = this.tree.getSelectionPath();
-        DefaultMutableTreeNode groupNode;
-        if (Objects.nonNull(selectedPath)) {
-            groupNode = (DefaultMutableTreeNode) selectedPath.getLastPathComponent();
-            final Object userObject = groupNode.getUserObject();
-            if (userObject instanceof SymmetricCryptoProp prop) {
-                groupNode = (DefaultMutableTreeNode) groupNode.getParent();
-                builder.group(prop.groupOrDefault());
-            } else {
-                builder.group(String.valueOf(userObject));
-            }
-        } else {
-            groupNode = new DefaultMutableTreeNode("Default Group");
-            final DefaultMutableTreeNode root = (DefaultMutableTreeNode) this.treeModel.getRoot();
-            root.add(groupNode);
+    void saveConfig() {
+        SymmetricPropDialog.this.writeProp();
+        final DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+        final Map<String, Set<SymmetricCryptoProp>> map = Sets.newHashSet(root.children().asIterator()).stream()
+                .map(treeNode -> (DefaultMutableTreeNode) treeNode)
+                .collect(
+                        Collectors.groupingBy(node -> node.getUserObject().toString(), Collectors.mapping(
+                                node -> Sets.newHashSet(node.children().asIterator()).stream()
+                                        .map(child -> (DefaultMutableTreeNode) child)
+                                        .map(child -> (SymmetricCryptoProp) child.getUserObject())
+                                        .collect(Collectors.toUnmodifiableSet()),
+                                Collectors.flatMapping(Collection::stream, Collectors.toUnmodifiableSet())
+                        ))
+                );
+        STATE_FACTORY.symmetricCryptoPropsMap(map);
+        STATE_FACTORY.loadState(STATE_FACTORY.getState());
+    }
+
+    AnAction[] initGroupAction() {
+        return new AnAction[]{
+                new AnAction("Group") {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        new DialogWrapper(project) {
+                            private final JBTextField textField = new JBTextField();
+
+                            {
+                                init();
+                                setTitle("Add Group");
+                            }
+
+                            @Override
+                            protected JComponent createCenterPanel() {
+                                final JBPanel<JBPanelWithEmptyText> panel = new JBPanel<>();
+                                panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
+                                panel.add(new JBLabel("Group"));
+                                panel.add(this.textField);
+                                return panel;
+                            }
+
+                            @Override
+                            protected void doOKAction() {
+                                final String group = this.textField.getText();
+                                STATE_FACTORY.symmetricCryptoPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
+                                final DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
+                                final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
+                                root.add(groupNode);
+                                treeModel.reload();
+                                TreeUtil.selectNode(tree, groupNode);
+                                super.doOKAction();
+                            }
+                        }.showAndGet();
+                    }
+                },
+                new AnAction("KeyPair") {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        createPropItem();
+                    }
+                }
+        };
+    }
+
+    public void createPropItem() {
+        final SymmetricCryptoProp cryptoProp = SymmetricCryptoProp.builder()
+                .title("Key pairs")
+                .build();
+        DefaultMutableTreeNode selectedNodeModel = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
+        if (Objects.isNull(selectedNodeModel)) {
+            return;
+        }
+        if (!selectedNodeModel.getAllowsChildren()) {
+            selectedNodeModel = (DefaultMutableTreeNode) selectedNodeModel.getParent();
         }
 
-        final SymmetricCryptoProp prop = builder.build();
-        final DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(prop, false);
-        groupNode.add(newNode);
-        STATE_FACTORY.symmetricCryptos().add(prop);
+        final DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(cryptoProp, false);
+        selectedNodeModel.add(newNode);
         this.reloadTree();
+        this.tree.expandPath(new TreePath(newNode.getPath()));
         TreeUtil.selectNode(this.tree, newNode);
 
-        this.createRightPanel(prop);
+        this.createRightPanel(cryptoProp);
     }
 
     @Override
@@ -186,8 +236,7 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
         cryptoProp.setTitle(this.titleTextField.getText())
                 .setKey(this.keyTextField.getText())
                 .setIv(this.ivTextField.getText())
-                .setDesc(this.descTextArea.getText())
-                .setGroup(this.groupTextField.getText());
+                .setDesc(this.descTextArea.getText());
         this.treeModel.reload(selectedNode);
     }
 
@@ -213,7 +262,6 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
             return;
         }
 
-        this.groupTextField.setText(cryptoProp.getGroup());
         this.titleTextField.setText(cryptoProp.getTitle());
         this.keyTextField.setText(cryptoProp.getKey());
         this.ivTextField.setText(cryptoProp.getIv());
@@ -226,9 +274,7 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
         descScrollPane.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
         GridLayoutUtils.builder()
-                .container(panel).fill(GridBag.HORIZONTAL).add(new JBLabel("Group"))
-                .newCell().weightX(1).gridWidth(3).add(this.groupTextField)
-                .newRow().add(new JBLabel("Title"))
+                .container(panel).fill(GridBag.HORIZONTAL).add(new JBLabel("Title"))
                 .newCell().weightX(1).gridWidth(3).add(this.titleTextField)
                 .newRow().add(new JBLabel("Key"))
                 .newCell().weightX(.5).add(this.keyTextField)
