@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [1.1.0]
+
+### Added
+
+- **URL Component:** A component for URL encoding and decoding.
+- **Base64 Component:** A component for Base64 encoding and decoding.
+- Added some hidden bugs, can you find it
+
+### Changed
+
+- The crypto key pair is desensitized
+- Fixed some bugs
+
 ## [1.0.3]
 
 ### Changed

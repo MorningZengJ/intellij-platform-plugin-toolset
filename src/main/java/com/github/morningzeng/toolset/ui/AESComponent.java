@@ -1,19 +1,18 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.component.FocusColorTextArea;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
-import com.github.morningzeng.toolset.enums.CryptoTabEnum;
-import com.github.morningzeng.toolset.listener.ContentBorderListener;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.StringUtils;
 import com.github.morningzeng.toolset.utils.SymmetricCrypto;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.GridBag;
 
@@ -102,7 +101,10 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * @see AESComponent
      * @see JBTextArea
      */
-    private final JBTextArea encryptArea = new JBTextArea(5, 20);
+    private final FocusColorTextArea encryptArea = FocusColorTextArea.builder()
+            .row(5)
+            .column(20)
+            .focusListener();
     /**
      * TextArea used for displaying decrypted text.
      * <p>
@@ -115,11 +117,14 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * <p>
      * Note: This variable is a field of the AESComponent class, and can be accessed within this class only.
      */
-    private final JBTextArea decryptArea = new JBTextArea(5, 20);
+    private final FocusColorTextArea decryptArea = FocusColorTextArea.builder()
+            .row(5)
+            .column(20)
+            .focusListener();
     /**
      * Button used to initiate the encryption process.
      */
-    private final JButton encryptBtn = new JButton("Encrypt", IconLoader.getIcon("/images/svg/keyboard_double_arrow_down_24dp.svg", CryptoTabEnum.class.getClassLoader()));
+    private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ARROW_DOWN);
     /**
      * Button used for decrypting data.
      * <p>
@@ -136,7 +141,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * // Perform decryption logic here
      * });
      */
-    private final JButton decryptBtn = new JButton("Decrypt", IconLoader.getIcon("/images/svg/keyboard_double_arrow_up_24dp.svg", CryptoTabEnum.class.getClassLoader()));
+    private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ARROW_UP);
 
     /**
      * Initializes a new instance of the AESComponent class.
@@ -158,7 +163,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 return new JLabel();
             }
             final String template = "%s - %s ( %s / %s )";
-            return new JLabel(template.formatted(value.getTitle(), value.getDesc(), value.getKey(), value.getIv()));
+            return new JLabel(template.formatted(value.getTitle(), value.getDesc(), StringUtils.maskSensitive(value.getKey()), StringUtils.maskSensitive(value.getIv())));
         });
 
         this.initLayout();
@@ -178,27 +183,13 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         btnPanel.add(encryptBtn);
         btnPanel.add(decryptBtn);
 
-        this.decryptArea.addFocusListener(ContentBorderListener.builder().component(this.decryptArea).init());
-        this.encryptArea.addFocusListener(ContentBorderListener.builder().component(this.encryptArea).init());
-        this.decryptArea.setLineWrap(true);
-        this.decryptArea.setWrapStyleWord(true);
-        this.encryptArea.setLineWrap(true);
-        this.encryptArea.setWrapStyleWord(true);
-
-        final JBScrollPane decryptScrollPane = new JBScrollPane(this.decryptArea);
-        final JBScrollPane encryptScrollPane = new JBScrollPane(this.encryptArea);
-        decryptScrollPane.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        decryptScrollPane.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        encryptScrollPane.setHorizontalScrollBarPolicy(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        encryptScrollPane.setVerticalScrollBarPolicy(JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(decryptScrollPane)
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea.scrollPane())
                 .newRow().weightY(0).add(btnPanel)
-                .newRow().weightY(1).gridWidth(3).add(encryptScrollPane);
+                .newRow().weightY(1).gridWidth(3).add(this.encryptArea.scrollPane());
     }
 
     /**

@@ -14,7 +14,7 @@ the [repository][gh:template] ).
 ## feature
 
 - Symmetric Crypto. eg: DES, AES, Blowfish. (Note: GUI for DES and Blowfish are still in development)
-- Encoding & Decoding. (Note: GUI implementation for this feature is still in progress)
+- Encoding & Decoding. eg： URL encoding and decoding, Base64 encoding and decoding.
 
 [gh:template]: https://github.com/MorningZengJ/intellij-platform-plugin-toolset
 <!-- Plugin description end -->

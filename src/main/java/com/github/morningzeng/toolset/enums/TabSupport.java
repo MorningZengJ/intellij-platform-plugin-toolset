@@ -10,7 +10,7 @@ import java.awt.Component;
  * @author Morning Zeng
  * @since 2024-05-09
  */
-public sealed interface TabSupport permits TabEnum, CryptoTabEnum {
+public sealed interface TabSupport permits CodingEnum, CryptoTabEnum, TabEnum {
 
     String title();
 
