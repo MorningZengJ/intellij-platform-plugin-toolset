@@ -21,12 +21,11 @@ import java.util.Arrays;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum TabEnum implements TabSupport {
-    SYMMETRIC_CRYPTO("Symmetric Crypto", null, "Symmetric Encrypt and Decrypt") {
+    CRYPTO("Crypto", null, "Encrypt and Decrypt") {
         @Override
         public Component component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             Arrays.stream(CryptoTabEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
-            tabbedPane.setSelectedIndex(1);
             return tabbedPane;
         }
     },

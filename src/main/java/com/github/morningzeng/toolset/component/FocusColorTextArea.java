@@ -1,8 +1,8 @@
 package com.github.morningzeng.toolset.component;
 
 import com.github.morningzeng.toolset.listener.ContentBorderListener;
+import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.intellij.ui.JBColor;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.components.JBTextArea;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import javax.swing.text.Document;
  */
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public final class FocusColorTextArea extends JBTextArea {
+public final class FocusColorTextArea extends JBTextArea implements ScrollSupport<FocusColorTextArea> {
 
     @Builder.Default
     private final JBColor gained = JBColor.BLUE;
@@ -27,15 +27,9 @@ public final class FocusColorTextArea extends JBTextArea {
     private int row;
     private int column;
 
-    public JBScrollPane scrollPane() {
-        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    }
-
-    public JBScrollPane scrollPane(final int horizontalScrollBarPolicy, final int verticalScrollBarPolicy) {
-        final JBScrollPane scrollPane = new JBScrollPane(this);
-        scrollPane.setHorizontalScrollBarPolicy(horizontalScrollBarPolicy);
-        scrollPane.setVerticalScrollBarPolicy(verticalScrollBarPolicy);
-        return scrollPane;
+    @Override
+    public FocusColorTextArea getComponent() {
+        return this;
     }
 
     public static class FocusColorTextAreaBuilder {

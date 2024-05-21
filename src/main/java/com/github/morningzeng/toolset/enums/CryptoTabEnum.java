@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.enums;
 
 import com.github.morningzeng.toolset.ui.AESComponent;
+import com.github.morningzeng.toolset.ui.HashComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -19,7 +20,12 @@ import java.awt.Component;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum CryptoTabEnum implements TabSupport {
-
+    HASH("Hash", null, "Hash") {
+        @Override
+        public Component component(final Project project) {
+            return new HashComponent(project);
+        }
+    },
     DES("DES", null, "DES") {
         @Override
         public Component component(final Project project) {

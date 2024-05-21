@@ -10,6 +10,7 @@
 
 - **URL Component:** A component for URL encoding and decoding.
 - **Base64 Component:** A component for Base64 encoding and decoding.
+- **Hash Component:** A component for hashing text using various algorithms.
 - Added some hidden bugs, can you find it
 
 ### Changed

@@ -10,10 +10,11 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -51,27 +52,45 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
         this.state.symmetricCryptoPropsMap = symmetricCryptoPropsMap;
     }
 
-    @Data
-    public static class State {
-        private Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap = Maps.newHashMap();
+    public Map<String, Set<HashCryptoProp>> hashCryptoPropsMap() {
+        return this.state.hashCryptoPropsMap;
+    }
+
+    public void hashCryptoPropsMap(final Map<String, Set<HashCryptoProp>> hashCryptoPropsMap) {
+        this.state.hashCryptoPropsMap = hashCryptoPropsMap;
     }
 
     @Data
-    @Builder
+    public static class State {
+        private Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap = Maps.newHashMap();
+        private Map<String, Set<HashCryptoProp>> hashCryptoPropsMap = Maps.newHashMap();
+    }
+
+    @Data
+    @SuperBuilder
     @NoArgsConstructor
     @AllArgsConstructor
     @Accessors(chain = true)
-    public static class SymmetricCryptoProp {
+    public static class HashCryptoProp {
         private String key;
-        private String iv;
         private String title;
         private String desc;
         private int sorted;
 
         @Override
         public String toString() {
-            return this.title;
+            return this.getTitle();
         }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @Data
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Accessors(chain = true)
+    public static class SymmetricCryptoProp extends HashCryptoProp {
+        private String iv;
     }
 
 }
