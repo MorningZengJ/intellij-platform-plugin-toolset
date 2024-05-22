@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [1.1.1]
+
+### Changed
+
+- Optimize the configuration structure and improve performance
+- Fixed some bugs
+- Added some hidden bugs, can you find it
+
 ## [1.1.0]
 
 ### Added

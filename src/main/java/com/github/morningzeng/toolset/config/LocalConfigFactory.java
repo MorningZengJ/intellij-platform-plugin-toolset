@@ -79,7 +79,7 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
 
         @Override
         public String toString() {
-            return this.getTitle();
+            return this.title;
         }
     }
 
@@ -91,6 +91,11 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @Accessors(chain = true)
     public static class SymmetricCryptoProp extends HashCryptoProp {
         private String iv;
+
+        @Override
+        public String toString() {
+            return this.getTitle();
+        }
     }
 
 }
