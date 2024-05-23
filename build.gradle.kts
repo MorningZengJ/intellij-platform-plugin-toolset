@@ -24,6 +24,10 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
+    implementation("io.github.openfeign:feign-core:13.2.1")
+    implementation("io.github.openfeign:feign-jackson:13.2.1")
+    implementation("io.github.openfeign:feign-okhttp:13.2.1")
+
 //    implementation(libs.annotations)
     compileOnly("org.projectlombok:lombok:1.18.32")
 
