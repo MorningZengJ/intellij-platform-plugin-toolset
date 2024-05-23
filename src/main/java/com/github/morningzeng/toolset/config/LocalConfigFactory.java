@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.config;
 
+import com.github.morningzeng.toolset.enums.StringTypeEnum;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -18,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -73,9 +75,14 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @Accessors(chain = true)
     public static class HashCryptoProp {
         private String key;
+        private StringTypeEnum keyType;
         private String title;
         private String desc;
         private int sorted;
+
+        public StringTypeEnum keyType() {
+            return Optional.ofNullable(this.keyType).orElse(StringTypeEnum.TEXT);
+        }
 
         @Override
         public String toString() {
@@ -91,6 +98,11 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @Accessors(chain = true)
     public static class SymmetricCryptoProp extends HashCryptoProp {
         private String iv;
+        private StringTypeEnum ivType;
+
+        public StringTypeEnum ivType() {
+            return Optional.ofNullable(this.ivType).orElse(StringTypeEnum.TEXT);
+        }
 
         @Override
         public String toString() {

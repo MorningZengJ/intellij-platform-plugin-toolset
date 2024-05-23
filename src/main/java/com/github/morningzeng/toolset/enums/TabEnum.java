@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import javax.swing.Icon;
-import java.awt.Component;
+import javax.swing.JComponent;
 import java.util.Arrays;
 
 /**
@@ -23,7 +23,7 @@ import java.util.Arrays;
 public enum TabEnum implements TabSupport {
     CRYPTO("Crypto", null, "Encrypt and Decrypt") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             Arrays.stream(CryptoTabEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
             return tabbedPane;
@@ -31,7 +31,7 @@ public enum TabEnum implements TabSupport {
     },
     CODING("Encoding & Decoding", null, "Encoding and Decoding") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             Arrays.stream(CodingEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
             return tabbedPane;
@@ -39,7 +39,7 @@ public enum TabEnum implements TabSupport {
     },
     TIMESTAMP("Date & Time", IconC.Time, "Date and Time") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },

@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import javax.swing.Icon;
-import java.awt.Component;
+import javax.swing.JComponent;
 
 /**
  * @author Morning Zeng
@@ -21,13 +21,13 @@ public enum CodingEnum implements TabSupport {
 
     BASE64("Base64", null, "Base64 Encode and Decode") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new Base64Component();
         }
     },
     URL("URL", null, "URL Encode and Decode") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new URLComponent();
         }
     },

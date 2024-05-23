@@ -10,7 +10,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 
 import javax.swing.Icon;
-import java.awt.Component;
+import javax.swing.JComponent;
 
 /**
  * @author Morning Zeng
@@ -22,26 +22,26 @@ import java.awt.Component;
 public enum CryptoTabEnum implements TabSupport {
     HASH("Hash", null, "Hash") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new HashComponent(project);
         }
     },
     DES("DES", null, "DES") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },
     AES("AES", null, "AES") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new AESComponent(project);
         }
 
     },
     BLOWFISH("Blowfish", null, "Blowfish") {
         @Override
-        public Component component(final Project project) {
+        public JComponent component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },

@@ -221,7 +221,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             try {
                 final SymmetricCrypto crypto = this.cryptoComboBox.getItem();
                 final SymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();
-                final String dec = crypto.crypto(cryptoProp.getKey(), cryptoProp.getIv()).dec(this.encryptArea.getText());
+                final String dec = crypto.crypto(cryptoProp.getKey(), cryptoProp.keyType(), cryptoProp.getIv(), cryptoProp.ivType()).dec(this.encryptArea.getText());
                 this.decryptArea.setText(dec);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Decrypt Error", JOptionPane.ERROR_MESSAGE);

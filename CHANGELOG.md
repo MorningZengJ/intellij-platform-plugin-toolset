@@ -9,6 +9,8 @@
 ### Changed
 
 - Optimize the configuration structure and improve performance
+- Added Hex support for AES
+- Adjust the tool window layout
 - Fixed some bugs
 - Added some hidden bugs, can you find it
 

@@ -6,12 +6,14 @@ import com.github.morningzeng.toolset.component.FocusColorTextArea;
 import com.github.morningzeng.toolset.component.TreeComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
+import com.github.morningzeng.toolset.enums.StringTypeEnum;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Sets;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.components.JBLabel;
@@ -51,7 +53,9 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
 
     private final JBTextField titleTextField = new JBTextField(50);
     private final JBTextField keyTextField = new JBTextField(25);
+    private final ComboBox<StringTypeEnum> keyTypeCombo = new ComboBox<>(StringTypeEnum.values());
     private final JBTextField ivTextField = new JBTextField(25);
+    private final ComboBox<StringTypeEnum> ivTypeCombo = new ComboBox<>(StringTypeEnum.values());
     private final FocusColorTextArea descTextArea = FocusColorTextArea.builder()
             .row(5)
             .column(50)
@@ -164,8 +168,9 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
         if (selectedNode.getUserObject() instanceof SymmetricCryptoProp cryptoProp) {
             cryptoProp.setTitle(this.titleTextField.getText())
                     .setKey(this.keyTextField.getText())
+                    .setKeyType(this.keyTypeCombo.getItem())
                     .setDesc(this.descTextArea.getText());
-            cryptoProp.setIv(this.ivTextField.getText());
+            cryptoProp.setIv(this.ivTextField.getText()).setIvType(this.ivTypeCombo.getItem());
             this.tree.reloadTree(selectedNode);
         }
     }
@@ -192,18 +197,22 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
 
         this.titleTextField.setText(cryptoProp.getTitle());
         this.keyTextField.setText(cryptoProp.getKey());
+        this.keyTypeCombo.setSelectedItem(cryptoProp.keyType());
         this.ivTextField.setText(cryptoProp.getIv());
+        this.ivTypeCombo.setSelectedItem(cryptoProp.ivType());
         this.descTextArea.setText(cryptoProp.getDesc());
 
         GridLayoutUtils.builder()
                 .container(panel).fill(GridBag.HORIZONTAL).add(new JBLabel("Title"))
-                .newCell().weightX(1).gridWidth(3).add(this.titleTextField)
+                .newCell().weightX(1).gridWidth(2).add(this.titleTextField)
                 .newRow().add(new JBLabel("Key"))
                 .newCell().weightX(.5).add(this.keyTextField)
-                .newCell().weightX(0).add(new JBLabel("IV"))
+                .newCell().weightX(0).add(this.keyTypeCombo)
+                .newRow().weightX(0).add(new JBLabel("IV"))
                 .newCell().weightX(.5).add(this.ivTextField)
+                .newCell().weightX(0).add(this.ivTypeCombo)
                 .newRow().add(new JBLabel("Desc"))
-                .newCell().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.descTextArea.scrollPane());
+                .newCell().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.descTextArea.scrollPane());
     }
 
 }
