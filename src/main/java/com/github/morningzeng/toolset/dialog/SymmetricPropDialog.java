@@ -6,7 +6,7 @@ import com.github.morningzeng.toolset.component.FocusColorTextArea;
 import com.github.morningzeng.toolset.component.TreeComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
-import com.github.morningzeng.toolset.enums.StringTypeEnum;
+import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Sets;
@@ -53,9 +53,9 @@ public final class SymmetricPropDialog extends DialogWrapper implements DialogSu
 
     private final JBTextField titleTextField = new JBTextField(50);
     private final JBTextField keyTextField = new JBTextField(25);
-    private final ComboBox<StringTypeEnum> keyTypeCombo = new ComboBox<>(StringTypeEnum.values());
+    private final ComboBox<DataToBinaryTypeEnum> keyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
     private final JBTextField ivTextField = new JBTextField(25);
-    private final ComboBox<StringTypeEnum> ivTypeCombo = new ComboBox<>(StringTypeEnum.values());
+    private final ComboBox<DataToBinaryTypeEnum> ivTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
     private final FocusColorTextArea descTextArea = FocusColorTextArea.builder()
             .row(5)
             .column(50)

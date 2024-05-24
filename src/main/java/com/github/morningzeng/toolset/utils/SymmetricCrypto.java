@@ -1,6 +1,6 @@
 package com.github.morningzeng.toolset.utils;
 
-import com.github.morningzeng.toolset.enums.StringTypeEnum;
+import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.intellij.openapi.util.text.StringUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import static com.github.morningzeng.toolset.enums.StringTypeEnum.TEXT;
+import static com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum.TEXT;
 
 @Getter
 @AllArgsConstructor
@@ -29,7 +29,7 @@ public enum SymmetricCrypto {
     DES("DES", "DES") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -37,7 +37,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -51,7 +51,7 @@ public enum SymmetricCrypto {
     DES_CBC_PKCS5("DES", "DES/CBC/PKCS5Padding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -59,7 +59,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -74,7 +74,7 @@ public enum SymmetricCrypto {
     DES_EDE("DES", "DESede") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -82,7 +82,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -101,7 +101,7 @@ public enum SymmetricCrypto {
     AES_ECB_PKCS5("AES", "AES/ECB/PKCS5Padding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -109,7 +109,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -128,7 +128,7 @@ public enum SymmetricCrypto {
     AES_ECB_NO_PADDING("AES", "AES/ECB/NoPadding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -136,7 +136,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -156,7 +156,7 @@ public enum SymmetricCrypto {
     AES_CBC_PKCS5("AES", "AES/CBC/PKCS5Padding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -164,7 +164,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -185,7 +185,7 @@ public enum SymmetricCrypto {
     AES_CFB_NO_PADDING("AES", "AES/CFB/NoPadding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -193,7 +193,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -215,7 +215,7 @@ public enum SymmetricCrypto {
     AES_OFB_NO_PADDING("AES", "AES/OFB/NoPadding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -223,7 +223,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -245,7 +245,7 @@ public enum SymmetricCrypto {
     AES_CTR_NO_PADDING("AES", "AES/CTR/NoPadding") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -253,7 +253,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -271,7 +271,7 @@ public enum SymmetricCrypto {
     BLOWFISH("Blowfish", "Blowfish") {
         @SneakyThrows
         @Override
-        public String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             final Cipher cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType);
             byte[] encryptedValue = cipher.doFinal(data.getBytes(StandardCharsets.UTF_8));
             return Base64.getEncoder().encodeToString(encryptedValue);
@@ -279,7 +279,7 @@ public enum SymmetricCrypto {
 
         @SneakyThrows
         @Override
-        public String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType) {
+        public String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType) {
             byte[] decodedValue = Base64.getDecoder().decode(data);
             Cipher cipher = this.cipher(Cipher.DECRYPT_MODE, key, keyType, iv, ivType);
             byte[] decryptedValue = cipher.doFinal(decodedValue);
@@ -299,7 +299,7 @@ public enum SymmetricCrypto {
      * @return {@link Cipher}
      */
     @SneakyThrows
-    Cipher cipher(int encryptMode, String key, final StringTypeEnum keyType, String iv, final StringTypeEnum ivType) {
+    Cipher cipher(int encryptMode, String key, final DataToBinaryTypeEnum keyType, String iv, final DataToBinaryTypeEnum ivType) {
         final Cipher cipher = Cipher.getInstance(this.getAlgorithm());
         if (!StringUtil.isEmpty(iv)) {
             cipher.init(
@@ -340,15 +340,15 @@ public enum SymmetricCrypto {
         return this.dec(data, key, TEXT, iv, TEXT);
     }
 
-    abstract String enc(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType);
+    abstract String enc(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType);
 
-    abstract String dec(String data, String key, StringTypeEnum keyType, String iv, StringTypeEnum ivType);
+    abstract String dec(String data, String key, DataToBinaryTypeEnum keyType, String iv, DataToBinaryTypeEnum ivType);
 
     public SymmetricCryptoSupport crypto(final String key) {
         return SymmetricCryptoSupport.crypto(this, key, null);
     }
 
-    public SymmetricCryptoSupport crypto(final String key, final StringTypeEnum keyType) {
+    public SymmetricCryptoSupport crypto(final String key, final DataToBinaryTypeEnum keyType) {
         return SymmetricCryptoSupport.crypto(this, key, keyType, null, null);
     }
 
@@ -356,7 +356,7 @@ public enum SymmetricCrypto {
         return SymmetricCryptoSupport.crypto(this, key, iv);
     }
 
-    public SymmetricCryptoSupport crypto(final String key, final StringTypeEnum keyType, final String iv, final StringTypeEnum ivType) {
+    public SymmetricCryptoSupport crypto(final String key, final DataToBinaryTypeEnum keyType, final String iv, final DataToBinaryTypeEnum ivType) {
         return SymmetricCryptoSupport.crypto(this, key, keyType, iv, ivType);
     }
 
@@ -376,7 +376,7 @@ public enum SymmetricCrypto {
             };
         }
 
-        static SymmetricCryptoSupport crypto(SymmetricCrypto crypto, String key, final StringTypeEnum keyType, String iv, final StringTypeEnum ivType) {
+        static SymmetricCryptoSupport crypto(SymmetricCrypto crypto, String key, final DataToBinaryTypeEnum keyType, String iv, final DataToBinaryTypeEnum ivType) {
             return new SymmetricCryptoSupport() {
                 @Override
                 public String enc(final String data) {

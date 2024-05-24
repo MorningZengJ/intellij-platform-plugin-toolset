@@ -2,15 +2,18 @@ package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.WithHoverComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
+import com.github.morningzeng.toolset.enums.DataFormatTypeEnum;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.github.morningzeng.toolset.utils.SymmetricCrypto;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTextArea;
@@ -21,6 +24,9 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -105,6 +111,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             .row(5)
             .column(20)
             .focusListener();
+
+    private final ComboBox<DataFormatTypeEnum> contextTypeComboBox = new ComboBox<>(DataFormatTypeEnum.values());
     /**
      * TextArea used for displaying decrypted text.
      * <p>
@@ -183,11 +191,13 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         btnPanel.add(encryptBtn);
         btnPanel.add(decryptBtn);
 
+        final JBLayeredPane layeredPane = new WithHoverComponent(this.decryptArea.scrollPane(), this.contextTypeComboBox, 100, 30);
+
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea.scrollPane())
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(layeredPane)
                 .newRow().weightY(0).add(btnPanel)
                 .newRow().weightY(1).gridWidth(3).add(this.encryptArea.scrollPane());
     }
@@ -222,7 +232,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 final SymmetricCrypto crypto = this.cryptoComboBox.getItem();
                 final SymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();
                 final String dec = crypto.crypto(cryptoProp.getKey(), cryptoProp.keyType(), cryptoProp.getIv(), cryptoProp.ivType()).dec(this.encryptArea.getText());
-                this.decryptArea.setText(dec);
+                final DataFormatTypeEnum item = this.contextTypeComboBox.getItem();
+                this.decryptArea.setText(item.out(dec));
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Decrypt Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -231,6 +242,19 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project);
             dialog.showAndGet();
             this.refresh();
+        });
+        this.decryptArea.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(final FocusEvent e) {
+                final DataFormatTypeEnum item = contextTypeComboBox.getItem();
+                decryptArea.setText(item.out(decryptArea.getText()));
+            }
+        });
+        this.contextTypeComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                final DataFormatTypeEnum item = (DataFormatTypeEnum) e.getItem();
+                this.decryptArea.setText(item.out(this.decryptArea.getText()));
+            }
         });
     }
 

@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
  * @author Morning Zeng
  * @since 2024-05-23
  */
-public enum StringTypeEnum {
+public enum DataToBinaryTypeEnum {
 
     TEXT {
         @Override

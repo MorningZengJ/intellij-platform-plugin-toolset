@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [1.1.2]
+
+### Added
+
+- Add JSON output option in AES plaintext.
+
+### Changed
+
+- Fixed some known bugs.
+- Added some hidden bugs, can you find it.
+
 ## [1.1.1]
 
 ### Changed

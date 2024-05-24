@@ -1,6 +1,6 @@
 package com.github.morningzeng.toolset.config;
 
-import com.github.morningzeng.toolset.enums.StringTypeEnum;
+import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -75,13 +75,13 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @Accessors(chain = true)
     public static class HashCryptoProp {
         private String key;
-        private StringTypeEnum keyType;
+        private DataToBinaryTypeEnum keyType;
         private String title;
         private String desc;
         private int sorted;
 
-        public StringTypeEnum keyType() {
-            return Optional.ofNullable(this.keyType).orElse(StringTypeEnum.TEXT);
+        public DataToBinaryTypeEnum keyType() {
+            return Optional.ofNullable(this.keyType).orElse(DataToBinaryTypeEnum.TEXT);
         }
 
         @Override
@@ -98,10 +98,10 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
     @Accessors(chain = true)
     public static class SymmetricCryptoProp extends HashCryptoProp {
         private String iv;
-        private StringTypeEnum ivType;
+        private DataToBinaryTypeEnum ivType;
 
-        public StringTypeEnum ivType() {
-            return Optional.ofNullable(this.ivType).orElse(StringTypeEnum.TEXT);
+        public DataToBinaryTypeEnum ivType() {
+            return Optional.ofNullable(this.ivType).orElse(DataToBinaryTypeEnum.TEXT);
         }
 
         @Override
