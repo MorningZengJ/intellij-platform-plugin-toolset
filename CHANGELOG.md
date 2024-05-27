@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.1.3]
+
+### Changed
+
+- Fixed some known bugs.
+- Added some hidden bugs, can you find it.
+
 ## [1.1.2]
 
 ### Added

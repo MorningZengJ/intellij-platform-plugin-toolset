@@ -81,17 +81,25 @@ public final class TreeComponent extends SimpleTree {
 
     public DefaultMutableTreeNode createNodeOnSelectNode(final Object o, final boolean allowsChildren) {
         final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
+        final DefaultMutableTreeNode node = new DefaultMutableTreeNode(o, allowsChildren);
+        // If no node is selected, add it to the root node
         if (Objects.isNull(selectedNode)) {
-            final DefaultMutableTreeNode node = new DefaultMutableTreeNode(o, allowsChildren);
             this.root.add(node);
             this.reloadTree();
-            TreeUtil.selectNode(this, node);
-            return node;
         }
-        final DefaultMutableTreeNode node = new DefaultMutableTreeNode(o, allowsChildren);
-        selectedNode.add(node);
-        this.treeModel.reload(selectedNode);
-        this.expandPath(new TreePath(node.getPath()));
+        // If child nodes are allowed, they are added to the selected nodes
+        else if (selectedNode.getAllowsChildren()) {
+            selectedNode.add(node);
+            this.treeModel.reload(selectedNode);
+            this.expandPath(new TreePath(node.getPath()));
+        }
+        // 不允许有子节点，添加到父节点
+        else {
+            final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) selectedNode.getParent();
+            parent.add(node);
+            this.treeModel.reload(parent);
+            this.expandPath(new TreePath(parent.getPath()));
+        }
         TreeUtil.selectNode(this, node);
         return node;
     }
@@ -124,6 +132,14 @@ public final class TreeComponent extends SimpleTree {
                         this.expandPath(treePathEnumeration.nextElement());
                     }
                 });
+    }
+
+    public void lastSelected(final Consumer<DefaultMutableTreeNode> consumer) {
+        final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
+        if (Objects.isNull(selectedNode)) {
+            return;
+        }
+        consumer.accept(selectedNode);
     }
 
     <T> void buildNode(final Function<T, ?>[] functions, final T datum, final Map<Integer, Map<Object, DefaultMutableTreeNode>> deepMap, final int deep, final Object o, final Function<T, ?> parent) {
