@@ -170,8 +170,12 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             if (Objects.isNull(value)) {
                 return new JLabel();
             }
-            final String template = "%s - %s ( %s / %s )";
-            return new JLabel(template.formatted(value.getTitle(), value.getDesc(), StringUtils.maskSensitive(value.getKey()), StringUtils.maskSensitive(value.getIv())));
+            final String template = "%s - %s ( %s [ %s ] / %s [ %s ] )";
+            return new JLabel(template.formatted(
+                    value.getTitle(), value.getDesc(),
+                    StringUtils.maskSensitive(value.getKey()), value.keyType(),
+                    StringUtils.maskSensitive(value.getIv()), value.ivType()
+            ));
         });
 
         this.initLayout();
