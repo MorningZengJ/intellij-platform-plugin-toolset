@@ -11,13 +11,13 @@ import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
@@ -100,7 +100,7 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
                 }
                 this.encryptTextArea.setText(enc);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Encrypt Error", JOptionPane.ERROR_MESSAGE);
+                Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
         this.cryptoComboBox.addItemListener(e -> {

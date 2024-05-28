@@ -8,6 +8,7 @@
 
 ### Changed
 
+- Added a type display to the AES key selection box to make it easier to visualize the key type
 - Fixed some known bugs.
 - Added some hidden bugs, can you find it.
 

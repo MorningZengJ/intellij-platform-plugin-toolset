@@ -3,13 +3,13 @@ package com.github.morningzeng.toolset.ui;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -53,7 +53,7 @@ public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
                 final String enc = URLEncoder.encode(this.decodeArea.getText(), UTF_8);
                 this.encodeArea.setText(enc);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Encoding Error", JOptionPane.ERROR_MESSAGE);
+                Messages.showMessageDialog(this, ex.getMessage(), "Encoding Error", Messages.getErrorIcon());
             }
         });
         this.decodeBtn.addActionListener(e -> {
@@ -61,7 +61,7 @@ public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
                 final String dec = URLDecoder.decode(this.encodeArea.getText(), UTF_8);
                 this.decodeArea.setText(dec);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Decoding Error", JOptionPane.ERROR_MESSAGE);
+                Messages.showMessageDialog(this, ex.getMessage(), "Decoding Error", Messages.getErrorIcon());
             }
         });
     }

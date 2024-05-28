@@ -13,6 +13,7 @@ import com.github.morningzeng.toolset.utils.SymmetricCrypto;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -22,7 +23,6 @@ import com.intellij.util.ui.GridBag;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import java.awt.GridBagLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
@@ -228,7 +228,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 final String enc = crypto.crypto(cryptoProp.getKey(), cryptoProp.getIv()).enc(this.decryptArea.getText());
                 this.encryptArea.setText(enc);
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Encrypt Error", JOptionPane.ERROR_MESSAGE);
+                Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
         this.decryptBtn.addActionListener(e -> {
@@ -239,7 +239,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 final DataFormatTypeEnum item = this.contextTypeComboBox.getItem();
                 this.decryptArea.setText(item.out(dec));
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage(), "Decrypt Error", JOptionPane.ERROR_MESSAGE);
+                Messages.showMessageDialog(this.project, ex.getMessage(), "Decrypt Error", Messages.getErrorIcon());
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
