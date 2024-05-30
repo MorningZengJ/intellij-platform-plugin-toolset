@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
  * @author Morning Zeng
  * @since 2024-05-09
  */
-public sealed interface TabSupport permits CodingEnum, CryptoTabEnum, TabEnum {
+public sealed interface TabSupport permits CodingEnum, CryptoTabEnum, TabEnum, TokenEnum {
 
     String title();
 

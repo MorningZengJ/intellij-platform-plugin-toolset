@@ -20,8 +20,10 @@ public class ToolsetWindow implements ToolWindowFactory {
 //        Arrays.stream(TabEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
         final ContentFactory instance = ContentFactory.getInstance();
         for (final TabEnum tab : TabEnum.values()) {
-            final Content content = instance.createContent(tab.component(project), tab.title(), false);
-            toolWindow.getContentManager().addContent(content);
+            if (tab.load()) {
+                final Content content = instance.createContent(tab.component(project), tab.title(), false);
+                toolWindow.getContentManager().addContent(content);
+            }
         }
     }
 

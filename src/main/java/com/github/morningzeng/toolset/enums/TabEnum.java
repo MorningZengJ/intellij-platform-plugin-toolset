@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.util.PlatformUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -21,7 +22,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum TabEnum implements TabSupport {
-    CRYPTO("Crypto", null, "Encrypt and Decrypt") {
+    CRYPTO("Crypto", null, "Encrypt and Decrypt", true) {
         @Override
         public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
@@ -29,7 +30,7 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    CODING("Encoding & Decoding", null, "Encoding and Decoding") {
+    CODING("Encoding & Decoding", null, "Encoding and Decoding", true) {
         @Override
         public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
@@ -37,10 +38,24 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    TIMESTAMP("Date & Time", IconC.Time, "Date and Time") {
+    @SuppressWarnings("UnstableApiUsage") BEAN("Bean", null, "Bean", PlatformUtils.isIntelliJ()) {
+        @Override
+        public JComponent component(final Project project) {
+            return null;
+        }
+    },
+    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", true) {
         @Override
         public JComponent component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
+        }
+    },
+    TOKEN("Token", null, "Generate and Resolve JWT", true) {
+        @Override
+        public JComponent component(final Project project) {
+            final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
+            Arrays.stream(TokenEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
+            return tabbedPane;
         }
     },
 
@@ -49,5 +64,6 @@ public enum TabEnum implements TabSupport {
     private final String title;
     private final Icon icon;
     private final String tips;
+    private final boolean load;
 
 }
