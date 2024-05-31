@@ -1,7 +1,8 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
-import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
@@ -10,10 +11,8 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -34,15 +33,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public final class SymmetricPropDialog extends AbstractPropDialog {
 
-    private final JBTextField titleTextField = new JBTextField(50);
-    private final JBTextField keyTextField = new JBTextField(25);
+    private final LabelTextField titleTextField = new LabelTextField("Title");
+    private final LabelTextField keyTextField = new LabelTextField("Key");
     private final ComboBox<DataToBinaryTypeEnum> keyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-    private final JBTextField ivTextField = new JBTextField(25);
+    private final LabelTextField ivTextField = new LabelTextField("IV");
     private final ComboBox<DataToBinaryTypeEnum> ivTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-    private final FocusColorTextArea descTextArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(50)
-            .focusListener();
+    private final LabelTextArea descTextArea = new LabelTextArea("Desc");
 
     public SymmetricPropDialog(final Project project) {
         super(project);
@@ -140,16 +136,12 @@ public final class SymmetricPropDialog extends AbstractPropDialog {
         this.descTextArea.setText(cryptoProp.getDesc());
 
         GridLayoutUtils.builder()
-                .container(panel).fill(GridBag.HORIZONTAL).add(new JBLabel("Title"))
-                .newCell().weightX(1).gridWidth(2).add(this.titleTextField)
-                .newRow().add(new JBLabel("Key"))
-                .newCell().weightX(.5).add(this.keyTextField)
+                .container(panel).fill(GridBag.HORIZONTAL).weightX(1).gridWidth(2).add(this.titleTextField)
+                .newRow().weightX(1).add(this.keyTextField)
                 .newCell().weightX(0).add(this.keyTypeCombo)
-                .newRow().weightX(0).add(new JBLabel("IV"))
-                .newCell().weightX(.5).add(this.ivTextField)
+                .newRow().weightX(1).add(this.ivTextField)
                 .newCell().weightX(0).add(this.ivTypeCombo)
-                .newRow().add(new JBLabel("Desc"))
-                .newCell().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.descTextArea.scrollPane());
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.descTextArea);
     }
 
 }
