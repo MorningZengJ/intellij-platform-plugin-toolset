@@ -1,17 +1,16 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
-import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Sets;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
-import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,12 +31,9 @@ import java.util.stream.Collectors;
 @Slf4j
 public final class HashPropDialog extends AbstractPropDialog {
 
-    private final JBTextField titleTextField = new JBTextField(50);
-    private final JBTextField keyTextField = new JBTextField(50);
-    private final FocusColorTextArea descTextArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(50)
-            .focusListener();
+    private final LabelTextField titleTextField = new LabelTextField("Title");
+    private final LabelTextField keyTextField = new LabelTextField("Key");
+    private final LabelTextArea descTextArea = new LabelTextArea("Desc");
 
     public HashPropDialog(final Project project) {
         super(project);
@@ -130,12 +126,9 @@ public final class HashPropDialog extends AbstractPropDialog {
         this.descTextArea.setText(cryptoProp.getDesc());
 
         GridLayoutUtils.builder()
-                .container(panel).fill(GridBag.HORIZONTAL).add(new JBLabel("Title"))
-                .newCell().weightX(1).gridWidth(3).add(this.titleTextField)
-                .newRow().add(new JBLabel("Key"))
-                .newCell().weightX(1).add(this.keyTextField)
-                .newRow().add(new JBLabel("Desc"))
-                .newCell().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.descTextArea.scrollPane());
+                .container(panel).fill(GridBag.HORIZONTAL).weightX(1).add(this.titleTextField)
+                .newRow().weightX(1).add(this.keyTextField)
+                .newRow().fill(GridBag.BOTH).weightY(1).add(this.descTextArea);
     }
 
 }
