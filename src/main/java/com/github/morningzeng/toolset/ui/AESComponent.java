@@ -4,7 +4,7 @@ import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
 import com.github.morningzeng.toolset.component.WithHoverComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
-import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
+import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
 import com.github.morningzeng.toolset.enums.DataFormatTypeEnum;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;

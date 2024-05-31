@@ -2,7 +2,7 @@ package com.github.morningzeng.toolset.dialog;
 
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
-import com.github.morningzeng.toolset.config.LocalConfigFactory.HashCryptoProp;
+import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Sets;
 import com.intellij.openapi.actionSystem.AnAction;

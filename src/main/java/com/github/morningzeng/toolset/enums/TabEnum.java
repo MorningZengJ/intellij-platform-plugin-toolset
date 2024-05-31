@@ -5,7 +5,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
-import com.intellij.util.PlatformUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -36,12 +35,6 @@ public enum TabEnum implements TabSupport {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             Arrays.stream(CodingEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
             return tabbedPane;
-        }
-    },
-    @SuppressWarnings("UnstableApiUsage") BEAN("Bean", null, "Bean", PlatformUtils.isIntelliJ()) {
-        @Override
-        public JComponent component(final Project project) {
-            return null;
         }
     },
     TIMESTAMP("Date & Time", IconC.Time, "Date and Time", true) {

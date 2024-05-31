@@ -26,7 +26,7 @@ import java.util.stream.Stream;
  * @since 2024-05-27
  */
 public abstract sealed class AbstractPropDialog extends DialogWrapper implements DialogSupport
-        permits SymmetricPropDialog, HashPropDialog {
+        permits HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
     final Project project;
     final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();

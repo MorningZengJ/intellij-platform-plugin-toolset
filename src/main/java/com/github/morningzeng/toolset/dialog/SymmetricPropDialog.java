@@ -2,7 +2,7 @@ package com.github.morningzeng.toolset.dialog;
 
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
-import com.github.morningzeng.toolset.config.LocalConfigFactory.SymmetricCryptoProp;
+import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Sets;

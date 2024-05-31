@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /**
  * @author Morning Zeng
@@ -24,7 +25,12 @@ public enum DataToBinaryTypeEnum {
             return Hex.decodeHex(data);
         }
     },
-
+    BASE64 {
+        @Override
+        public byte[] bytes(final String data) {
+            return Base64.getDecoder().decode(data);
+        }
+    },
     ;
 
     public abstract byte[] bytes(final String data);

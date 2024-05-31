@@ -1,6 +1,5 @@
 package com.github.morningzeng.toolset.config;
 
-import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.google.common.collect.Maps;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
@@ -10,16 +9,10 @@ import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
-import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -62,52 +55,20 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
         this.state.hashCryptoPropsMap = hashCryptoPropsMap;
     }
 
+    public Map<String, Set<JWTProp>> jwtPropsMap() {
+        return this.state.jwtPropsMap;
+    }
+
+    public void jwtPropsMap(final Map<String, Set<JWTProp>> jwtPropsMap) {
+        this.state.jwtPropsMap = jwtPropsMap;
+    }
+
     @Data
     public static class State {
         private Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap = Maps.newHashMap();
         private Map<String, Set<HashCryptoProp>> hashCryptoPropsMap = Maps.newHashMap();
+        private Map<String, Set<JWTProp>> jwtPropsMap = Maps.newHashMap();
     }
 
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Accessors(chain = true)
-    public static class HashCryptoProp {
-        private String key;
-        private DataToBinaryTypeEnum keyType;
-        private String title;
-        private String desc;
-        private int sorted;
-
-        public DataToBinaryTypeEnum keyType() {
-            return Optional.ofNullable(this.keyType).orElse(DataToBinaryTypeEnum.TEXT);
-        }
-
-        @Override
-        public String toString() {
-            return this.title;
-        }
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @SuperBuilder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Accessors(chain = true)
-    public static class SymmetricCryptoProp extends HashCryptoProp {
-        private String iv;
-        private DataToBinaryTypeEnum ivType;
-
-        public DataToBinaryTypeEnum ivType() {
-            return Optional.ofNullable(this.ivType).orElse(DataToBinaryTypeEnum.TEXT);
-        }
-
-        @Override
-        public String toString() {
-            return this.getTitle();
-        }
-    }
 
 }

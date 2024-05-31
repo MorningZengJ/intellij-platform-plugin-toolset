@@ -2,8 +2,8 @@ package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
-import com.github.morningzeng.toolset.config.LocalConfigFactory.HashCryptoProp;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.HashCrypto;
