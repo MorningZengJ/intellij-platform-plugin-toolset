@@ -21,7 +21,7 @@ public enum AlgorithmEnum {
      * is used only when creating unsecured (not integrity protected) JWSs and is not usable in any other scenario.
      * Any attempt to call its methods will result in an exception being thrown.
      */
-    NONE("The \"none\" signature algorithm as defined by RFC 7518, Section 3.6.  This algorithm is used only when creating unsecured (not integrity protected) JWSs and is not usable in any other scenario. Any attempt to call its methods will result in an exception being thrown.") {
+    NONE("", "The \"none\" signature algorithm as defined by RFC 7518, Section 3.6.  This algorithm is used only when creating unsecured (not integrity protected) JWSs and is not usable in any other scenario. Any attempt to call its methods will result in an exception being thrown.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.NONE;
@@ -33,7 +33,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 256-bit (32 byte) key.
      */
-    HS256("HMAC using SHA-256 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 256-bit (32 byte) key.") {
+    HS256("HmacSHA256", "HMAC using SHA-256 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 256-bit (32 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS256;
@@ -45,7 +45,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 384-bit (48 byte) key.
      */
-    HS384("HMAC using SHA-384 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 384-bit (48 byte) key.") {
+    HS384("HmacSHA384", "HMAC using SHA-384 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 384-bit (48 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS384;
@@ -57,7 +57,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 512-bit (64 byte) key.
      */
-    HS512("HMAC using SHA-512 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 512-bit (64 byte) key.") {
+    HS512("HmacSHA512", "HMAC using SHA-512 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 512-bit (64 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS512;
@@ -69,7 +69,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key.
      */
-    RS256("RSASSA-PKCS1-v1_5 using SHA-256 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key.") {
+    RS256("SHA256withRSA", "RSASSA-PKCS1-v1_5 using SHA-256 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS256;
@@ -81,7 +81,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.
      */
-    RS384("RSASSA-PKCS1-v1_5 using SHA-384 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.") {
+    RS384("SHA384withRSA", "RSASSA-PKCS1-v1_5 using SHA-384 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS384;
@@ -93,7 +93,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.
      */
-    RS512("RSASSA-PKCS1-v1_5 using SHA-512 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.") {
+    RS512("SHA512withRSA", "RSASSA-PKCS1-v1_5 using SHA-512 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS512;
@@ -109,7 +109,7 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS256("RSASSA-PSS using SHA-256 and MGF1 with SHA-256 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key. ") {
+    PS256("SHA256withRSAandMGF1", "RSASSA-PSS using SHA-256 and MGF1 with SHA-256 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key. ") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS256;
@@ -125,7 +125,7 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS384("RSASSA-PSS using SHA-384 and MGF1 with SHA-384 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key. ") {
+    PS384("SHA384withRSAandMGF1", "RSASSA-PSS using SHA-384 and MGF1 with SHA-384 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key. ") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS384;
@@ -141,7 +141,7 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS512("RSASSA-PSS using SHA-512 and MGF1 with SHA-512 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key. ") {
+    PS512("SHA512withRSAandMGF1", "RSASSA-PSS using SHA-512 and MGF1 with SHA-512 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key. ") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS512;
@@ -153,7 +153,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 256-bit key.
      */
-    ES256("ECDSA using P-256 and SHA-256 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 256-bit key.") {
+    ES256("SHA256withECDSA", "ECDSA using P-256 and SHA-256 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 256-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES256;
@@ -165,7 +165,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 384-bit key.
      */
-    ES384("ECDSA using P-384 and SHA-384 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 384-bit key.") {
+    ES384("SHA384withECDSA", "ECDSA using P-384 and SHA-384 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 384-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES384;
@@ -177,7 +177,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 521-bit key.
      */
-    ES512("ECDSA using P-521 and SHA-512 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 521-bit key.") {
+    ES512("SHA512withECDSA", "ECDSA using P-521 and SHA-512 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 521-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES512;
@@ -203,7 +203,7 @@ public enum AlgorithmEnum {
      * <p><b><sup>1</sup>This algorithm requires at least JDK 15 or a compatible JCA Provider (like BouncyCastle) in the runtime
      * classpath.</b></p>
      */
-    EdDSA("EdDSA signature algorithm defined by RFC 8037, Section 3.1 that requires either Ed25519 or Ed448 Edwards Elliptic Curve keys") {
+    EdDSA("Ed448", "EdDSA signature algorithm defined by RFC 8037, Section 3.1 that requires either Ed25519 or Ed448 Edwards Elliptic Curve keys") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.EdDSA;
@@ -212,7 +212,7 @@ public enum AlgorithmEnum {
 
     ;
 
-
+    private final String jcaName;
     private final String desc;
 
     public abstract SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm();
