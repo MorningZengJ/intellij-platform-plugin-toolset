@@ -6,11 +6,19 @@
 
 ## [1.1.3]
 
+### Planned
+
+- Added JWT generation and parsing
+
 ### Changed
 
+- Adjust the UI layout of the parameter configuration pop-up window
 - Added a type display to the AES key selection box to make it easier to visualize the key type
-- Fixed some known bugs.
 - Added some hidden bugs, can you find it.
+
+### Fixed
+
+- Fixed some known bugs.
 
 ## [1.1.2]
 
