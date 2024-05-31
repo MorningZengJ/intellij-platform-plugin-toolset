@@ -17,8 +17,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 
@@ -27,6 +26,8 @@ import java.awt.GridBagLayout;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
+
+import static com.github.morningzeng.toolset.utils.JacksonUtils.IGNORE_TRANSIENT_AND_NULL;
 
 /**
  * @author Morning Zeng
@@ -85,11 +86,11 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
             // resolve
             final JWTProp item = this.signKeyComboBox.getItem();
             final JwtParser build = Jwts.parser()
-                    .decryptWith(item.secretKeySpec())
+                    .verifyWith(item.secretKeySpec())
                     .build();
-            final Jwt<Header, Claims> headerClaims = build.parseUnsecuredClaims(this.jwtTextArea.getText());
-            this.headerTextArea.setText(headerClaims.getHeader().toString());
-            this.payloadTextArea.setText(headerClaims.getPayload().toString());
+            final Jws<Claims> claimsJws = build.parseSignedClaims(this.jwtTextArea.getText());
+            this.headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getHeader()));
+            this.payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getPayload()));
         });
         this.btnBar.second().addActionListener(e -> {
             // generate
