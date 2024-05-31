@@ -35,6 +35,9 @@ dependencies {
     compileOnly("org.projectlombok:lombok:1.18.32")
 
     annotationProcessor("org.projectlombok:lombok:1.18.32")
+
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
 }
 
 // Set the JVM language level used to build the project.

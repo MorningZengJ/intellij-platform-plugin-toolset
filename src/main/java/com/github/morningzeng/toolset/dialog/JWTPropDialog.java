@@ -1,9 +1,9 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
-import com.github.morningzeng.toolset.component.AbstractLabelComponent.LabelComboBox;
-import com.github.morningzeng.toolset.component.AbstractLabelComponent.LabelTextArea;
-import com.github.morningzeng.toolset.component.AbstractLabelComponent.LabelTextField;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelComboBox;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.config.JWTProp;
 import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
@@ -149,6 +149,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
                 .container(panel).fill(GridBag.HORIZONTAL).weightX(1).add(this.titleTextField)
                 .newRow().weightX(1).add(this.signAlgorithmCombo)
                 .newRow().weightX(1).add(this.symmetricKeyTextField)
+                .newRow().weightX(1).add(this.symmetricKeyTypeCombo)
                 .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.privateKeyTextArea)
                 .newRow().gridWidth(3).add(this.publicKeyTextArea)
                 .newRow().gridWidth(3).add(this.descTextArea);

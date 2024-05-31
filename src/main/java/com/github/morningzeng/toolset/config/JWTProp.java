@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Optional;
 
 /**
@@ -38,4 +39,12 @@ public class JWTProp {
         return Optional.ofNullable(this.symmetricKeyType).orElse(DataToBinaryTypeEnum.TEXT);
     }
 
+    public SecretKeySpec secretKeySpec() {
+        return new SecretKeySpec(this.symmetricKeyType().bytes(this.getSymmetricKey()), this.signAlgorithm().getJcaName());
+    }
+
+    @Override
+    public String toString() {
+        return this.title;
+    }
 }
