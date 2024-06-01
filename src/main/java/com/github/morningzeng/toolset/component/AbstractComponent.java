@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.component;
 
+import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
 import com.github.morningzeng.toolset.support.ScrollSupport;
@@ -19,33 +20,50 @@ import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
  * @since 2024-05-30
  */
 public sealed abstract class AbstractComponent<F extends JComponent, S extends JComponent> extends JBPanel<JBPanelWithEmptyText>
-        permits LabelComponent, HorizontalDoubleButton {
+        permits ComboBoxButton, HorizontalDoubleButton, LabelComponent {
     protected final static int GAP = 5;
     protected final F f;
     protected final S s;
 
     public AbstractComponent(final F f, final S s) {
+        this(f, s, GAP);
+    }
+
+    public AbstractComponent(final F f, final S s, final int gap) {
         super(new GridBagLayout());
-        this.setBorder(Borders.empty(GAP));
+        this.setBorder(Borders.empty(gap));
 
         this.f = f;
         this.s = s;
     }
 
+    public F first() {
+        return this.f;
+    }
+
+    public S second() {
+        return this.s;
+    }
+
     public non-sealed static class LabelComponent<T extends JComponent> extends AbstractComponent<JBLabel, T> {
 
-        private final static int GAP = 5;
-
         public LabelComponent(final String label, final T t) {
+            this(label, t, GAP);
+        }
+
+        public LabelComponent(final String label, final T t, final int gap) {
             super(new JBLabel(label), t);
             this.setBorder(Borders.empty(1, GAP));
 
@@ -83,23 +101,45 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
         public <R> R tFunction(final Function<T, R> function) {
             return function.apply(this.s);
         }
+
+    }
+
+    public final static class ComboBoxButton<T> extends AbstractComponent<ComboBox<T>, JButton> {
+
+        @SafeVarargs
+        public ComboBoxButton(final JButton button, final T... ts) {
+            this(button, GAP, ts);
+        }
+
+        @SafeVarargs
+        public ComboBoxButton(final JButton button, final int gap, final T... ts) {
+            super(new ComboBox<>(ts), button, gap);
+            GridLayoutUtils.builder()
+                    .container(this).fill(GridBag.BOTH).weightX(1).weightY(1).add(super.f)
+                    .newCell().weightX(0).weightY(1).add(super.s);
+        }
+
+        public ComboBoxButton(final JButton button, final Stream<T> stream, final IntFunction<T[]> generator) {
+            this(button, stream.toArray(generator));
+        }
+
+        public ComboBoxButton(final JButton button, final Collection<T> ts, final IntFunction<T[]> generator) {
+            this(button, ts.toArray(generator));
+        }
+
     }
 
     public final static class HorizontalDoubleButton extends AbstractComponent<JButton, JButton> {
 
         public HorizontalDoubleButton(final JButton f, final JButton s) {
-            super(f, s);
+            this(f, s, GAP);
+        }
+
+        public HorizontalDoubleButton(final JButton f, final JButton s, final int gap) {
+            super(f, s, gap);
             this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
             this.add(f);
             this.add(s);
-        }
-
-        public JButton first() {
-            return super.f;
-        }
-
-        public JButton second() {
-            return super.s;
         }
     }
 

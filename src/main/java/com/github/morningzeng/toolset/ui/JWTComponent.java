@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
@@ -11,13 +12,13 @@ import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwe;
+import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 
@@ -38,11 +39,13 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
     final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();
     private final Project project;
 
-    private final ComboBox<JWTProp> signKeyComboBox = new ComboBox<>(STATE_FACTORY.jwtPropsMap().values().stream()
+    private final LabelComponent<ComboBoxButton<JWTProp>> comboBoxButton = new LabelComponent<>(
+            "Choose key", new ComboBoxButton<>(
+            new JButton(General.Ellipsis), 0, STATE_FACTORY.jwtPropsMap().values().stream()
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(JWTProp::getSorted))
-            .toArray(JWTProp[]::new));
-    private final JButton jwtPropManageBtn = new JButton(General.Ellipsis);
+            .toArray(JWTProp[]::new)
+    ));
     private final LabelTextArea jwtTextArea = new LabelTextArea("JWT");
     private final HorizontalDoubleButton btnBar = new HorizontalDoubleButton(new JButton("Resolve", IconC.DOUBLE_ARROW_DOWN), new JButton("Generate", IconC.DOUBLE_ARROW_UP));
     private final LabelTextArea headerTextArea = new LabelTextArea("Header");
@@ -50,7 +53,7 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
 
     public JWTComponent(final Project project) {
         this.project = project;
-        this.signKeyComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+        this.comboBoxButton.second().first().setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             if (Objects.isNull(value)) {
                 return new JBLabel();
             }
@@ -67,8 +70,7 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
 
         this.setLayout(new GridBagLayout());
         GridLayoutUtils.builder()
-                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.signKeyComboBox)
-                .newCell().weightX(0).add(this.jwtPropManageBtn)
+                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.comboBoxButton)
                 .newRow().fill(GridBag.BOTH).weightX(1).weightY(1).add(this.jwtTextArea)
                 .newRow().weightY(0).add(new LabelComponent<>("", this.btnBar))
                 .newRow().weightY(1).add(this.headerTextArea)
@@ -77,18 +79,23 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
     }
 
     void initEvent() {
-        this.jwtPropManageBtn.addActionListener(e -> {
+        this.comboBoxButton.second().second().addActionListener(e -> {
             final JWTPropDialog dialog = new JWTPropDialog(this.project);
             dialog.showAndGet();
             this.refresh();
         });
         this.btnBar.first().addActionListener(e -> {
             // resolve
-            final JWTProp item = this.signKeyComboBox.getItem();
+            final JWTProp item = this.comboBoxButton.second().first().getItem();
+            if (Objects.isNull(item)) {
+                return;
+            }
             final JwtParser build = Jwts.parser()
                     .verifyWith(item.secretKeySpec())
                     .build();
-            final Jws<Claims> claimsJws = build.parseSignedClaims(this.jwtTextArea.getText());
+            final Jwt<?, ?> parse = build.parse(this.jwtTextArea.getText());
+            final Jwe<Claims> claimsJws = parse.accept(Jwe.CLAIMS);
+//            final Jws<Claims> claimsJws = build.parseSignedClaims(this.jwtTextArea.getText());
             this.headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getHeader()));
             this.payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getPayload()));
         });
@@ -98,10 +105,10 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
     }
 
     void refresh() {
-        this.signKeyComboBox.removeAllItems();
+        this.comboBoxButton.second().first().removeAllItems();
         STATE_FACTORY.jwtPropsMap().values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(JWTProp::getSorted))
-                .forEach(this.signKeyComboBox::addItem);
+                .forEach(this.comboBoxButton.second().first()::addItem);
     }
 }
