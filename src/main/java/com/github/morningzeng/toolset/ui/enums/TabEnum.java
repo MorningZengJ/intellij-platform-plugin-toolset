@@ -37,13 +37,19 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", true) {
+    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", false) {
         @Override
         public JComponent component(final Project project) {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },
-    TOKEN("Token", null, "Generate and Resolve JWT", true) {
+    HTTP("HTTP", null, "HTTP Client", false) {
+        @Override
+        public JComponent component(final Project project) {
+            return null;
+        }
+    },
+    TOKEN("Token", null, "Generate and Resolve JWT", false) {
         @Override
         public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
