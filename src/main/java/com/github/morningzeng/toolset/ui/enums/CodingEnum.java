@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.enums;
+package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.ui.Base64Component;
 import com.github.morningzeng.toolset.ui.URLComponent;

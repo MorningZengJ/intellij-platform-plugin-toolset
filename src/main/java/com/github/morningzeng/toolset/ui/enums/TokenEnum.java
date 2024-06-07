@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.enums;
+package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.ui.JWTComponent;
 import com.intellij.openapi.project.Project;

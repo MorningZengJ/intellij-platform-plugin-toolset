@@ -1,6 +1,6 @@
 package com.github.morningzeng.toolset;
 
-import com.github.morningzeng.toolset.enums.TabEnum;
+import com.github.morningzeng.toolset.ui.enums.TabEnum;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
