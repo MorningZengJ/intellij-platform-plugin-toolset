@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.ui.HttpComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -46,7 +47,7 @@ public enum TabEnum implements TabSupport {
     HTTP("HTTP", null, "HTTP Client", false) {
         @Override
         public JComponent component(final Project project) {
-            return null;
+            return new HttpComponent(project);
         }
     },
     TOKEN("Token", null, "Generate and Resolve JWT", false) {
