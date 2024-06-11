@@ -249,8 +249,14 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         });
         this.decryptArea.addFocusListener(new FocusAdapter() {
             @Override
+            public void focusGained(final FocusEvent e) {
+                contextTypeComboBox.setVisible(false);
+            }
+
+            @Override
             public void focusLost(final FocusEvent e) {
                 final DataFormatTypeEnum item = contextTypeComboBox.getItem();
+                contextTypeComboBox.setVisible(true);
                 decryptArea.setText(item.out(decryptArea.getText()));
             }
         });
