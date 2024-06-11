@@ -6,6 +6,15 @@
 
 ## [1.1.5]
 
+### Changed
+
+- Replace the plug-in icon
+- Added some hidden bugs, can you find it.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.1.3]
 
 ### Planned
