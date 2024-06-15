@@ -1,8 +1,10 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.intellij.openapi.fileTypes.PlainTextLanguage;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -22,18 +24,18 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
 
-    private final FocusColorTextArea encodeArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
-    private final FocusColorTextArea decodeArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
+    private final LanguageTextArea encodeArea;
+    private final LanguageTextArea decodeArea;
+
     private final JButton encodeBtn = new JButton("Encode", IconC.DOUBLE_ARROW_DOWN);
     private final JButton decodeBtn = new JButton("Decode", IconC.DOUBLE_ARROW_UP);
 
-    {
+    public URLComponent(final Project project) {
+        this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.decodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.encodeArea.setPlaceholder("URL encoded text");
+        this.decodeArea.setPlaceholder("URL decoded text");
+
         this.setLayout(new GridBagLayout());
         final JBPanel<JBPanelWithEmptyText> btnPanel = new JBPanel<>();
         btnPanel.setLayout(new BoxLayout(btnPanel, BoxLayout.LINE_AXIS));
@@ -41,9 +43,9 @@ public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
         btnPanel.add(decodeBtn);
 
         GridLayoutUtils.builder()
-                .container(this).fill(GridBag.BOTH).weightX(1).weightY(1).add(this.decodeArea.scrollPane())
+                .container(this).fill(GridBag.BOTH).weightX(1).weightY(1).add(this.decodeArea)
                 .newRow().weightY(0).add(btnPanel)
-                .newRow().weightY(1).add(this.encodeArea.scrollPane());
+                .newRow().weightY(1).add(this.encodeArea);
         this.initEvent();
     }
 

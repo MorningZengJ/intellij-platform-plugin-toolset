@@ -22,13 +22,13 @@ public enum CodingEnum implements TabSupport {
     BASE64("Base64", null, "Base64 Encode and Decode") {
         @Override
         public JComponent component(final Project project) {
-            return new Base64Component();
+            return new Base64Component(project);
         }
     },
     URL("URL", null, "URL Encode and Decode") {
         @Override
         public JComponent component(final Project project) {
-            return new URLComponent();
+            return new URLComponent(project);
         }
     },
     ;

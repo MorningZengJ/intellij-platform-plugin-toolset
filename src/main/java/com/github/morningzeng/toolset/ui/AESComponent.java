@@ -155,7 +155,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         this.project = project;
         this.encryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.decryptArea = new LanguageTextArea(this.contextTypeComboBox.getItem().getLanguage(), project, "");
-
+        this.encryptArea.setPlaceholder("Encrypted text content");
+        this.decryptArea.setPlaceholder("Decrypted text content");
 
         this.localConfigFactory = LocalConfigFactory.getInstance();
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
