@@ -1,7 +1,7 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.component.WithHoverComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
@@ -11,6 +11,7 @@ import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.github.morningzeng.toolset.utils.SymmetricCrypto;
 import com.intellij.icons.AllIcons.General;
+import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
@@ -39,7 +40,6 @@ import java.util.Objects;
 public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
 
     private final static String TYPE = "AES";
-
     final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
             .filter(crypto -> TYPE.equals(crypto.getType()))
             .toArray(SymmetricCrypto[]::new);
@@ -107,28 +107,9 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * @see AESComponent
      * @see JBTextArea
      */
-    private final FocusColorTextArea encryptArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
+    private final LanguageTextArea encryptArea;
 
     private final ComboBox<DataFormatTypeEnum> contextTypeComboBox = new ComboBox<>(DataFormatTypeEnum.values());
-    /**
-     * TextArea used for displaying decrypted text.
-     * <p>
-     * This variable is declared as private and final,
-     * meaning it cannot be accessed or modified outside the class where it is defined,
-     * and its value cannot be changed once set
-     * .
-     * <p>
-     * The textarea has an initial size of 5 rows and 20 columns.
-     * <p>
-     * Note: This variable is a field of the AESComponent class, and can be accessed within this class only.
-     */
-    private final FocusColorTextArea decryptArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
     /**
      * Button used to initiate the encryption process.
      */
@@ -150,6 +131,19 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      * });
      */
     private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ARROW_UP);
+    /**
+     * TextArea used for displaying decrypted text.
+     * <p>
+     * This variable is declared as private and final,
+     * meaning it cannot be accessed or modified outside the class where it is defined,
+     * and its value cannot be changed once set
+     * .
+     * <p>
+     * The textarea has an initial size of 5 rows and 20 columns.
+     * <p>
+     * Note: This variable is a field of the AESComponent class, and can be accessed within this class only.
+     */
+    private final LanguageTextArea decryptArea;
 
     /**
      * Initializes a new instance of the AESComponent class.
@@ -159,6 +153,10 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      */
     public AESComponent(final Project project) {
         this.project = project;
+        this.encryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.decryptArea = new LanguageTextArea(this.contextTypeComboBox.getItem().getLanguage(), project, "");
+
+
         this.localConfigFactory = LocalConfigFactory.getInstance();
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
 
@@ -195,7 +193,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         btnPanel.add(encryptBtn);
         btnPanel.add(decryptBtn);
 
-        final JBLayeredPane layeredPane = new WithHoverComponent(this.decryptArea.scrollPane(), this.contextTypeComboBox, 100, 30);
+        final JBLayeredPane layeredPane = new WithHoverComponent(this.decryptArea, this.contextTypeComboBox, 100, 30);
 
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
@@ -203,7 +201,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
                 .newCell().add(this.cryptoComboBox)
                 .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(layeredPane)
                 .newRow().weightY(0).add(btnPanel)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptArea.scrollPane());
+                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
     }
 
     /**
@@ -263,7 +261,8 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         this.contextTypeComboBox.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 final DataFormatTypeEnum item = (DataFormatTypeEnum) e.getItem();
-                this.decryptArea.setText(item.out(this.decryptArea.getText()));
+                this.decryptArea.setLanguage(item.getLanguage());
+                this.decryptArea.reformatCode();
             }
         });
     }
