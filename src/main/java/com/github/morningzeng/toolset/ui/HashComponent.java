@@ -1,7 +1,7 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.FocusColorTextArea;
+import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
@@ -9,6 +9,7 @@ import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.HashCrypto;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.icons.AllIcons.General;
+import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
@@ -45,15 +46,9 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
     );
     private final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     private final ComboBox<HashCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
-    private final FocusColorTextArea textArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
+    private final LanguageTextArea textArea;
     private final JButton calculation = new JButton("Calculation", IconC.DOUBLE_ARROW_DOWN);
-    private final FocusColorTextArea encryptTextArea = FocusColorTextArea.builder()
-            .row(5)
-            .column(20)
-            .focusListener();
+    private final LanguageTextArea encryptTextArea;
 
     {
         this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
@@ -67,15 +62,17 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
 
     public HashComponent(final Project project) {
         this.project = project;
+        this.textArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.encryptTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
 
         this.setLayout(new GridBagLayout());
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.textArea.scrollPane())
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.textArea)
                 .newRow().weightY(0).add(this.calculation)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptTextArea.scrollPane());
+                .newRow().weightY(1).gridWidth(3).add(this.encryptTextArea);
 
         this.cryptoManageBtn.setEnabled(false);
         this.cryptoPropComboBox.setEnabled(false);
