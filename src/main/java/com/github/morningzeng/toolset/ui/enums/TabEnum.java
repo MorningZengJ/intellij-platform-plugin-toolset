@@ -44,7 +44,7 @@ public enum TabEnum implements TabSupport {
             return new JBPanel<JBPanelWithEmptyText>();
         }
     },
-    HTTP("HTTP", null, "HTTP Client", true) {
+    HTTP("HTTP", null, "HTTP Client", false) {
         @Override
         public JComponent component(final Project project) {
             return new HttpComponent(project);

@@ -1,12 +1,14 @@
 package com.github.morningzeng.toolset.component;
 
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxButton;
+import com.github.morningzeng.toolset.component.AbstractComponent.EditorTextFieldButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ComboBoxWithWidePopup;
+import com.intellij.ui.EditorTextField;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -32,7 +34,7 @@ import java.util.stream.Stream;
  * @since 2024-05-30
  */
 public sealed abstract class AbstractComponent<F extends JComponent, S extends JComponent> extends JBPanel<JBPanelWithEmptyText>
-        permits ComboBoxButton, HorizontalDoubleButton, LabelComponent {
+        permits ComboBoxButton, EditorTextFieldButton, HorizontalDoubleButton, LabelComponent {
     protected final static int GAP = 5;
     protected final F f;
     protected final S s;
@@ -201,6 +203,25 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
         public void setSelectedItem(final T t) {
             super.tConsumer(comboBox -> comboBox.setSelectedItem(t));
         }
+    }
+
+    public final static class EditorTextFieldButton extends AbstractComponent<EditorTextField, JButton> {
+
+        public EditorTextFieldButton(final String placeholder, final JButton b) {
+            super(textField(placeholder), b);
+        }
+
+        public EditorTextFieldButton(final String placeholder, final JButton b, final int gap) {
+            super(textField(placeholder), b, gap);
+        }
+
+        static EditorTextField textField(String placeholder) {
+            final EditorTextField textField = new EditorTextField();
+            textField.setPlaceholder(placeholder);
+            return textField;
+        }
+
+
     }
 
 }

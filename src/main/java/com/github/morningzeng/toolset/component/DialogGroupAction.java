@@ -42,7 +42,7 @@ public final class DialogGroupAction extends JBPanel<JBPanelWithEmptyText> {
         final AnAction popupAction = new AnAction("Add Item", "New create crypto prop item", General.Add) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                // 这里是弹出菜单的操作
+                // Here is the operation of the pop-up menu
                 ActionPopupMenu popupMenu = ActionManager.getInstance().createActionPopupMenu("toolbar", actionGroup);
                 popupMenu.getComponent().show(e.getInputEvent().getComponent(),
                         e.getInputEvent().getComponent().getWidth() / 2,

@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [1.1.6]
+
+### Changed
+
+- Replaced the original text area UI.
+- Added some hidden bugs, can you find it.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.1.5]
 
 ### Changed

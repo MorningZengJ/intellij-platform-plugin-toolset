@@ -1,17 +1,20 @@
 package com.github.morningzeng.toolset.ui;
 
-import com.github.morningzeng.toolset.component.LanguageTextArea;
-import com.github.morningzeng.toolset.enums.DataFormatTypeEnum;
+import com.github.morningzeng.toolset.component.AbstractComponent.EditorTextFieldButton;
+import com.github.morningzeng.toolset.component.ActionBar;
+import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
-import com.intellij.openapi.editor.Editor;
+import com.intellij.icons.AllIcons.Actions;
+import com.intellij.icons.AllIcons.ToolbarDecorator;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.JButton;
 import java.awt.GridBagLayout;
-import java.util.Optional;
 
 /**
  * @author Morning Zeng
@@ -20,18 +23,19 @@ import java.util.Optional;
 @Slf4j
 public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
+    private final Project project;
+
+    private final AnAction importAction = ActionUtils.drawerActions("Import", "Import HTTP Request", ToolbarDecorator.Import);
+    private final ActionBar actionBar = new ActionBar(this.importAction);
+    private final EditorTextFieldButton urlBar = new EditorTextFieldButton("", new JButton("execute", Actions.Execute));
+
     public HttpComponent(final Project project) {
-        final String json = "{\"a\":123}";
-        final DataFormatTypeEnum dataFormatType = DataFormatTypeEnum.fileType(json);
-        final LanguageTextArea textField = new LanguageTextArea(dataFormatType.getLanguage(), project, json);
+        this.project = project;
 
-        Optional.ofNullable(textField.getEditor(true))
-                .map(Editor::getSettings)
-                .ifPresent(editorSettings -> editorSettings.setLineNumbersShown(true));
-
-        setLayout(new GridBagLayout());
+        this.setLayout(new GridBagLayout());
         GridLayoutUtils.builder()
-                .container(this).fill(GridBag.BOTH).weightX(1).weightY(1).add(textField);
+                .container(this).fill(GridBag.BOTH).weightX(1).weightY(0).add(this.actionBar)
+                .newRow().weightX(1).add(this.urlBar);
     }
 
 }
