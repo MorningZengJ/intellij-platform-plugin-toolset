@@ -64,6 +64,16 @@ public class GridLayoutUtils {
             return this;
         }
 
+        public GridLayoutUtilsBuilder gridX(final int gridXStep) {
+            this.gridX += gridXStep;
+            return this;
+        }
+
+        public GridLayoutUtilsBuilder gridY(final int gridYStep) {
+            this.gridY += gridYStep;
+            return this;
+        }
+
         public GridLayoutUtilsBuilder gridWidth(final int gridWidth) {
             this.gridWidth = gridWidth;
             return this;

@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.component;
 
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxButton;
+import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
 import com.github.morningzeng.toolset.component.AbstractComponent.EditorTextFieldButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
@@ -34,7 +35,7 @@ import java.util.stream.Stream;
  * @since 2024-05-30
  */
 public sealed abstract class AbstractComponent<F extends JComponent, S extends JComponent> extends JBPanel<JBPanelWithEmptyText>
-        permits ComboBoxButton, EditorTextFieldButton, HorizontalDoubleButton, LabelComponent {
+        permits ComboBoxButton, ComboBoxEditorTextField, EditorTextFieldButton, HorizontalDoubleButton, LabelComponent {
     protected final static int GAP = 5;
     protected final F f;
     protected final S s;
@@ -67,7 +68,7 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
 
         public LabelComponent(final String label, final T t, final int gap) {
             super(new JBLabel(label), t);
-            this.setBorder(Borders.empty(1, GAP));
+            this.setBorder(Borders.empty(1, gap));
 
             final Dimension labelDimension = new Dimension(125, this.f.getHeight());
             this.f.setPreferredSize(labelDimension);
@@ -78,7 +79,7 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
                             Optional.of(this.s)
                                     .filter(ScrollSupport.class::isInstance)
                                     .map(ScrollSupport.class::cast)
-                                    .<JComponent>map(ScrollSupport::scrollPane)
+                                    .<JComponent>map(ScrollSupport::verticalAsNeededScrollPane)
                                     .orElse(this.s)
                     );
         }
@@ -129,6 +130,45 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
             this(button, ts.toArray(generator));
         }
 
+    }
+
+    public final static class ComboBoxEditorTextField<T> extends AbstractComponent<ComboBox<T>, EditorTextField> {
+
+        @SafeVarargs
+        public ComboBoxEditorTextField(final String placeholder, final JButton button, final T... ts) {
+            this(placeholder, button, GAP, ts);
+        }
+
+        @SafeVarargs
+        public ComboBoxEditorTextField(final String placeholder, final JButton button, final int gap, final T... ts) {
+            super(new ComboBox<>(ts), textField(placeholder), gap);
+            GridLayoutUtils.builder()
+                    .container(this).fill(GridBag.HORIZONTAL).add(super.f)
+                    .newCell().weightX(1).add(super.s)
+                    .newCell().weightX(0).add(button);
+        }
+
+        private static EditorTextField textField(String placeholder) {
+            final EditorTextField textField = new EditorTextField();
+            textField.setPlaceholder(placeholder);
+            return textField;
+        }
+
+        public String getText() {
+            return this.s.getText();
+        }
+
+        public void setText(final String text) {
+            this.s.setText(text);
+        }
+
+        public T getItem() {
+            return this.f.getItem();
+        }
+
+        public void setItem(final T t) {
+            this.f.setItem(t);
+        }
     }
 
     public final static class HorizontalDoubleButton extends AbstractComponent<JButton, JButton> {
@@ -208,14 +248,17 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
     public final static class EditorTextFieldButton extends AbstractComponent<EditorTextField, JButton> {
 
         public EditorTextFieldButton(final String placeholder, final JButton b) {
-            super(textField(placeholder), b);
+            this(placeholder, b, GAP);
         }
 
         public EditorTextFieldButton(final String placeholder, final JButton b, final int gap) {
             super(textField(placeholder), b, gap);
+            this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+            this.add(f);
+            this.add(s);
         }
 
-        static EditorTextField textField(String placeholder) {
+        private static EditorTextField textField(String placeholder) {
             final EditorTextField textField = new EditorTextField();
             textField.setPlaceholder(placeholder);
             return textField;

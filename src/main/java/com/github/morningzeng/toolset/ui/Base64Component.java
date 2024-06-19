@@ -28,7 +28,7 @@ public final class Base64Component extends JBPanel<JBPanelWithEmptyText> {
     private final JButton decodeBtn = new JButton("Decode", IconC.DOUBLE_ARROW_UP);
 
     public Base64Component(final Project project) {
-        this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "", true);
         this.decodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.encodeArea.setPlaceholder("Base64 encoded text");
         this.decodeArea.setPlaceholder("Base64 decoded text");

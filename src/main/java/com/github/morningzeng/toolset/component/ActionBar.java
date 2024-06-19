@@ -11,6 +11,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.JBUI.Borders;
 
+import javax.swing.BoxLayout;
 import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 
@@ -27,8 +28,9 @@ public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
     }
 
     public ActionBar(final boolean horizontal, final AnAction... actions) {
-        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
         this.setBorder(Borders.customLineBottom(JBColor.GRAY));
+        this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         this.actions = actions;
         ApplicationManager.getApplication().invokeAndWait(() -> {

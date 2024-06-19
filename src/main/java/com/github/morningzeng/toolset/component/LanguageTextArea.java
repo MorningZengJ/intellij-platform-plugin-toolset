@@ -31,10 +31,18 @@ import java.util.Optional;
 public final class LanguageTextArea extends LanguageTextField {
 
     private final Project project;
-
+    private boolean readOnly;
+    private boolean showNumber = true;
+    private EditorEx editor;
 
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value) {
+        this(language, project, value, false);
+    }
+
+    public LanguageTextArea(final Language language, final Project project, @NotNull final String value, final boolean readOnly) {
         super(language, project, value);
+        this.readOnly = readOnly;
+
         this.project = project;
         this.setOneLineMode(false);
         this.reformatCode();
@@ -44,12 +52,13 @@ public final class LanguageTextArea extends LanguageTextField {
 
     @Override
     protected @NotNull EditorEx createEditor() {
-        final EditorEx editor = super.createEditor();
-        editor.setVerticalScrollbarVisible(true);
-        editor.setHorizontalScrollbarVisible(true);
+        this.editor = super.createEditor();
+        this.editor.setVerticalScrollbarVisible(true);
+        this.editor.setHorizontalScrollbarVisible(true);
+        this.editor.setViewer(this.readOnly);
 
-        final EditorSettings settings = editor.getSettings();
-        settings.setLineNumbersShown(true);
+        final EditorSettings settings = this.editor.getSettings();
+        settings.setLineNumbersShown(this.showNumber);
         settings.setAutoCodeFoldingEnabled(true);
         settings.setFoldingOutlineShown(true);
         settings.setAllowSingleLogicalLineFolding(true);
@@ -82,6 +91,19 @@ public final class LanguageTextArea extends LanguageTextField {
                     });
                 })
         );
+    }
+
+    public void setReadOnly(final boolean readOnly) {
+        this.readOnly = readOnly;
+        Optional.ofNullable(this.editor)
+                .ifPresent(editorEx -> editorEx.setViewer(true));
+    }
+
+    public void setLineNumbersShown(final boolean showNumber) {
+        this.showNumber = showNumber;
+        Optional.ofNullable(this.editor)
+                .map(EditorEx::getSettings)
+                .ifPresent(editorSettings -> editorSettings.setLineNumbersShown(showNumber));
     }
 
     private void initEvent() {

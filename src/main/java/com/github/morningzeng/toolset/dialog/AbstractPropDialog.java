@@ -92,7 +92,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
         leftPanel.add(this.btnPanel);
 
         // add scroll
-        leftPanel.add(ScrollSupport.getInstance(this.tree).scrollPane());
+        leftPanel.add(ScrollSupport.getInstance(this.tree).verticalAsNeededScrollPane());
 
         this.pane.setFirstComponent(leftPanel);
     }

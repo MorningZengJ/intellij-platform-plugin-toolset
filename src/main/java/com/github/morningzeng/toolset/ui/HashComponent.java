@@ -63,7 +63,7 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
     public HashComponent(final Project project) {
         this.project = project;
         this.textArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
-        this.encryptTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+        this.encryptTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "", true);
         this.textArea.setPlaceholder("Text content that needs to be hashed");
         this.encryptTextArea.setPlaceholder("The hash value corresponding to the text");
 
