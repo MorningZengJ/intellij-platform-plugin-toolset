@@ -49,15 +49,15 @@ public final class WithHoverComponent extends JBLayeredPane {
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent e) {
-                // 获取 JBLayeredPane 新的大小
+                // Get the new size of JBLayeredPane
                 int width = WithHoverComponent.this.getWidth();
                 int height = WithHoverComponent.this.getHeight();
 
-                // 更新 decryptArea 和 contextTypeComboBox 的大小和位置
+                // Update the size and location of the decryptArea and contextTypeComboBox
                 component.setBounds(0, 0, width, height);
                 hoverComponent.setBounds(width - (int) (WithHoverComponent.this.width * 1.1), (int) (WithHoverComponent.this.width * .1), WithHoverComponent.this.width, WithHoverComponent.this.height);
 
-                // 调用 repaint 以便应用新的大小和位置
+                // Call repaint to apply the new size and position
                 WithHoverComponent.this.repaint();
             }
         });

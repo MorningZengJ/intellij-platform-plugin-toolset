@@ -263,7 +263,6 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
                 final DataFormatTypeEnum item = (DataFormatTypeEnum) e.getItem();
                 this.decryptArea.setLanguage(item.getLanguage());
-                this.decryptArea.reformatCode();
             }
         });
     }
