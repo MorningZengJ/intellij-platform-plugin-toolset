@@ -46,6 +46,7 @@ import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -55,15 +56,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
-    private final Project project;
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final JBList<String> requestNames = new JBList<>(this.listModel);
     private final Map<String, HttpTabPanel> components = Maps.newHashMap();
 
     public HttpComponent(final Project project) {
-        this.project = project;
         final AnAction importAction = ActionUtils.drawerActions(
-                "Import", "Import HTTP Request", ToolbarDecorator.Import, this.importCurl()
+                "Import", "Import HTTP Request", ToolbarDecorator.Import,
+                new CURLAction(project, httpTabPanel -> {
+                    final String requestName = "request#%s".formatted(requestNames.getItemsCount() + 1);
+                    this.listModel.addElement(requestName);
+                    this.components.put(requestName, httpTabPanel);
+                    this.requestNames.setSelectedValue(requestName, true);
+                })
         );
         final ActionBar actionBar = new ActionBar(importAction);
         final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .25f);
@@ -87,56 +92,60 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                 .newRow().fill(GridBag.BOTH).weightY(1).add(splitter);
     }
 
-    AnAction importCurl() {
-        return new AnAction("CURL Command...") {
-            @Override
-            public void actionPerformed(@NotNull final AnActionEvent e) {
-                new DialogWrapper(project) {
-                    final LanguageTextArea textArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+    static class CURLAction extends AnAction {
+        private final Project project;
+        private final Consumer<HttpTabPanel> consumer;
 
-                    {
-                        this.textArea.setPlaceholder("curl -i http://hostname/ip");
-                        this.textArea.setPreferredSize(new Dimension(450, 200));
-                        this.textArea.setLineNumbersShown(false);
-                        init();
-                        setTitle("Convert CURL to HTTP Request");
-                    }
+        CURLAction(final Project project, final Consumer<HttpTabPanel> consumer) {
+            super("CURL Command...");
+            this.project = project;
+            this.consumer = consumer;
+        }
 
-                    @Override
-                    protected JComponent createCenterPanel() {
-                        return this.textArea;
-                    }
+        @Override
+        public void actionPerformed(@NotNull final AnActionEvent e) {
+            new DialogWrapper(project) {
+                final LanguageTextArea textArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
 
-                    @Override
-                    public void doCancelAction() {
-                        super.doCancelAction();
+                {
+                    this.textArea.setPlaceholder("curl -i http://hostname/ip");
+                    this.textArea.setPreferredSize(new Dimension(450, 200));
+                    this.textArea.setLineNumbersShown(false);
+                    init();
+                    setTitle("Convert CURL to HTTP Request");
+                }
+
+                @Override
+                protected JComponent createCenterPanel() {
+                    return this.textArea;
+                }
+
+                @Override
+                public void doCancelAction() {
+                    super.doCancelAction();
+                    this.textArea.releaseEditor();
+                }
+
+                @Override
+                protected void doOKAction() {
+                    try {
+                        final HttpTabPanel httpTabPanel = new HttpTabPanel(project, this.textArea);
+                        consumer.accept(httpTabPanel);
+                    } finally {
                         this.textArea.releaseEditor();
+                        super.doOKAction();
                     }
+                }
 
-                    @Override
-                    protected void doOKAction() {
-                        try {
-                            final HttpTabPanel httpTabPanel = new HttpTabPanel(project, this.textArea);
-                            final String requestName = "request#%s".formatted(requestNames.getItemsCount() + 1);
-                            listModel.addElement(requestName);
-                            components.put(requestName, httpTabPanel);
-                            requestNames.setSelectedValue(requestName, true);
-                        } finally {
-                            this.textArea.releaseEditor();
-                            super.doOKAction();
-                        }
-                    }
+                @Override
+                protected @NotNull Action getOKAction() {
+                    final Action okAction = super.getOKAction();
+                    okAction.putValue(Action.NAME, "Convert");
+                    return okAction;
+                }
 
-                    @Override
-                    protected @NotNull Action getOKAction() {
-                        final Action okAction = super.getOKAction();
-                        okAction.putValue(Action.NAME, "Convert");
-                        return okAction;
-                    }
-
-                }.showAndGet();
-            }
-        };
+            }.showAndGet();
+        }
     }
 
     static class HttpTabPanel extends JBPanel<JBPanelWithEmptyText> {
