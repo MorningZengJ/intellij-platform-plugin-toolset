@@ -7,7 +7,7 @@ import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.ui.Splitter;
+import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +30,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
 
     final Project project;
     final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();
-    final Splitter pane = new Splitter(false, .3f);
+    final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
     final JBPanel<JBPanelWithEmptyText> btnPanel = new DialogGroupAction(this, this.pane, this.initGroupAction());
     final TreeComponent tree = new TreeComponent();
 

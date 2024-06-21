@@ -7,17 +7,24 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ShortcutSet;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.util.ReflectionUtil;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +42,8 @@ public final class LanguageTextArea extends LanguageTextField {
     private final Project project;
     private boolean readOnly;
     private boolean showNumber = true;
+    @Getter
+    @Accessors(fluent = true)
     private EditorEx editor;
     private Language language;
 
@@ -72,28 +81,34 @@ public final class LanguageTextArea extends LanguageTextField {
     }
 
     public void setLanguage(final Language language) {
+        if (Objects.equals(this.language, language)) {
+            return;
+        }
         final LanguageFileType fileType = language.getAssociatedFileType();
         if (Objects.nonNull(fileType)) {
             this.language = language;
-            this.setNewDocumentAndFileType(fileType, this.getDocument());
+            final PsiFile psiFile = PsiFileFactory.getInstance(this.project)
+                    .createFileFromText(this.language.getID(), this.language, this.getText());
+            final Document document = PsiDocumentManager.getInstance(this.project).getDocument(psiFile);
+            this.setNewDocumentAndFileType(fileType, document);
             this.editor.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType));
             this.reformatCode();
         }
     }
 
+
     public void reformatCode() {
-        final PsiFile psiFile = PsiFileFactory.getInstance(this.project)
-                .createFileFromText(this.language.getID(), this.language, this.getText());
+        final PsiFile psiFile = PsiDocumentManager.getInstance(this.project).getPsiFile(this.getDocument());
         ApplicationManager.getApplication().invokeLater(
                 () -> WriteCommandAction.runWriteCommandAction(this.project, () -> {
                     final CodeStyleManager instance = CodeStyleManager.getInstance(this.project);
                     Optional.ofNullable(psiFile).ifPresent(ps -> {
                         if (ps.getLanguage() == PlainTextLanguage.INSTANCE) {
-                            this.setText(StringUtil.convertLineSeparators(this.getText()));
+                            super.setText(StringUtil.convertLineSeparators(this.getText()));
                             return;
                         }
                         final String text = instance.reformat(ps).getText();
-                        this.setText(text);
+                        super.setText(text);
                     });
                 })
         );
@@ -116,9 +131,18 @@ public final class LanguageTextArea extends LanguageTextField {
     public void setText(@Nullable final String text) {
         final Language language = LanguageUtils.tryResolve(text);
         super.setText(text);
-        this.reformatCode();
-        if (!Objects.equals(this.language, language)) {
-            this.setLanguage(language);
+        if (Objects.equals(this.language, language)) {
+            this.reformatCode();
+            return;
+        }
+        this.setLanguage(language);
+    }
+
+    public void releaseEditor() {
+        final EditorImpl editorImpl = (EditorImpl) this.editor;
+        final Boolean released = ReflectionUtil.getField(editorImpl.getClass(), editorImpl, boolean.class, "isReleased");
+        if (!Optional.ofNullable(released).orElse(false)) {
+            EditorFactory.getInstance().releaseEditor(this.editor);
         }
     }
 

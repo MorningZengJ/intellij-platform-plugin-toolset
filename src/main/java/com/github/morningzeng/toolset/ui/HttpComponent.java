@@ -171,67 +171,77 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     }
 
                     @Override
+                    public void doCancelAction() {
+                        super.doCancelAction();
+                        this.textArea.releaseEditor();
+                    }
+
+                    @Override
                     protected void doOKAction() {
-                        final LanguageTextArea bodyTextArea = (LanguageTextArea) bodySplitter.getSecondComponent();
-                        final String curl = this.textArea.getText().trim();
-                        if (!"curl".equalsIgnoreCase(curl.substring(0, 4))) {
-                            return;
-                        }
-                        curl.lines().forEach(line -> {
-                            final String trim = line.trim();
-                            if ("curl".equalsIgnoreCase(trim.substring(0, 4))) {
-                                urlBar.setText(trim.split("'")[1]);
+                        try {
+                            final LanguageTextArea bodyTextArea = (LanguageTextArea) bodySplitter.getSecondComponent();
+                            final String curl = this.textArea.getText().trim();
+                            if (!"curl".equalsIgnoreCase(curl.substring(0, 4))) {
+                                return;
                             }
-                            if ("-X".equalsIgnoreCase(trim.substring(0, 2))) {
-                                urlBar.setItem(HTTPMethod.valueOf(trim.split("'")[1]));
-                            }
-                            if ("-H".equalsIgnoreCase(trim.substring(0, 2))) {
-                                final String[] header = trim.split("'")[1].split(":");
-                                this.headers.put(header[0].trim(), header[1].trim());
-                            }
-                            if ("-d".equalsIgnoreCase(trim.substring(0, 2))
-                                    || "--data".equalsIgnoreCase(trim.substring(0, 6))
-                                    || "--data-raw".equalsIgnoreCase(trim.substring(0, 10))) {
-                                final String data = trim.split("'")[1];
-                                bodyTextArea.setText(data);
-                            }
-                            if ("-F".equalsIgnoreCase(trim.substring(0, 2))
-                                    || "--form".equalsIgnoreCase(trim.substring(0, 6))) {
-                                final String data = trim.split("'")[1];
-                                final String[] split = data.split(";");
-                                bodyTextArea.setText(
-                                        Arrays.stream(split)
-                                                .map(sl -> String.join(": ", sl.split("=")))
-                                                .collect(Collectors.joining("\n"))
-                                );
-                            }
+                            curl.lines().forEach(line -> {
+                                final String trim = line.trim();
+                                if ("curl".equalsIgnoreCase(trim.substring(0, 4))) {
+                                    urlBar.setText(trim.split("'")[1]);
+                                }
+                                if ("-X".equalsIgnoreCase(trim.substring(0, 2))) {
+                                    urlBar.setItem(HTTPMethod.valueOf(trim.split("'")[1]));
+                                }
+                                if ("-H".equalsIgnoreCase(trim.substring(0, 2))) {
+                                    final String[] header = trim.split("'")[1].split(":");
+                                    this.headers.put(header[0].trim(), header[1].trim());
+                                }
+                                if ("-d".equalsIgnoreCase(trim.substring(0, 2))
+                                        || "--data".equalsIgnoreCase(trim.substring(0, 6))
+                                        || "--data-raw".equalsIgnoreCase(trim.substring(0, 10))) {
+                                    final String data = trim.split("'")[1];
+                                    bodyTextArea.setText(data);
+                                }
+                                if ("-F".equalsIgnoreCase(trim.substring(0, 2))
+                                        || "--form".equalsIgnoreCase(trim.substring(0, 6))) {
+                                    final String data = trim.split("'")[1];
+                                    final String[] split = data.split(";");
+                                    bodyTextArea.setText(
+                                            Arrays.stream(split)
+                                                    .map(sl -> String.join(": ", sl.split("=")))
+                                                    .collect(Collectors.joining("\n"))
+                                    );
+                                }
 
-                        });
-                        final String headers = this.headers.entrySet().stream()
-                                .map(entry -> String.join(": ", entry.getKey(), entry.getValue()))
-                                .collect(Collectors.joining("\n"));
-                        headersPanel.setText(headers);
+                            });
+                            final String headers = this.headers.entrySet().stream()
+                                    .map(entry -> String.join(": ", entry.getKey(), entry.getValue()))
+                                    .collect(Collectors.joining("\n"));
+                            headersPanel.setText(headers);
 
-                        final String contentType = this.headers.get("Content-Type");
-                        if (StringUtil.isEmpty(contentType)) {
+                            final String contentType = this.headers.get("Content-Type");
+                            if (StringUtil.isEmpty(contentType)) {
+                                super.doOKAction();
+                                return;
+                            }
+                            switch (contentType) {
+                                case "multipart/form-data" -> bodyLists.setSelectedValue("Form Data", true);
+                                case "application/x-www-form-urlencoded" ->
+                                        bodyLists.setSelectedValue("X-www-Form-Urlencoded", true);
+                                case "application/json" -> {
+                                    bodyLists.setSelectedValue("Raw", true);
+                                    mediaTypeComboBox.setSelectedIndex(0);
+                                }
+                                case "application/xml" -> {
+                                    bodyLists.setSelectedValue("Raw", true);
+                                    mediaTypeComboBox.setSelectedIndex(1);
+                                }
+                                default -> bodyLists.setSelectedValue("Raw", true);
+                            }
                             super.doOKAction();
-                            return;
+                        } finally {
+                            this.textArea.releaseEditor();
                         }
-                        switch (contentType) {
-                            case "multipart/form-data" -> bodyLists.setSelectedValue("Form Data", true);
-                            case "application/x-www-form-urlencoded" ->
-                                    bodyLists.setSelectedValue("X-www-Form-Urlencoded", true);
-                            case "application/json" -> {
-                                bodyLists.setSelectedValue("Raw", true);
-                                mediaTypeComboBox.setSelectedIndex(0);
-                            }
-                            case "application/xml" -> {
-                                bodyLists.setSelectedValue("Raw", true);
-                                mediaTypeComboBox.setSelectedIndex(1);
-                            }
-                            default -> bodyLists.setSelectedValue("Raw", true);
-                        }
-                        super.doOKAction();
                     }
 
                     @Override
