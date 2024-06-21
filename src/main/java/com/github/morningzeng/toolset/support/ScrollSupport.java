@@ -16,28 +16,40 @@ public interface ScrollSupport<T extends Component> {
 
     T getComponent();
 
+    default JBScrollPane scrollPane() {
+        final T component = this.getComponent();
+        if (component instanceof JBScrollPane) {
+            return (JBScrollPane) component;
+        }
+        return new JBScrollPane(component);
+    }
+
     default JBScrollPane verticalAsNeededScrollPane() {
-        return this.verticalAsNeededScrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
     }
 
     default JBScrollPane verticalAlwaysScrollPane() {
-        return this.verticalAsNeededScrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER, JBScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_NEVER, JBScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
     }
 
-    default JBScrollPane horizontalPolicy(final int horizontalScrollBarPolicy) {
-        final JBScrollPane scrollPane = new JBScrollPane(this.getComponent());
-        scrollPane.setHorizontalScrollBarPolicy(horizontalScrollBarPolicy);
-        return scrollPane;
+    default JBScrollPane horizontalAsNeededScrollPane() {
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED, JBScrollPane.VERTICAL_SCROLLBAR_NEVER);
     }
 
-    default JBScrollPane verticalPolicy(final int verticalScrollBarPolicy) {
-        final JBScrollPane scrollPane = new JBScrollPane(this.getComponent());
-        scrollPane.setVerticalScrollBarPolicy(verticalScrollBarPolicy);
-        return scrollPane;
+    default JBScrollPane horizontalAlwaysScrollPane() {
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS, JBScrollPane.VERTICAL_SCROLLBAR_NEVER);
     }
 
-    default JBScrollPane verticalAsNeededScrollPane(final int horizontalScrollBarPolicy, final int verticalScrollBarPolicy) {
-        final JBScrollPane scrollPane = new JBScrollPane(this.getComponent());
+    default JBScrollPane asNeedScrollPane() {
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED, JBScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+    }
+
+    default JBScrollPane alwaysScrollPane() {
+        return this.scrollPane(JBScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS, JBScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+    }
+
+    private JBScrollPane scrollPane(final int horizontalScrollBarPolicy, final int verticalScrollBarPolicy) {
+        final JBScrollPane scrollPane = this.scrollPane();
         scrollPane.setHorizontalScrollBarPolicy(horizontalScrollBarPolicy);
         scrollPane.setVerticalScrollBarPolicy(verticalScrollBarPolicy);
         return scrollPane;
