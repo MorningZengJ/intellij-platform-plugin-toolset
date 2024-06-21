@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.component;
 
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.dialog.DialogSupport;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -9,7 +10,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.util.IconLoader;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.LayeredIcon;
 import com.intellij.ui.components.JBPanel;
@@ -58,7 +58,7 @@ public final class DialogGroupAction extends JBPanel<JBPanelWithEmptyText> {
     }
 
     DefaultActionGroup createDialogGroupAction() {
-        final Icon icon = LayeredIcon.create(IconLoader.getIcon("/images/svg/add_24dp_FILL0_wght400_GRAD0_opsz24.svg", DialogGroupAction.class.getClassLoader()), General.Dropdown);
+        final Icon icon = LayeredIcon.create(IconC.ADD_GREEN, General.Dropdown);
 
         final DefaultActionGroup actionGroup = new DefaultActionGroup("Add Item", "New create crypto prop item", icon);
 
@@ -68,7 +68,7 @@ public final class DialogGroupAction extends JBPanel<JBPanelWithEmptyText> {
     }
 
     AnAction deleteAction() {
-        return new AnAction(IconLoader.getIcon("/images/svg/remove_24dp_FILL0_wght400_GRAD0_opsz24.svg", DialogGroupAction.class.getClassLoader())) {
+        return new AnAction(IconC.REMOVE_RED) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
                 dialogSupport.delete();

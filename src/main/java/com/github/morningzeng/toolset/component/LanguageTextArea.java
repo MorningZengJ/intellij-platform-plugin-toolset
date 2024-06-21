@@ -139,6 +139,9 @@ public final class LanguageTextArea extends LanguageTextField {
     }
 
     public void releaseEditor() {
+        if (Objects.isNull(this.editor)) {
+            return;
+        }
         final EditorImpl editorImpl = (EditorImpl) this.editor;
         final Boolean released = ReflectionUtil.getField(editorImpl.getClass(), editorImpl, boolean.class, "isReleased");
         if (!Optional.ofNullable(released).orElse(false)) {

@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
@@ -19,6 +20,7 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.JBSplitter;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -55,26 +57,23 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
+    private final Project project;
 
     private final DefaultListModel<String> listModel = new DefaultListModel<>();
     private final JBList<String> requestNames = new JBList<>(this.listModel);
     private final Map<String, HttpTabPanel> components = Maps.newHashMap();
 
     public HttpComponent(final Project project) {
+        this.project = project;
         final AnAction importAction = ActionUtils.drawerActions(
                 "Import", "Import HTTP Request", ToolbarDecorator.Import,
-                new CURLAction(project, httpTabPanel -> {
-                    final String requestName = "request#%s".formatted(requestNames.getItemsCount() + 1);
-                    this.listModel.addElement(requestName);
-                    this.components.put(requestName, httpTabPanel);
-                    this.requestNames.setSelectedValue(requestName, true);
-                })
+                new CURLAction(project, this::createHttpTabPanel)
         );
-        final ActionBar actionBar = new ActionBar(importAction);
+        final ActionBar actionBar = new ActionBar(this.addAction(), this.deleteAction(), importAction);
         final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .25f);
         splitter.setDividerWidth(3);
         splitter.setFirstComponent(ScrollSupport.getInstance(this.requestNames).verticalAsNeededScrollPane());
-        if (requestNames.isSelectionEmpty()) {
+        if (this.requestNames.isSelectionEmpty()) {
             splitter.setSecondComponent(new JBPanelWithEmptyText());
         } else {
             final HttpTabPanel component = this.components.get(this.requestNames.getSelectedValue());
@@ -85,11 +84,55 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             final String chosenRequest = this.requestNames.getSelectedValue();
             splitter.setSecondComponent(components.get(chosenRequest));
         });
+        this.requestNames.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            final String name = value.split("-")[0];
+            return new JBLabel(name);
+        });
 
         this.setLayout(new GridBagLayout());
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(actionBar)
                 .newRow().fill(GridBag.BOTH).weightY(1).add(splitter);
+    }
+
+    AnAction addAction() {
+        return new AnAction("Add", "Add HTTP Request", IconC.ADD_GREEN) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                final HttpTabPanel httpTabPanel = new HttpTabPanel(project);
+                createHttpTabPanel(httpTabPanel);
+            }
+        };
+    }
+
+    AnAction deleteAction() {
+        return new AnAction("Delete", "Delete HTTP Request", IconC.REMOVE_RED) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                if (requestNames.isSelectionEmpty()) {
+                    return;
+                }
+                int index = requestNames.getSelectedIndex();
+                final String item = requestNames.getSelectedValue();
+                listModel.removeElement(item);
+                final HttpTabPanel httpTabPanel = components.remove(item);
+                httpTabPanel.release();
+                final int itemsCount = requestNames.getItemsCount();
+                if (itemsCount > 0) {
+                    if (index == itemsCount) {
+                        --index;
+                    }
+                    requestNames.setSelectedIndex(Math.max(index, 0));
+                }
+            }
+        };
+    }
+
+    private void createHttpTabPanel(final HttpTabPanel httpTabPanel) {
+        final String requestName = "request#%s-%s".formatted(requestNames.getItemsCount() + 1, System.currentTimeMillis());
+        this.listModel.addElement(requestName);
+        this.components.put(requestName, httpTabPanel);
+        this.requestNames.setSelectedValue(requestName, true);
     }
 
     static class CURLAction extends AnAction {
@@ -196,7 +239,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             final Map<String, String> headerMap = Maps.newHashMap();
             final LanguageTextArea bodyTextArea = (LanguageTextArea) bodySplitter.getSecondComponent();
             final String curl = curlTextArea.getText().trim();
-            if (!"curl".equalsIgnoreCase(curl.substring(0, 4))) {
+            if (StringUtil.isEmpty(curl) || !"curl".equalsIgnoreCase(curl.substring(0, 4))) {
                 return;
             }
             curl.lines().forEach(line -> {
@@ -256,22 +299,26 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         private JButton executeBtn() {
             final JButton execute = new JButton("execute", Actions.Execute);
             execute.addActionListener(e -> {
-                final RequestBody requestBody = this.requestBody();
-                final Headers headers = Headers.of(
-                        this.headersPanel.getText().lines()
-                                .<String[]>mapMulti((line, consumer) -> consumer.accept(line.split(": ")))
-                                .collect(Collectors.toMap(h -> h[0], h -> h[1]))
-                );
-                final Request request = new Builder()
-                        .url(this.urlBar.getText())
-                        .method(this.urlBar.getItem().name(), requestBody)
-                        .headers(headers)
-                        .build();
-                try (final Response response = httpClient.newCall(request).execute()) {
-                    final String result = response.body().string();
-                    this.responseArea.setText(result);
-                } catch (IOException ex) {
-                    Messages.showMessageDialog(this.project, ex.getMessage(), "Request Error", Messages.getErrorIcon());
+                try {
+                    final RequestBody requestBody = this.requestBody();
+                    final Headers headers = Headers.of(
+                            this.headersPanel.getText().lines()
+                                    .<String[]>mapMulti((line, consumer) -> consumer.accept(line.split(": ")))
+                                    .collect(Collectors.toMap(h -> h[0], h -> h[1]))
+                    );
+                    final Request request = new Builder()
+                            .url(this.urlBar.getText())
+                            .method(this.urlBar.getItem().name(), requestBody)
+                            .headers(headers)
+                            .build();
+                    try (final Response response = httpClient.newCall(request).execute()) {
+                        final String result = response.body().string();
+                        this.responseArea.setText(result);
+                    } catch (IOException ex) {
+                        Messages.showMessageDialog(this.project, ex.getMessage(), "Request Error", Messages.getErrorIcon());
+                    }
+                } catch (Exception exc) {
+                    Messages.showMessageDialog(this.project, exc.getMessage(), "Request Error", Messages.getErrorIcon());
                 }
             });
             return execute;
@@ -306,6 +353,12 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     .newRow().add(this.requestParamSeparator)
                     .newRow().fill(GridBag.BOTH).weightY(.5).add(this.requestParamTabPane)
                     .newRow().weightY(1).add(this.responseArea);
+        }
+
+        void release() {
+            this.headersPanel.releaseEditor();
+            ((LanguageTextArea) this.bodySplitter.getSecondComponent()).releaseEditor();
+            this.responseArea.releaseEditor();
         }
 
     }
