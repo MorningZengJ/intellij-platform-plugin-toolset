@@ -4,6 +4,22 @@
 
 ## [Unreleased]
 
+## [1.1.7]
+
+### Added
+
+- Add HTTP client. Ability to import curl commands directly
+
+### Changed
+
+- Replaced the original text area UI.
+- Added some hidden bugs, can you find it.
+
+### Fixed
+
+- Fixed an issue with the formatting of the edit area.
+- Fixed some known bugs.
+
 ## [1.1.6]
 
 ### Changed
