@@ -51,7 +51,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog {
     }
 
     void initTree() {
-        final Set<Entry<String, Set<SymmetricCryptoProp>>> entries = STATE_FACTORY.symmetricCryptoPropsMap().entrySet();
+        final Set<Entry<String, Set<SymmetricCryptoProp>>> entries = stateFactory.symmetricCryptoPropsMap().entrySet();
         this.tree.setNodes(entries, Entry::getKey, Entry::getValue);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
@@ -65,7 +65,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog {
     AnAction[] initGroupAction() {
         return new AnAction[]{
                 new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    STATE_FACTORY.symmetricCryptoPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
+                    stateFactory.symmetricCryptoPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
                     final DefaultMutableTreeNode root = this.tree.getRoot();
                     final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
                     root.add(groupNode);
@@ -91,8 +91,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog {
                         node -> (SymmetricCryptoProp) node.getUserObject(), Collectors.toUnmodifiableSet()
                 ))
         );
-        STATE_FACTORY.symmetricCryptoPropsMap(map);
-        STATE_FACTORY.loadState(STATE_FACTORY.getState());
+        stateFactory.symmetricCryptoPropsMap(map);
     }
 
     @Override

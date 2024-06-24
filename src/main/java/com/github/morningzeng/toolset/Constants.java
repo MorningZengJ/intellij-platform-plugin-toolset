@@ -10,6 +10,8 @@ import javax.swing.Icon;
  */
 public interface Constants {
 
+    String COLON = ":";
+
     interface IconC {
         ClassLoader CLASS_LOADER = IconC.class.getClassLoader();
         Icon DOUBLE_ARROW_DOWN = IconLoader.getIcon("/images/svg/keyboard_double_arrow_down_24dp.svg", CLASS_LOADER);

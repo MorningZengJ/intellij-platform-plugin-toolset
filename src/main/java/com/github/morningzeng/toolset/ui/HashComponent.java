@@ -34,12 +34,12 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
 
     final HashCrypto[] cryptos = Arrays.stream(HashCrypto.values())
             .toArray(HashCrypto[]::new);
-    final LocalConfigFactory localConfigFactory = LocalConfigFactory.getInstance();
+    final LocalConfigFactory.State state = LocalConfigFactory.getInstance().getState();
 
     private final Project project;
 
     private final ComboBox<HashCryptoProp> cryptoPropComboBox = new ComboBox<>(
-            this.localConfigFactory.hashCryptoPropsMap().values().stream()
+            this.state.hashCryptoPropsMap().values().stream()
                     .flatMap(Collection::stream)
                     .sorted(Comparator.comparing(HashCryptoProp::getSorted))
                     .toArray(HashCryptoProp[]::new)
@@ -118,7 +118,7 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
 
     void refresh() {
         this.cryptoPropComboBox.removeAllItems();
-        this.localConfigFactory.hashCryptoPropsMap().values().stream()
+        this.state.hashCryptoPropsMap().values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(HashCryptoProp::getSorted))
                 .forEach(this.cryptoPropComboBox::addItem);

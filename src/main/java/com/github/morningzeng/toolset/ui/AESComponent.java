@@ -43,7 +43,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
     final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
             .filter(crypto -> TYPE.equals(crypto.getType()))
             .toArray(SymmetricCrypto[]::new);
-    final LocalConfigFactory localConfigFactory;
+    final LocalConfigFactory.State state;
     final Project project;
     /**
      * Represents a combo box used for selecting a SymmetricCryptoProp.
@@ -158,10 +158,10 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         this.encryptArea.setPlaceholder("Encrypted text content");
         this.decryptArea.setPlaceholder("Decrypted text content");
 
-        this.localConfigFactory = LocalConfigFactory.getInstance();
+        this.state = LocalConfigFactory.getInstance().getState();
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
 
-        this.cryptoPropComboBox = new ComboBox<>(this.localConfigFactory.symmetricCryptoPropsMap().values().stream()
+        this.cryptoPropComboBox = new ComboBox<>(this.state.symmetricCryptoPropsMap().values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
                 .toArray(SymmetricCryptoProp[]::new));
@@ -269,7 +269,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
 
     void refresh() {
         this.cryptoPropComboBox.removeAllItems();
-        this.localConfigFactory.symmetricCryptoPropsMap().values().stream()
+        this.state.symmetricCryptoPropsMap().values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
                 .forEach(this.cryptoPropComboBox::addItem);

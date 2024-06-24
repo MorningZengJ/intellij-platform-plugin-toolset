@@ -36,12 +36,12 @@ import static com.github.morningzeng.toolset.utils.JacksonUtils.IGNORE_TRANSIENT
  */
 public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
 
-    final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();
+    final LocalConfigFactory.State state = LocalConfigFactory.getInstance().getState();
     private final Project project;
 
     private final LabelComponent<ComboBoxButton<JWTProp>> comboBoxButton = new LabelComponent<>(
             "Choose key", new ComboBoxButton<>(
-            new JButton(General.Ellipsis), 0, STATE_FACTORY.jwtPropsMap().values().stream()
+            new JButton(General.Ellipsis), 0, state.jwtPropsMap().values().stream()
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(JWTProp::getSorted))
             .toArray(JWTProp[]::new)
@@ -106,7 +106,7 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
 
     void refresh() {
         this.comboBoxButton.second().first().removeAllItems();
-        STATE_FACTORY.jwtPropsMap().values().stream()
+        state.jwtPropsMap().values().stream()
                 .flatMap(Collection::stream)
                 .sorted(Comparator.comparing(JWTProp::getSorted))
                 .forEach(this.comboBoxButton.second().first()::addItem);

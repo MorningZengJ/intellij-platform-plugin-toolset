@@ -55,7 +55,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
     }
 
     void initTree() {
-        final Set<Entry<String, Set<JWTProp>>> entries = STATE_FACTORY.jwtPropsMap().entrySet();
+        final Set<Entry<String, Set<JWTProp>>> entries = stateFactory.jwtPropsMap().entrySet();
         this.tree.setNodes(entries, Entry::getKey, Entry::getValue);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
@@ -69,7 +69,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
     AnAction[] initGroupAction() {
         return new AnAction[]{
                 new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    STATE_FACTORY.jwtPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
+                    stateFactory.jwtPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
                     final DefaultMutableTreeNode root = this.tree.getRoot();
                     final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
                     root.add(groupNode);
@@ -95,8 +95,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
                         node -> (JWTProp) node.getUserObject(), Collectors.toUnmodifiableSet()
                 ))
         );
-        STATE_FACTORY.jwtPropsMap(collect);
-        STATE_FACTORY.loadState(STATE_FACTORY.getState());
+        stateFactory.jwtPropsMap(collect);
     }
 
     @Override

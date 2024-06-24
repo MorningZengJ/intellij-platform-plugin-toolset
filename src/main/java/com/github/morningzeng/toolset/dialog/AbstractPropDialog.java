@@ -29,10 +29,12 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
         permits HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
     final Project project;
-    final LocalConfigFactory STATE_FACTORY = LocalConfigFactory.getInstance();
     final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
     final JBPanel<JBPanelWithEmptyText> btnPanel = new DialogGroupAction(this, this.pane, this.initGroupAction());
     final TreeComponent tree = new TreeComponent();
+
+    private final LocalConfigFactory configFactory = LocalConfigFactory.getInstance();
+    final LocalConfigFactory.State stateFactory = configFactory.getState();
 
     protected AbstractPropDialog(@Nullable final Project project) {
         super(project);
@@ -56,6 +58,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
     @Override
     protected void doOKAction() {
         this.saveConfig();
+        this.configFactory.loadState(this.stateFactory);
         super.doOKAction();
     }
 
@@ -65,7 +68,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
                 Stream.of(new DialogWrapperAction("Apply") {
                     @Override
                     protected void doAction(final ActionEvent e) {
-                        saveConfig();
+                        configFactory.loadState(stateFactory);
                     }
                 }),
                 Stream.of(super.createActions())

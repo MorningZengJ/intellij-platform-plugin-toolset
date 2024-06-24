@@ -39,35 +39,45 @@ public final class LocalConfigFactory implements PersistentStateComponent<LocalC
         XmlSerializerUtil.copyBean(state, this.state);
     }
 
-    public Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap() {
-        return this.state.symmetricCryptoPropsMap;
-    }
-
-    public void symmetricCryptoPropsMap(final Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap) {
-        this.state.symmetricCryptoPropsMap = symmetricCryptoPropsMap;
-    }
-
-    public Map<String, Set<HashCryptoProp>> hashCryptoPropsMap() {
-        return this.state.hashCryptoPropsMap;
-    }
-
-    public void hashCryptoPropsMap(final Map<String, Set<HashCryptoProp>> hashCryptoPropsMap) {
-        this.state.hashCryptoPropsMap = hashCryptoPropsMap;
-    }
-
-    public Map<String, Set<JWTProp>> jwtPropsMap() {
-        return this.state.jwtPropsMap;
-    }
-
-    public void jwtPropsMap(final Map<String, Set<JWTProp>> jwtPropsMap) {
-        this.state.jwtPropsMap = jwtPropsMap;
-    }
-
     @Data
     public static class State {
+        private Map<String, String> componentState = Maps.newHashMap();
+
         private Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap = Maps.newHashMap();
         private Map<String, Set<HashCryptoProp>> hashCryptoPropsMap = Maps.newHashMap();
         private Map<String, Set<JWTProp>> jwtPropsMap = Maps.newHashMap();
+
+        public Map<String, String> componentState() {
+            return this.componentState;
+        }
+
+        public void componentState(final String key, final String value) {
+            this.componentState.put(key, value);
+        }
+
+        public Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap() {
+            return this.symmetricCryptoPropsMap;
+        }
+
+        public void symmetricCryptoPropsMap(final Map<String, Set<SymmetricCryptoProp>> symmetricCryptoPropsMap) {
+            this.symmetricCryptoPropsMap = symmetricCryptoPropsMap;
+        }
+
+        public Map<String, Set<HashCryptoProp>> hashCryptoPropsMap() {
+            return this.hashCryptoPropsMap;
+        }
+
+        public void hashCryptoPropsMap(final Map<String, Set<HashCryptoProp>> hashCryptoPropsMap) {
+            this.hashCryptoPropsMap = hashCryptoPropsMap;
+        }
+
+        public Map<String, Set<JWTProp>> jwtPropsMap() {
+            return this.jwtPropsMap;
+        }
+
+        public void jwtPropsMap(final Map<String, Set<JWTProp>> jwtPropsMap) {
+            this.jwtPropsMap = jwtPropsMap;
+        }
     }
 
 

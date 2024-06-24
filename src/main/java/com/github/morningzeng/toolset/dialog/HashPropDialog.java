@@ -46,7 +46,7 @@ public final class HashPropDialog extends AbstractPropDialog {
     }
 
     void initTree() {
-        final Set<Entry<String, Set<HashCryptoProp>>> entries = STATE_FACTORY.hashCryptoPropsMap().entrySet();
+        final Set<Entry<String, Set<HashCryptoProp>>> entries = stateFactory.hashCryptoPropsMap().entrySet();
         this.tree.setNodes(entries, Entry::getKey, Entry::getValue);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
@@ -60,7 +60,7 @@ public final class HashPropDialog extends AbstractPropDialog {
     AnAction[] initGroupAction() {
         return new AnAction[]{
                 new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    STATE_FACTORY.hashCryptoPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
+                    stateFactory.hashCryptoPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
                     final DefaultMutableTreeNode root = this.tree.getRoot();
                     final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
                     root.add(groupNode);
@@ -86,8 +86,7 @@ public final class HashPropDialog extends AbstractPropDialog {
                         node -> (HashCryptoProp) node.getUserObject(), Collectors.toUnmodifiableSet()
                 ))
         );
-        STATE_FACTORY.hashCryptoPropsMap(collect);
-        STATE_FACTORY.loadState(STATE_FACTORY.getState());
+        stateFactory.hashCryptoPropsMap(collect);
     }
 
     @Override
