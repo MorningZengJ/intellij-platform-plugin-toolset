@@ -21,7 +21,7 @@ public interface Constants {
         Collection<String> HTTP_HEADERS = ReflectionUtil.collectFields(HttpHeaders.class).stream()
                 .<String>mapMulti((field, consumer) -> {
                     final String value = ReflectionUtil.getFieldValue(field, null);
-                    Optional.ofNullable(value).ifPresent(consumer);
+                    Optional.ofNullable(value).map(head -> head.concat(": ")).ifPresent(consumer);
                 })
                 .sorted(String::compareToIgnoreCase)
                 .toList();

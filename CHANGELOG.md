@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.1.9]
+
+### Changed
+
+- Implement HTTP headers auto-completion feature
+- Added some hidden bugs, can you find it.
+
+### Fixed
+
+- Fixed the bug that curl was reporting an error when importing empty strings.
+- Fixed some known bugs.
+
 ## [1.1.8]
 
 ### Added
