@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.Constants.CompletionItem;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
 import com.github.morningzeng.toolset.component.ActionBar;
@@ -214,7 +215,8 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             this.urlBar = new ComboBoxEditorTextField<>("Enter URL or paste text", this.executeBtn(), HTTPMethod.values());
 
             this.requestParamTabPane = new JBTabbedPane(JBTabbedPane.TOP);
-            this.headersPanel = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+
+            this.headersPanel = LanguageTextArea.create(this.project, PlainTextLanguage.INSTANCE, CompletionItem.HTTP_HEADERS, "");
             this.headersPanel.setPlaceholder("Enter HTTP Headers");
             this.headersPanel.setBorder(Borders.empty());
 

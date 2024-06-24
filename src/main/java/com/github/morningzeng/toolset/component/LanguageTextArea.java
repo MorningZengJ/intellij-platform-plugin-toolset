@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.component;
 
 import com.github.morningzeng.toolset.utils.LanguageUtils;
+import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionManager;
@@ -10,6 +11,7 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.SpellCheckingEditorCustomizationProvider;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileTypes.LanguageFileType;
@@ -22,14 +24,20 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.LanguageTextField;
+import com.intellij.ui.TextFieldWithAutoCompletion.StringsCompletionProvider;
+import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
 import com.intellij.util.ReflectionUtil;
+import com.intellij.util.textCompletion.TextCompletionProvider;
+import com.intellij.util.textCompletion.TextCompletionUtil;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -40,27 +48,58 @@ import java.util.Optional;
 public final class LanguageTextArea extends LanguageTextField {
 
     private final Project project;
+    private final boolean forceAutoPopup;
+    private final boolean showHint;
     private boolean readOnly;
     private boolean showNumber = true;
     @Getter
     @Accessors(fluent = true)
     private EditorEx editor;
     private Language language;
+    private TextCompletionProvider provider;
 
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value) {
         this(language, project, value, false);
     }
 
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value, final boolean readOnly) {
-        super(language, project, value);
+        super(language, project, value, false);
         this.language = language;
+        this.forceAutoPopup = false;
+        this.showHint = false;
         this.readOnly = readOnly;
 
         this.project = project;
-        this.setOneLineMode(false);
         this.reformatCode();
 
         this.initEvent();
+    }
+
+    public LanguageTextArea(final Language language, final Project project, @NotNull TextCompletionProvider provider,
+                            @NotNull final String value,
+                            boolean oneLineMode,
+                            boolean autoPopup,
+                            boolean forceAutoPopup,
+                            boolean showHint,
+                            boolean forbidWordCompletion) {
+        super(language, project, value, new TextCompletionUtil.DocumentWithCompletionCreator(provider, autoPopup, forbidWordCompletion), oneLineMode);
+        this.project = project;
+        this.language = language;
+        this.forceAutoPopup = forceAutoPopup;
+        this.showHint = showHint;
+        this.provider = provider;
+
+        this.reformatCode();
+
+        this.initEvent();
+    }
+
+    public static LanguageTextArea create(final Project project, final Language language, Collection<String> items, final String value) {
+        return create(project, language, items, null, value);
+    }
+
+    public static LanguageTextArea create(final Project project, final Language language, Collection<String> items, final Icon icon, final String value) {
+        return new LanguageTextArea(language, project, new StringsCompletionProvider(items, icon), value, false, true, false, true, false);
     }
 
     @Override
@@ -77,7 +116,14 @@ public final class LanguageTextArea extends LanguageTextField {
         settings.setAllowSingleLogicalLineFolding(true);
         settings.setRightMarginShown(true);
 
-        return editor;
+        Optional.ofNullable(SpellCheckingEditorCustomizationProvider.getInstance().getDisabledCustomization())
+                .ifPresent(disableSpellChecking -> disableSpellChecking.customize(this.editor));
+        this.editor.putUserData(AutoPopupController.ALWAYS_AUTO_POPUP, this.forceAutoPopup);
+        if (this.showHint) {
+            TextCompletionUtil.installCompletionHint(this.editor);
+        }
+
+        return this.editor;
     }
 
     public void setLanguage(final Language language) {
@@ -89,13 +135,15 @@ public final class LanguageTextArea extends LanguageTextField {
             this.language = language;
             final PsiFile psiFile = PsiFileFactory.getInstance(this.project)
                     .createFileFromText(this.language.getID(), this.language, this.getText());
+            if (this.showHint) {
+                TextCompletionUtil.installProvider(psiFile, this.provider, true);
+            }
             final Document document = PsiDocumentManager.getInstance(this.project).getDocument(psiFile);
             this.setNewDocumentAndFileType(fileType, document);
             this.editor.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType));
             this.reformatCode();
         }
     }
-
 
     public void reformatCode() {
         final PsiFile psiFile = PsiDocumentManager.getInstance(this.project).getPsiFile(this.getDocument());
@@ -125,6 +173,13 @@ public final class LanguageTextArea extends LanguageTextField {
         Optional.ofNullable(this.editor)
                 .map(EditorEx::getSettings)
                 .ifPresent(editorSettings -> editorSettings.setLineNumbersShown(showNumber));
+    }
+
+    public <T> void installProvider(@NotNull TextFieldWithAutoCompletionListProvider<T> provider) {
+        PsiFile psiFile = PsiDocumentManager.getInstance(project).getPsiFile(this.getDocument());
+        if (psiFile != null) {
+            TextCompletionUtil.installProvider(psiFile, provider, true);
+        }
     }
 
     @Override
@@ -161,4 +216,5 @@ public final class LanguageTextArea extends LanguageTextField {
         DumbAwareAction.create(e -> this.reformatCode())
                 .registerCustomShortcutSet(shortcutSet, this);
     }
+
 }

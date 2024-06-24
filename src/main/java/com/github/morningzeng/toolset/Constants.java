@@ -1,8 +1,12 @@
 package com.github.morningzeng.toolset;
 
+import com.google.common.net.HttpHeaders;
 import com.intellij.openapi.util.IconLoader;
+import com.intellij.util.ReflectionUtil;
 
 import javax.swing.Icon;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Morning Zeng
@@ -11,6 +15,18 @@ import javax.swing.Icon;
 public interface Constants {
 
     String COLON = ":";
+
+    interface CompletionItem {
+
+        Collection<String> HTTP_HEADERS = ReflectionUtil.collectFields(HttpHeaders.class).stream()
+                .<String>mapMulti((field, consumer) -> {
+                    final String value = ReflectionUtil.getFieldValue(field, null);
+                    Optional.ofNullable(value).ifPresent(consumer);
+                })
+                .sorted(String::compareToIgnoreCase)
+                .toList();
+
+    }
 
     interface IconC {
         ClassLoader CLASS_LOADER = IconC.class.getClassLoader();
