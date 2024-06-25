@@ -9,11 +9,13 @@
 ### Changed
 
 - Implement HTTP headers auto-completion feature
+- Reworked AES encryption and decryption UI
 - Added some hidden bugs, can you find it.
 
 ### Fixed
 
 - Fixed the bug that curl was reporting an error when importing empty strings.
+- Fixed the decryption exception BUG
 - Fixed some known bugs.
 
 ## [1.1.8]
