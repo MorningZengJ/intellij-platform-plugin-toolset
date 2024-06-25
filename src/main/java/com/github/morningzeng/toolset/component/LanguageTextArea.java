@@ -18,6 +18,7 @@ import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiFile;
@@ -47,6 +48,8 @@ import java.util.Optional;
  */
 public final class LanguageTextArea extends LanguageTextField {
 
+    public static final Key<Boolean> LANGUAGE_TEXT_AREA_REFORMAT_POPUP_ACTION_KEY = new Key<>(LanguageTextArea.class.getName());
+
     private final Project project;
     private final boolean forceAutoPopup;
     private final boolean showHint;
@@ -57,6 +60,8 @@ public final class LanguageTextArea extends LanguageTextField {
     private EditorEx editor;
     private Language language;
     private TextCompletionProvider provider;
+    private boolean autoReformat = true;
+    private FocusAdapter autoReformatAdapter;
 
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value) {
         this(language, project, value, false);
@@ -123,6 +128,8 @@ public final class LanguageTextArea extends LanguageTextField {
             TextCompletionUtil.installCompletionHint(this.editor);
         }
 
+        this.editor.putUserData(LANGUAGE_TEXT_AREA_REFORMAT_POPUP_ACTION_KEY, true);
+
         return this.editor;
     }
 
@@ -141,7 +148,9 @@ public final class LanguageTextArea extends LanguageTextField {
             final Document document = PsiDocumentManager.getInstance(this.project).getDocument(psiFile);
             this.setNewDocumentAndFileType(fileType, document);
             this.editor.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType));
-            this.reformatCode();
+            if (this.autoReformat) {
+                this.reformatCode();
+            }
         }
     }
 
@@ -187,7 +196,9 @@ public final class LanguageTextArea extends LanguageTextField {
         final Language language = LanguageUtils.tryResolve(text);
         super.setText(text);
         if (Objects.equals(this.language, language)) {
-            this.reformatCode();
+            if (this.autoReformat) {
+                this.reformatCode();
+            }
             return;
         }
         this.setLanguage(language);
@@ -204,13 +215,27 @@ public final class LanguageTextArea extends LanguageTextField {
         }
     }
 
+    public void autoReformat(final boolean autoReformat) {
+        this.autoReformat = autoReformat;
+        this.removeFocusListener(this.autoReformatAdapter);
+        if (autoReformat) {
+            this.addFocusListener(this.autoReformatAdapter);
+        }
+    }
+
     private void initEvent() {
-        this.addFocusListener(new FocusAdapter() {
+        this.autoReformatAdapter = new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent e) {
-                reformatCode();
+                final Language lan = LanguageUtils.tryResolve(getText());
+                if (Objects.equals(language, lan)) {
+                    reformatCode();
+                    return;
+                }
+                setLanguage(lan);
             }
-        });
+        };
+        this.addFocusListener(autoReformatAdapter);
 
         final ShortcutSet shortcutSet = ActionManager.getInstance().getAction("ReformatCode").getShortcutSet();
         DumbAwareAction.create(e -> this.reformatCode())

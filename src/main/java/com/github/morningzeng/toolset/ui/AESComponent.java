@@ -2,11 +2,9 @@ package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
-import com.github.morningzeng.toolset.component.WithHoverComponent;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
-import com.github.morningzeng.toolset.enums.DataFormatTypeEnum;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.github.morningzeng.toolset.utils.SymmetricCrypto;
@@ -15,7 +13,6 @@ import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.components.JBLayeredPane;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTextArea;
@@ -25,9 +22,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.ItemEvent;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
@@ -109,7 +103,6 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
      */
     private final LanguageTextArea encryptArea;
 
-    private final ComboBox<DataFormatTypeEnum> contextTypeComboBox = new ComboBox<>(DataFormatTypeEnum.values());
     /**
      * Button used to initiate the encryption process.
      */
@@ -154,7 +147,7 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
     public AESComponent(final Project project) {
         this.project = project;
         this.encryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
-        this.decryptArea = new LanguageTextArea(this.contextTypeComboBox.getItem().getLanguage(), project, "");
+        this.decryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.encryptArea.setPlaceholder("Encrypted text content");
         this.decryptArea.setPlaceholder("Decrypted text content");
 
@@ -194,13 +187,11 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         btnPanel.add(encryptBtn);
         btnPanel.add(decryptBtn);
 
-        final JBLayeredPane layeredPane = new WithHoverComponent(this.decryptArea, this.contextTypeComboBox, 100, 30);
-
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(layeredPane)
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
                 .newRow().weightY(0).add(btnPanel)
                 .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
     }
@@ -224,19 +215,20 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             try {
                 final SymmetricCrypto crypto = this.cryptoComboBox.getItem();
                 final SymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();
-                final String enc = crypto.crypto(cryptoProp.getKey(), cryptoProp.getIv()).enc(this.decryptArea.getText());
+                final String enc = crypto.crypto(cryptoProp.getKey(), cryptoProp.keyType(), cryptoProp.getIv(), cryptoProp.ivType()).enc(this.decryptArea.getText());
                 this.encryptArea.setText(enc);
             } catch (Exception ex) {
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
+        // 不使用自动格式化
+        this.decryptArea.autoReformat(false);
         this.decryptBtn.addActionListener(e -> {
             try {
                 final SymmetricCrypto crypto = this.cryptoComboBox.getItem();
                 final SymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();
                 final String dec = crypto.crypto(cryptoProp.getKey(), cryptoProp.keyType(), cryptoProp.getIv(), cryptoProp.ivType()).dec(this.encryptArea.getText());
-                final DataFormatTypeEnum item = this.contextTypeComboBox.getItem();
-                this.decryptArea.setText(item.out(dec));
+                this.decryptArea.setText(dec);
             } catch (Exception ex) {
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Decrypt Error", Messages.getErrorIcon());
             }
@@ -245,25 +237,6 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project);
             dialog.showAndGet();
             this.refresh();
-        });
-        this.decryptArea.addFocusListener(new FocusAdapter() {
-            @Override
-            public void focusGained(final FocusEvent e) {
-                contextTypeComboBox.setVisible(false);
-            }
-
-            @Override
-            public void focusLost(final FocusEvent e) {
-                final DataFormatTypeEnum item = contextTypeComboBox.getItem();
-                contextTypeComboBox.setVisible(true);
-                decryptArea.setText(item.out(decryptArea.getText()));
-            }
-        });
-        this.contextTypeComboBox.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                final DataFormatTypeEnum item = (DataFormatTypeEnum) e.getItem();
-                this.decryptArea.setLanguage(item.getLanguage());
-            }
         });
     }
 

@@ -71,7 +71,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                 new CURLAction(project, this::createHttpTabPanel)
         );
         final ActionBar actionBar = new ActionBar(this.addAction(), this.deleteAction(), importAction);
-        final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .25f);
+        final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .3f);
         splitter.setDividerWidth(3);
         splitter.setFirstComponent(ScrollSupport.getInstance(this.requestNames).verticalAsNeededScrollPane());
         if (this.requestNames.isSelectionEmpty()) {
