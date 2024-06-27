@@ -61,7 +61,6 @@ public final class LanguageTextArea extends LanguageTextField {
     private Language language;
     private TextCompletionProvider provider;
     private boolean autoReformat = true;
-    private FocusAdapter autoReformatAdapter;
 
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value) {
         this(language, project, value, false);
@@ -217,14 +216,10 @@ public final class LanguageTextArea extends LanguageTextField {
 
     public void autoReformat(final boolean autoReformat) {
         this.autoReformat = autoReformat;
-        this.removeFocusListener(this.autoReformatAdapter);
-        if (autoReformat) {
-            this.addFocusListener(this.autoReformatAdapter);
-        }
     }
 
     private void initEvent() {
-        this.autoReformatAdapter = new FocusAdapter() {
+        this.addFocusListener(new FocusAdapter() {
             @Override
             public void focusLost(final FocusEvent e) {
                 final Language lan = LanguageUtils.tryResolve(getText());
@@ -234,8 +229,7 @@ public final class LanguageTextArea extends LanguageTextField {
                 }
                 setLanguage(lan);
             }
-        };
-        this.addFocusListener(autoReformatAdapter);
+        });
 
         final ShortcutSet shortcutSet = ActionManager.getInstance().getAction("ReformatCode").getShortcutSet();
         DumbAwareAction.create(e -> this.reformatCode())
