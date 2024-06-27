@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.1.10]
+
+### Fixed
+
+- Fixed the bug that the import of curl failed
+
 ## [1.1.9]
 
 ### Changed

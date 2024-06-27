@@ -247,24 +247,45 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             curl.lines().forEach(line -> {
                 final String trim = line.trim();
                 if ("curl".equalsIgnoreCase(trim.substring(0, 4))) {
-                    urlBar.setText(trim.split("'")[1]);
+                    if (trim.contains("'")) {
+                        urlBar.setText(trim.split("'")[1]);
+                    } else {
+                        urlBar.setText(trim.split("\"")[1]);
+                    }
                 }
                 if ("-X".equalsIgnoreCase(trim.substring(0, 2))) {
-                    urlBar.setItem(HTTPMethod.valueOf(trim.split("'")[1]));
+                    if (trim.contains("'")) {
+                        urlBar.setItem(HTTPMethod.valueOf(trim.split("'")[1]));
+                    } else {
+                        urlBar.setItem(HTTPMethod.valueOf(trim.split("\"")[1]));
+                    }
                 }
                 if ("-H".equalsIgnoreCase(trim.substring(0, 2))) {
-                    final String[] header = trim.split("'")[1].split(":");
+                    String[] header;
+                    if (trim.contains("'")) {
+                        header = trim.split("'")[1].split(":");
+                    } else {
+                        header = trim.split("\"")[1].split(":");
+                    }
                     headerMap.put(header[0].trim(), header[1].trim());
                 }
                 if ("-d".equalsIgnoreCase(trim.substring(0, 2))
                         || "--data".equalsIgnoreCase(trim.substring(0, 6))
                         || "--data-raw".equalsIgnoreCase(trim.substring(0, 10))) {
-                    final String data = trim.split("'")[1];
-                    bodyTextArea.setText(data);
+                    if (trim.contains("'")) {
+                        bodyTextArea.setText(trim.split("'")[1]);
+                    } else {
+                        bodyTextArea.setText(trim.split("\"")[1]);
+                    }
                 }
                 if ("-F".equalsIgnoreCase(trim.substring(0, 2))
                         || "--form".equalsIgnoreCase(trim.substring(0, 6))) {
-                    final String data = trim.split("'")[1];
+                    String data;
+                    if (trim.contains("'")) {
+                        data = trim.split("'")[1];
+                    } else {
+                        data = trim.split("\"")[1];
+                    }
                     final String[] split = data.split(";");
                     bodyTextArea.setText(
                             Arrays.stream(split)
