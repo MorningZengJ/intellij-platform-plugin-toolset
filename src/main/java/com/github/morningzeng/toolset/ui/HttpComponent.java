@@ -6,9 +6,11 @@ import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditor
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
+import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
@@ -174,6 +176,10 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                 protected void doOKAction() {
                     try {
                         final HttpTabPanel httpTabPanel = new HttpTabPanel(project, this.textArea);
+//                        ScratchFileUtils.writeAndOpen(project, "http-test.test", this.textArea.getText());
+                        ScratchFileUtils.write(HashCryptoProp.builder().title("test")
+                                .key("key1").desc("desc")
+                                .build());
                         consumer.accept(httpTabPanel);
                     } finally {
                         this.textArea.releaseEditor();

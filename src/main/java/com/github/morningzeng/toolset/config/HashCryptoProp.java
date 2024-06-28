@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.config;
 
+import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
+@ScratchConfig(value = "hash-crypto-prop", directory = "crypto")
 public class HashCryptoProp {
     private String key;
     private DataToBinaryTypeEnum keyType;

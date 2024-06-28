@@ -36,7 +36,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Jackson工具类
+ * Jackson Utilities
  * <pre>
  *     {@code {
  *      JacksonUtils.NORMAL.toJson(student);
@@ -53,13 +53,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum JacksonUtils implements JacksonSupport {
     /**
-     * 常规
+     * Normal
      */
-    NORMAL(1, "常规"),
+    NORMAL(1, "Normal"),
     /**
-     * 下划线/驼峰
+     * Underlined/humped
      */
-    UNDER(2, "下划线/驼峰") {
+    UNDER(2, "Underlined/ humped") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
@@ -67,9 +67,9 @@ public enum JacksonUtils implements JacksonSupport {
         }
     },
     /**
-     * 忽略transient关键字
+     * Ignore the transient keyword
      */
-    IGNORE_TRANSIENT(3, "忽略transient关键字") {
+    IGNORE_TRANSIENT(3, "Ignore the transient keyword") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             objectMapper.setVisibility(
@@ -82,9 +82,9 @@ public enum JacksonUtils implements JacksonSupport {
         }
     },
     /**
-     * 忽略未定义字段
+     * Ignore undefined fields
      */
-    IGNORE_UNKNOWN(4, "忽略未定义字段") {
+    IGNORE_UNKNOWN(4, "Ignore undefined fields") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -92,9 +92,9 @@ public enum JacksonUtils implements JacksonSupport {
         }
     },
     /**
-     * 忽略null值
+     * Ignore null values
      */
-    IGNORE_NULL(5, "忽略null值") {
+    IGNORE_NULL(5, "Ignore null values") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -104,7 +104,7 @@ public enum JacksonUtils implements JacksonSupport {
     /**
      * key：null->"null"
      */
-    KEY_NULL(6, "key为null") {
+    KEY_NULL(6, "null to \"null\"") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             objectMapper.getSerializerProvider().setNullKeySerializer(new JsonSerializer<>() {
@@ -117,9 +117,9 @@ public enum JacksonUtils implements JacksonSupport {
         }
     },
     /**
-     * 输出 忽略transient关键字、null
+     * Output: Ignore the transient keyword, null
      */
-    IGNORE_TRANSIENT_AND_NULL(11, "输出 忽略transient关键字、null") {
+    IGNORE_TRANSIENT_AND_NULL(11, "Output: Ignore the transient keyword, null") {
         @Override
         void initialize(ObjectMapper objectMapper) {
             IGNORE_TRANSIENT.initialize(objectMapper);
@@ -131,7 +131,7 @@ public enum JacksonUtils implements JacksonSupport {
     ;
 
     /**
-     * 枚举对应的ObjectMapper实例
+     * Enumerate the corresponding instances
      */
     private final static Map<JacksonUtils, ObjectMapper> OBJECT_MAPPER_MAP = Arrays.stream(JacksonUtils.values()).collect(
             Collectors.toUnmodifiableMap(Function.identity(), e -> {
@@ -145,7 +145,7 @@ public enum JacksonUtils implements JacksonSupport {
     private final String desc;
 
     /**
-     * 初始化操作，需要对ObjectMapper实例的配置
+     * To initialize the operation, you need to configure the ObjectMapper instance
      *
      * @param objectMapper {@link ObjectMapper}
      */

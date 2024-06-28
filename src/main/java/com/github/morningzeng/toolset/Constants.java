@@ -16,6 +16,8 @@ public interface Constants {
 
     String COLON = ":";
 
+    String DOT = ".";
+
     interface CompletionItem {
 
         Collection<String> HTTP_HEADERS = ReflectionUtil.collectFields(HttpHeaders.class).stream()

@@ -56,9 +56,9 @@ public interface JacksonSupport {
     }
 
     /**
-     * 序列化 转Json
+     * Serialize to Json
      * <pre>
-     *     将Json展开显示
+     *     Expand the Json display
      *     {@code return OBJECT_MAPPER_MAP.get(this).writerWithDefaultPrettyPrinter().writeValueAsString(data);}
      * </pre>
      *
