@@ -5,6 +5,7 @@ import com.intellij.lang.Language;
 import com.intellij.lang.html.HTMLLanguage;
 import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
+import com.intellij.openapi.util.text.StringUtil;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +19,9 @@ import java.util.regex.Pattern;
 public final class LanguageUtils {
 
     public static Language tryResolve(String content) {
+        if (StringUtil.isEmpty(content)) {
+            return PlainTextLanguage.INSTANCE;
+        }
         content = content.trim();
         final List<String> list = content.lines().toList();
         if (list.isEmpty()) {

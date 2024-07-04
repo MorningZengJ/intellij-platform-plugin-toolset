@@ -128,7 +128,7 @@ public final class HttpBean {
         }
 
         public String dataText() {
-            return String.join(Constants.COLON, this.key, this.value);
+            return String.join(Constants.COLON_WITH_SPACE, this.key, this.value);
         }
     }
 }

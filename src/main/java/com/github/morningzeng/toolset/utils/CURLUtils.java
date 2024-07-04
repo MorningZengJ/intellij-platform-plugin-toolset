@@ -42,8 +42,9 @@ public final class CURLUtils {
     }
 
     static UrlBean url(final String cUrl) {
-        final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location)? +?[\"'].+(?=[\"'] )");
-        String location = getByPattern(compile, cUrl).replaceFirst("^--location", "");
+        final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location.+?(?= .+?[\"']))? +?[\"'].+(?=[\"'] )");
+        final String[] locationSpces = getByPattern(compile, cUrl).split(" ");
+        String location = locationSpces[locationSpces.length - 1];
         final String url = location.trim().substring(1);
         final String[] protocolSplit = url.split("(?i)//:");
 
@@ -86,6 +87,9 @@ public final class CURLUtils {
         final Pattern compile = Pattern.compile("(?i)(?<=(-X)|(--request)) +?[\"']?.+(?=[\"']? )");
         return Optional.ofNullable(getByPattern(compile, cUrl, true))
                 .map(s -> {
+                    if (s.contains(" ")) {
+                        return s.split(" ")[0];
+                    }
                     if (s.startsWith("'")) {
                         s = s.substring(1);
                     }
@@ -119,12 +123,10 @@ public final class CURLUtils {
         if (cUrl.contains("--data-urlencode")) {
             mode = HttpBodyTypeEnum.X_WWW_FORM_URLENCODED;
             builder.urlencoded(urlencoded(cUrl));
-        }
-        if (cUrl.contains("--form") || cUrl.matches("((?i)(?<=-F)) +?[\"']")) {
+        } else if (cUrl.contains("--form") || cUrl.matches("((?i)(?<=-F)) +?[\"']")) {
             mode = HttpBodyTypeEnum.FORM_DATA;
             builder.formData(formData(cUrl));
-        }
-        if (cUrl.contains("--data")) {
+        } else if (cUrl.contains("--data")) {
             mode = HttpBodyTypeEnum.RAW;
             builder.raw(rawBody(cUrl));
         }
@@ -158,8 +160,12 @@ public final class CURLUtils {
         final Matcher matcher = compile.matcher(cUrl);
         final List<PairWithTypeDescription> result = Lists.newArrayList();
         while (matcher.find()) {
-            final String[] group = matcher.group().split("=");
-            result.add(PairWithTypeDescription.with(group[0], group[1]));
+            String group = matcher.group().trim();
+            if (group.startsWith("'")) {
+                group = group.substring(1);
+            }
+            final String[] equalsSign = group.split("=");
+            result.add(PairWithTypeDescription.with(equalsSign[0], equalsSign[1]));
         }
         return result;
     }
@@ -170,9 +176,13 @@ public final class CURLUtils {
         final List<FormData> result = Lists.newArrayList();
         final FormDataBuilder<?, ?> builder = FormData.builder();
         while (matcher.find()) {
-            final String[] group = matcher.group().split("=");
-            final String value = group[1];
-            builder.key(group[0]).value(value).type(HttpBodyParamTypeEnum.TEXT.key());
+            String group = matcher.group().trim();
+            if (group.startsWith("'")) {
+                group = group.substring(1);
+            }
+            final String[] equalsSign = group.split("=");
+            final String value = equalsSign[1];
+            builder.key(equalsSign[0]).value(value).type(HttpBodyParamTypeEnum.TEXT.key());
             if (value.startsWith("@")) {
                 builder.type(HttpBodyParamTypeEnum.FILE.key());
             }
@@ -185,7 +195,10 @@ public final class CURLUtils {
         final Pattern compile = Pattern.compile("(?i)(?<=--data(-raw)?) +?[\"'].+(?=[\"'])");
         final Matcher matcher = compile.matcher(cUrl);
         if (matcher.find()) {
-            final String trim = matcher.group().trim();
+            String trim = matcher.group().trim();
+            if (trim.startsWith("'")) {
+                trim = trim.substring(1);
+            }
             return trim.substring(1);
         }
         return null;
