@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.2.1]
+
+### Added
+
+- Added the feature of importing Postman Collection
+
+### Changed
+
+- Improved parsing of cURL commands
+
+### Fixed
+
+- Fixed the bug that the cURL was imported with an error
+
 ## [1.1.10]
 
 ### Fixed
