@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.CompletionItem;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
@@ -7,9 +8,13 @@ import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.config.HashCryptoProp;
+import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
+import com.github.morningzeng.toolset.model.HttpBean;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
+import com.github.morningzeng.toolset.utils.CURLUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.JacksonUtils;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons.Actions;
@@ -21,13 +26,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HTTPMethod;
 import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI.Borders;
@@ -49,8 +55,11 @@ import javax.swing.JComponent;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.io.IOException;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -70,7 +79,9 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         this.project = project;
         final AnAction importAction = ActionUtils.drawerActions(
                 "Import", "Import HTTP Request", ToolbarDecorator.Import,
-                new CURLAction(project, this::createHttpTabPanel)
+                new CURLAction(project, this::createHttpTabPanel),
+                new PostmanAction(project)
+
         );
         final ActionBar actionBar = new ActionBar(this.addAction(), this.deleteAction(), importAction);
         final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .3f);
@@ -174,14 +185,14 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
                 @Override
                 protected void doOKAction() {
+                    final HttpTabPanel httpTabPanel = new HttpTabPanel(project);
                     try {
-                        final HttpTabPanel httpTabPanel = new HttpTabPanel(project, this.textArea);
-//                        ScratchFileUtils.writeAndOpen(project, "http-test.test", this.textArea.getText());
                         ScratchFileUtils.write(HashCryptoProp.builder().title("test")
                                 .key("key1").desc("desc")
                                 .build());
                         consumer.accept(httpTabPanel);
                     } finally {
+                        httpTabPanel.render(CURLUtils.from(this.textArea.getText()));
                         this.textArea.releaseEditor();
                         super.doOKAction();
                     }
@@ -198,6 +209,56 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         }
     }
 
+    static class PostmanAction extends AnAction {
+        private final Project project;
+
+        PostmanAction(final Project project) {
+            super("Postman Collection...");
+            this.project = project;
+        }
+
+        @Override
+        public void actionPerformed(@NotNull final AnActionEvent e) {
+            new DialogWrapper(this.project) {
+                final TextFieldWithBrowseButton browseButton = new TextFieldWithBrowseButton(new JBTextField());
+
+                {
+                    this.browseButton.setPreferredSize(new Dimension(750, this.browseButton.getHeight()));
+                    init();
+                    setTitle("Import Postman Collection");
+                }
+
+                @Override
+                protected JComponent createCenterPanel() {
+                    this.browseButton.setToolTipText("Postman Collection File ");
+                    return this.browseButton;
+                }
+
+                @Override
+                protected void doOKAction() {
+                    try {
+                        final String filepath = this.browseButton.getText();
+                        final String content = Files.readString(Path.of(filepath));
+                        final List<HttpBean> httpBeans = JacksonUtils.IGNORE_TRANSIENT_AND_NULL.fromJson(content, new TypeReference<>() {
+                        });
+                        httpBeans.forEach(httpBean -> new HttpTabPanel(project).render(httpBean));
+                    } catch (IOException ex) {
+                        Messages.showMessageDialog(project, ex.getMessage(), "Import Error", Messages.getErrorIcon());
+                    } finally {
+                        super.doOKAction();
+                    }
+                }
+
+                @Override
+                protected @NotNull Action getOKAction() {
+                    final Action okAction = super.getOKAction();
+                    okAction.putValue(Action.NAME, "Import");
+                    return okAction;
+                }
+            }.showAndGet();
+        }
+    }
+
     static class HttpTabPanel extends JBPanel<JBPanelWithEmptyText> {
         static final OkHttpClient httpClient = new OkHttpClient();
         private final Project project;
@@ -207,12 +268,12 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         private final JBTabbedPane requestParamTabPane;
         private final LanguageTextArea headersPanel;
 
-        private final JBList<String> bodyLists = new JBList<>("Form Data", "X-www-Form-Urlencoded", "Raw");
+        private final JBList<HttpBodyTypeEnum> bodyLists = new JBList<>(HttpBodyTypeEnum.values());
         private final ComboBox<MediaType> mediaTypeComboBox = new ComboBox<>(new MediaType[]{
                 MediaType.parse("application/json"),
                 MediaType.parse("application/xml")
         });
-        private final JBSplitter bodySplitter;
+        private final LanguageTextArea bodyTextArea;
 
         private final LanguageTextArea responseArea;
 
@@ -226,13 +287,14 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             this.headersPanel.setPlaceholder("Enter HTTP Headers");
             this.headersPanel.setBorder(Borders.empty());
 
-            this.bodySplitter = new JBSplitter(false, "http-body-splitter", .3f);
-            this.bodySplitter.setDividerWidth(3);
-            this.bodySplitter.setFirstComponent(ScrollSupport.getInstance(this.bodyLists).verticalAsNeededScrollPane());
-            this.bodySplitter.setSecondComponent(new LanguageTextArea(PlainTextLanguage.INSTANCE, project, ""));
+            final JBSplitter bodySplitter = new JBSplitter(false, "http-body-splitter", .3f);
+            bodySplitter.setDividerWidth(3);
+            bodySplitter.setFirstComponent(ScrollSupport.getInstance(this.bodyLists).verticalAsNeededScrollPane());
+            this.bodyTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
+            bodySplitter.setSecondComponent(this.bodyTextArea);
 
             this.requestParamTabPane.addTab("Headers", this.headersPanel);
-            this.requestParamTabPane.addTab("Body", this.bodySplitter);
+            this.requestParamTabPane.addTab("Body", bodySplitter);
             this.requestParamTabPane.setPreferredSize(new Dimension(this.headersPanel.getWidth(), 70));
             this.requestParamSeparator.addExpandedListener(this.requestParamTabPane::setVisible);
 
@@ -242,87 +304,19 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             this.initializeLayout();
         }
 
-        public HttpTabPanel(final Project project, final LanguageTextArea curlTextArea) {
-            this(project);
-            final Map<String, String> headerMap = Maps.newHashMap();
-            final LanguageTextArea bodyTextArea = (LanguageTextArea) bodySplitter.getSecondComponent();
-            final String curl = curlTextArea.getText().trim();
-            if (StringUtil.isEmpty(curl) || !"curl".equalsIgnoreCase(curl.substring(0, 4))) {
-                return;
-            }
-            curl.lines().forEach(line -> {
-                final String trim = line.trim();
-                if ("curl".equalsIgnoreCase(trim.substring(0, 4))) {
-                    if (trim.contains("'")) {
-                        urlBar.setText(trim.split("'")[1]);
-                    } else {
-                        urlBar.setText(trim.split("\"")[1]);
-                    }
-                }
-                if ("-X".equalsIgnoreCase(trim.substring(0, 2))) {
-                    if (trim.contains("'")) {
-                        urlBar.setItem(HTTPMethod.valueOf(trim.split("'")[1]));
-                    } else {
-                        urlBar.setItem(HTTPMethod.valueOf(trim.split("\"")[1]));
-                    }
-                }
-                if ("-H".equalsIgnoreCase(trim.substring(0, 2))) {
-                    String[] header;
-                    if (trim.contains("'")) {
-                        header = trim.split("'")[1].split(":");
-                    } else {
-                        header = trim.split("\"")[1].split(":");
-                    }
-                    headerMap.put(header[0].trim(), header[1].trim());
-                }
-                if ("-d".equalsIgnoreCase(trim.substring(0, 2))
-                        || "--data".equalsIgnoreCase(trim.substring(0, 6))
-                        || "--data-raw".equalsIgnoreCase(trim.substring(0, 10))) {
-                    if (trim.contains("'")) {
-                        bodyTextArea.setText(trim.split("'")[1]);
-                    } else {
-                        bodyTextArea.setText(trim.split("\"")[1]);
-                    }
-                }
-                if ("-F".equalsIgnoreCase(trim.substring(0, 2))
-                        || "--form".equalsIgnoreCase(trim.substring(0, 6))) {
-                    String data;
-                    if (trim.contains("'")) {
-                        data = trim.split("'")[1];
-                    } else {
-                        data = trim.split("\"")[1];
-                    }
-                    final String[] split = data.split(";");
-                    bodyTextArea.setText(
-                            Arrays.stream(split)
-                                    .map(sl -> String.join(": ", sl.split("=")))
-                                    .collect(Collectors.joining("\n"))
-                    );
-                }
+        public void render(final HttpBean httpBean) {
+            Optional.ofNullable(httpBean.getRequest())
+                    .ifPresent(request -> {
+                        this.urlBar.setText(String.valueOf(request.getUrl()));
+                        this.urlBar.setItem(HTTPMethod.valueOf(request.getMethod()));
 
-            });
-            final String headers = headerMap.entrySet().stream()
-                    .map(entry -> String.join(": ", entry.getKey(), entry.getValue()))
-                    .collect(Collectors.joining("\n"));
-            headersPanel.setText(headers);
-
-            final String contentType = headerMap.get("Content-Type");
-            if (StringUtil.isEmpty(contentType)) {
-                return;
-            }
-            switch (contentType) {
-                case "multipart/form-data" -> bodyLists.setSelectedValue("Form Data", true);
-                case "application/x-www-form-urlencoded" -> bodyLists.setSelectedValue("X-www-Form-Urlencoded", true);
-                case "application/json" -> {
-                    bodyLists.setSelectedValue("Raw", true);
-                    mediaTypeComboBox.setSelectedIndex(0);
-                }
-                case "application/xml" -> {
-                    bodyLists.setSelectedValue("Raw", true);
-                    mediaTypeComboBox.setSelectedIndex(1);
-                }
-                default -> bodyLists.setSelectedValue("Raw", true);
-            }
+                        this.headersPanel.setText(request.headerText());
+                        Optional.ofNullable(request.getBody())
+                                .ifPresent(body -> {
+                                    this.bodyLists.setSelectedValue(body.mode(), true);
+                                    this.bodyTextArea.setText(body.bodyText());
+                                });
+                    });
         }
 
         private JButton executeBtn() {
@@ -332,7 +326,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     final RequestBody requestBody = this.requestBody();
                     final Headers headers = Headers.of(
                             this.headersPanel.getText().lines()
-                                    .<String[]>mapMulti((line, consumer) -> consumer.accept(line.split(": ")))
+                                    .<String[]>mapMulti((line, consumer) -> consumer.accept(line.split(": ?")))
                                     .collect(Collectors.toMap(h -> h[0], h -> h[1]))
                     );
                     final Request request = new Builder()
@@ -354,22 +348,21 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         }
 
         private RequestBody requestBody() {
-            final LanguageTextArea bodyTextArea = (LanguageTextArea) this.bodySplitter.getSecondComponent();
             final HTTPMethod httpMethod = this.urlBar.getItem();
             if (httpMethod == HTTPMethod.GET || httpMethod == HTTPMethod.HEAD) {
                 return null;
             }
             return switch (this.bodyLists.getSelectedValue()) {
-                case "Form Data", "X-www-Form-Urlencoded" -> {
+                case FORM_DATA, X_WWW_FORM_URLENCODED -> {
                     final FormBody.Builder builder = new FormBody.Builder();
-                    bodyTextArea.getText().lines()
+                    this.bodyTextArea.getText().lines()
                             .forEach(line -> {
-                                final String[] split = line.split(": ");
+                                final String[] split = line.split(": ?");
                                 builder.add(split[0], split[1]);
                             });
                     yield builder.build();
                 }
-                case "Raw" -> RequestBody.create(bodyTextArea.getText(), mediaTypeComboBox.getItem());
+                case RAW -> RequestBody.create(this.bodyTextArea.getText(), this.mediaTypeComboBox.getItem());
                 default -> null;
             };
         }
@@ -386,7 +379,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
         void release() {
             this.headersPanel.releaseEditor();
-            ((LanguageTextArea) this.bodySplitter.getSecondComponent()).releaseEditor();
+            this.bodyTextArea.releaseEditor();
             this.responseArea.releaseEditor();
         }
 

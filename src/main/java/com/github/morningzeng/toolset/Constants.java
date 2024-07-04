@@ -15,8 +15,11 @@ import java.util.Optional;
 public interface Constants {
 
     String COLON = ":";
+    String COLON_WITH_SPACE = ": ";
 
     String DOT = ".";
+
+    String EQUALS_SIGN = "=";
 
     interface CompletionItem {
 

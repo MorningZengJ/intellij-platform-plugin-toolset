@@ -112,6 +112,8 @@ public final class LanguageTextArea extends LanguageTextField {
         this.editor.setVerticalScrollbarVisible(true);
         this.editor.setHorizontalScrollbarVisible(true);
         this.editor.setViewer(this.readOnly);
+        Optional.ofNullable(this.language.getAssociatedFileType())
+                .ifPresent(fileType -> this.editor.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType)));
 
         final EditorSettings settings = this.editor.getSettings();
         settings.setLineNumbersShown(this.showNumber);
@@ -146,7 +148,7 @@ public final class LanguageTextArea extends LanguageTextField {
             }
             final Document document = PsiDocumentManager.getInstance(this.project).getDocument(psiFile);
             this.setNewDocumentAndFileType(fileType, document);
-            this.editor.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType));
+            Optional.ofNullable(this.editor).ifPresent(editorEx -> editorEx.setHighlighter(HighlighterFactory.createHighlighter(this.project, fileType)));
             if (this.autoReformat) {
                 this.reformatCode();
             }
