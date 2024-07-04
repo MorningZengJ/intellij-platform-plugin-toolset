@@ -1,5 +1,7 @@
 package com.github.morningzeng.toolset.component;
 
+import com.github.morningzeng.toolset.model.Children;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.intellij.ui.treeStructure.SimpleTree;
@@ -12,6 +14,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -37,6 +40,12 @@ public final class TreeComponent extends SimpleTree {
 
     @SafeVarargs
     public final <T> void setNodes(final Collection<T> data, final Function<T, ?>... functions) {
+        this.root.removeAllChildren();
+        this.addNodes(data, functions);
+    }
+
+    @SafeVarargs
+    public final <T> void addNodes(final Collection<T> data, final Function<T, ?>... functions) {
         if (Objects.isNull(data) || data.isEmpty()) {
             return;
         }
@@ -69,6 +78,15 @@ public final class TreeComponent extends SimpleTree {
             parent = function;
         }
         this.reloadTree();
+    }
+
+    public <T extends Children<T>> void setNodes(final Collection<T> ts) {
+        this.root.removeAllChildren();
+        this.addNodes(ts);
+    }
+
+    public <T extends Children<T>> void addNodes(final Collection<T> ts) {
+        this.builderNode(ts, this.root);
     }
 
     public Set<DefaultMutableTreeNode> leafNodes() {
@@ -104,16 +122,19 @@ public final class TreeComponent extends SimpleTree {
         return node;
     }
 
-    public void delete(final Consumer<TreePath[]> consumer) {
+    public void delete(final Consumer<List<DefaultMutableTreeNode>> consumer) {
         final TreePath[] paths = this.getSelectionPaths();
         if (Objects.isNull(paths)) {
             return;
         }
+        final List<DefaultMutableTreeNode> treeNodes = Lists.newArrayList();
         for (final TreePath path : paths) {
-            this.treeModel.removeNodeFromParent((DefaultMutableTreeNode) path.getLastPathComponent());
+            final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+            this.treeModel.removeNodeFromParent(treeNode);
+            treeNodes.add(treeNode);
         }
         this.reloadTree();
-        consumer.accept(paths);
+        consumer.accept(treeNodes);
     }
 
     public void reloadTree() {
@@ -134,6 +155,17 @@ public final class TreeComponent extends SimpleTree {
                 });
     }
 
+    public <T> T getSelectedValue() {
+        final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
+        //noinspection unchecked
+        return (T) selectedNode.getUserObject();
+    }
+
+    public int childrenCount() {
+        final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
+        return treeNode.getPath().length;
+    }
+
     public void lastSelected(final Consumer<DefaultMutableTreeNode> consumer) {
         final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.getLastSelectedPathComponent();
         if (Objects.isNull(selectedNode)) {
@@ -151,6 +183,18 @@ public final class TreeComponent extends SimpleTree {
         parentNode.add(node);
         if (deep == functions.length) {
             node.setAllowsChildren(false);
+        }
+    }
+
+    <T extends Children<T>> void builderNode(final Collection<T> ts, final DefaultMutableTreeNode parent) {
+        if (Objects.isNull(ts) || ts.isEmpty()) {
+            return;
+        }
+        for (final T t : ts) {
+            final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(t);
+            parent.add(treeNode);
+            final List<T> children = t.getChildren();
+            this.builderNode(children, treeNode);
         }
     }
 

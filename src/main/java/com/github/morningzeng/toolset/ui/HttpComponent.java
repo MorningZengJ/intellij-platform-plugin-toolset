@@ -3,13 +3,16 @@ package com.github.morningzeng.toolset.ui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.CompletionItem;
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.annotations.ScratchConfig.OutputType;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
+import com.github.morningzeng.toolset.component.TreeComponent;
 import com.github.morningzeng.toolset.config.HashCryptoProp;
 import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
 import com.github.morningzeng.toolset.model.HttpBean;
+import com.github.morningzeng.toolset.model.HttpBean.RequestBean;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.CURLUtils;
@@ -27,6 +30,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
@@ -49,14 +53,15 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -71,9 +76,8 @@ import java.util.stream.Collectors;
 public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
     private final Project project;
 
-    private final DefaultListModel<String> listModel = new DefaultListModel<>();
-    private final JBList<String> requestNames = new JBList<>(this.listModel);
-    private final Map<String, HttpTabPanel> components = Maps.newHashMap();
+    private final TreeComponent requestTree = new TreeComponent();
+    private final Map<HttpBean, HttpTabPanel> components = Maps.newHashMap();
 
     public HttpComponent(final Project project) {
         this.project = project;
@@ -86,21 +90,28 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         final ActionBar actionBar = new ActionBar(this.addAction(), this.deleteAction(), importAction);
         final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .3f);
         splitter.setDividerWidth(3);
-        splitter.setFirstComponent(ScrollSupport.getInstance(this.requestNames).verticalAsNeededScrollPane());
-        if (this.requestNames.isSelectionEmpty()) {
-            splitter.setSecondComponent(new JBPanelWithEmptyText());
-        } else {
-            final HttpTabPanel component = this.components.get(this.requestNames.getSelectedValue());
-            splitter.setSecondComponent(component);
-        }
+        splitter.setFirstComponent(ScrollSupport.getInstance(this.requestTree).verticalAsNeededScrollPane());
 
-        this.requestNames.addListSelectionListener(e -> {
-            final String chosenRequest = this.requestNames.getSelectedValue();
-            splitter.setSecondComponent(components.get(chosenRequest));
+        ScratchFileUtils.childrenFile("HTTP")
+                .filter(file -> !file.isDirectory())
+                .sorted(
+                        Comparator.comparing(VirtualFile::getName)
+                                .thenComparing(VirtualFile::getPath)
+                )
+                .forEach(file -> {
+                    final List<HttpBean> beans = ScratchFileUtils.read(file, OutputType.YAML, new TypeReference<>() {
+                    });
+                    this.requestTree.addNodes(beans);
+                });
+        splitter.setSecondComponent(new JBPanelWithEmptyText());
+
+        this.requestTree.addTreeSelectionListener(e -> {
+            final HttpBean selectedValue = this.requestTree.getSelectedValue();
+            splitter.setSecondComponent(this.components.computeIfAbsent(selectedValue, httpBean -> new HttpTabPanel(this.project).render(httpBean)));
         });
-        this.requestNames.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
-            final String name = value.split("-")[0];
-            return new JBLabel(name);
+        this.requestTree.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
+            final HttpBean hb = (HttpBean) value;
+            return new JBLabel(hb.getName());
         });
 
         this.setLayout(new GridBagLayout());
@@ -123,30 +134,30 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         return new AnAction("Delete", "Delete HTTP Request", IconC.REMOVE_RED) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                if (requestNames.isSelectionEmpty()) {
+                if (requestTree.isSelectionEmpty()) {
                     return;
                 }
-                int index = requestNames.getSelectedIndex();
-                final String item = requestNames.getSelectedValue();
-                listModel.removeElement(item);
-                final HttpTabPanel httpTabPanel = components.remove(item);
-                httpTabPanel.release();
-                final int itemsCount = requestNames.getItemsCount();
-                if (itemsCount > 0) {
-                    if (index == itemsCount) {
-                        --index;
+                requestTree.delete(treeNodes -> {
+                    for (final DefaultMutableTreeNode treeNode : treeNodes) {
+                        final HttpBean httpBean = (HttpBean) treeNode.getUserObject();
+                        Optional.ofNullable(components.remove(httpBean))
+                                .ifPresent(HttpTabPanel::release);
                     }
-                    requestNames.setSelectedIndex(Math.max(index, 0));
-                }
+                });
             }
         };
     }
 
     private void createHttpTabPanel(final HttpTabPanel httpTabPanel) {
-        final String requestName = "request#%s-%s".formatted(requestNames.getItemsCount() + 1, System.currentTimeMillis());
-        this.listModel.addElement(requestName);
-        this.components.put(requestName, httpTabPanel);
-        this.requestNames.setSelectedValue(requestName, true);
+        final HttpBean selectedValue = this.requestTree.getSelectedValue();
+
+        final HttpBean httpBean = HttpBean.builder()
+                .name("%s#%s".formatted(selectedValue.getName(), this.requestTree.childrenCount() + 1))
+                .request(
+                        RequestBean.builder().build()
+                )
+                .build();
+        this.requestTree.createNodeOnSelectNode(httpBean, true);
     }
 
     static class CURLAction extends AnAction {
@@ -304,7 +315,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             this.initializeLayout();
         }
 
-        public void render(final HttpBean httpBean) {
+        public HttpTabPanel render(final HttpBean httpBean) {
             Optional.ofNullable(httpBean.getRequest())
                     .ifPresent(request -> {
                         this.urlBar.setText(String.valueOf(request.getUrl()));
@@ -317,6 +328,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                                     this.bodyTextArea.setText(body.bodyText());
                                 });
                     });
+            return this;
         }
 
         private JButton executeBtn() {

@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.newvfs.RefreshQueue;
 import com.intellij.openapi.vfs.newvfs.RefreshSession;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -23,9 +24,12 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static com.github.morningzeng.toolset.utils.JacksonUtils.IGNORE_TRANSIENT_AND_NULL;
 
@@ -37,6 +41,7 @@ public final class ScratchFileUtils {
 
     static final String ROOT_DIRECTORY = "Toolset";
 
+    @SneakyThrows
     public static <T> void write(final T t) {
 //        write(name, IGNORE_TRANSIENT_AND_NULL.toPrettyJson(t));
         final Class<?> tClass = t.getClass();
@@ -44,23 +49,26 @@ public final class ScratchFileUtils {
         if (Objects.isNull(scratchConfig)) {
             return;
         }
-        try {
-            final String filename = String.join(Constants.DOT, scratchConfig.filename(), scratchConfig.outputType().suffix());
-            final VirtualFile file = findOrCreate(scratchConfig.directory(), filename);
-            final String content = read(file);
+        final String filename = String.join(Constants.DOT, scratchConfig.filename(), scratchConfig.outputType().suffix());
+        final VirtualFile file = findOrCreate(scratchConfig.directory(), filename);
+        final String content = read(file);
 
-            Map<String, Object> yamlMap;
-            if (StringUtil.isEmpty(content)) {
-                yamlMap = Maps.newHashMap();
-            } else {
-                yamlMap = scratchConfig.outputType().deserialize(content, new TypeReference<>() {
-                });
-            }
-            yamlMap.put(scratchConfig.value(), t);
-            write(file, scratchConfig.outputType().serialize(yamlMap));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        Map<String, Object> yamlMap;
+        if (StringUtil.isEmpty(content)) {
+            yamlMap = Maps.newHashMap();
+        } else {
+            yamlMap = scratchConfig.outputType().deserialize(content, new TypeReference<>() {
+            });
         }
+        yamlMap.put(scratchConfig.value(), t);
+        write(file, scratchConfig.outputType().serialize(yamlMap));
+    }
+
+    @SneakyThrows
+    public static <T> void write(final String directory, String filename, final ScratchConfig.OutputType outputType, final T t) {
+        filename = String.join(Constants.DOT, filename, outputType.suffix());
+        final VirtualFile file = findOrCreate(directory, filename);
+        write(file, outputType.serialize(t));
     }
 
     public static void write(final String name, final String content) {
@@ -76,13 +84,10 @@ public final class ScratchFileUtils {
         write(name, content, scratchFile -> open(project, scratchFile));
     }
 
+    @SneakyThrows
     public static void write(final String filename, final String content, final Consumer<VirtualFile> consumer) {
-        try {
-            final VirtualFile scratchFile = findOrCreate(filename);
-            write(scratchFile, content, consumer);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
+        final VirtualFile scratchFile = findOrCreate(filename);
+        write(scratchFile, content, consumer);
     }
 
     public static void write(final VirtualFile file, final String content) {
@@ -121,69 +126,85 @@ public final class ScratchFileUtils {
         });
     }
 
-    public static String read(final String filename) {
-        return ApplicationManager.getApplication().runReadAction((Computable<String>) () -> {
-            try {
-                return VfsUtil.loadText(findOrCreate(filename));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+    @SneakyThrows
+    public static String read(final String directory, final String filename) {
+        return read(findOrCreate(directory, filename));
     }
 
-    public static <T> T read(final String filename, final Class<T> type) {
-        final String json = read(filename);
-        return IGNORE_TRANSIENT_AND_NULL.fromJson(json, type);
+    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Class<T> type) {
+        final String json = read(directory, filename);
+        return outputType.deserialize(json, type);
     }
 
-    public static <T> T read(final String filename, final TypeReference<T> type) {
-        final String json = read(filename);
-        return IGNORE_TRANSIENT_AND_NULL.fromJson(json, type);
+    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
+        final String json = read(directory, filename);
+        return outputType.deserialize(json, type);
     }
 
-    public static <T> T read(final String filename, final Type type) {
-        final String json = read(filename);
-        return IGNORE_TRANSIENT_AND_NULL.fromJson(json, type);
+    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final Type type) {
+        final String json = read(file);
+        return outputType.deserialize(json, type);
     }
 
-    public static void openFile(final Project project, final String filename) {
-        try {
-            final VirtualFile virtualFile = findOrCreate(filename);
-            open(project, virtualFile);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final Class<T> type) {
+        final String json = read(file);
+        return outputType.deserialize(json, type);
+    }
+
+    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
+        final String json = read(file);
+        return outputType.deserialize(json, type);
+    }
+
+    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Type type) {
+        final String json = read(directory, filename);
+        return outputType.deserialize(json, type);
+    }
+
+    @SneakyThrows
+    public static void openFile(final Project project, final String directory, final String filename) {
+        final VirtualFile virtualFile = findOrCreate(directory, filename);
+        open(project, virtualFile);
+    }
+
+    public static Stream<VirtualFile> childrenFile(final String dir) {
+        final VirtualFile directory = directory(dir);
+        return Arrays.stream(directory.getChildren());
     }
 
     static void open(final Project project, final VirtualFile scratchFile) {
         ApplicationManager.getApplication().invokeAndWait(() -> FileEditorManager.getInstance(project).openFile(scratchFile, true));
     }
 
-    static VirtualFile findOrCreate(final String filename) throws IOException {
+    static VirtualFile findOrCreate(final String filename) {
         return findOrCreate(null, filename);
     }
 
-    static VirtualFile findOrCreate(final String directory, final String filename) throws IOException {
-        final ScratchFileService service = ScratchFileService.getInstance();
-        final ScratchRootType rootType = ScratchRootType.getInstance();
-        final String scratch = service.getRootPath(rootType);
-        final Path configPath = Paths.get(String.join(File.separator, scratch, ROOT_DIRECTORY, directory));
-
-        final VirtualFile scratchDirectory = LocalFileSystem.getInstance().findFileByNioFile(configPath);
+    static VirtualFile findOrCreate(final String directory, final String filename) {
         return ApplicationManager.getApplication().runWriteAction((Computable<VirtualFile>) () -> {
             try {
-                if (scratchDirectory == null) {
-                    final VirtualFile configDirectory = mkdirs(configPath);
-                    return configDirectory.createChildData(null, filename);
-                }
-                return scratchDirectory.findOrCreateChildData(null, filename);
+                return directory(directory).findOrCreateChildData(null, filename);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    static VirtualFile mkdirs(final Path path) throws IOException {
+    static VirtualFile directory(final String directory) {
+        final ScratchFileService service = ScratchFileService.getInstance();
+        final ScratchRootType rootType = ScratchRootType.getInstance();
+        final String scratch = service.getRootPath(rootType);
+        final Path configPath = Paths.get(String.join(File.separator, scratch, ROOT_DIRECTORY, directory));
+
+        final VirtualFile scratchDirectory = LocalFileSystem.getInstance().findFileByNioFile(configPath);
+        return ApplicationManager.getApplication().runWriteAction(
+                (Computable<VirtualFile>) () -> Optional.ofNullable(scratchDirectory)
+                        .orElse(mkdirs(configPath))
+        );
+    }
+
+    @SneakyThrows
+    static VirtualFile mkdirs(final Path path) {
         final LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
         final VirtualFile file = localFileSystem.findFileByNioFile(path);
         if (Objects.nonNull(file)) {

@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,6 +23,7 @@ public abstract class Children<T> {
     /**
      * children
      */
+    @JsonAlias({"item"})
     private List<T> children;
 
 }

@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public final class HttpBean {
+@EqualsAndHashCode(callSuper = true)
+public final class HttpBean extends Children<HttpBean> {
     private String name;
     private RequestBean request;
-    private List<HttpBean> item;
 
     @Data
     @Builder
