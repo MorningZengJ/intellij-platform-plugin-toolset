@@ -27,9 +27,10 @@ import java.util.regex.Pattern;
 public final class CURLUtils {
 
     public static HttpBean from(final String cUrl) {
-        return HttpBean.builder()
+        final HttpBean bean = HttpBean.builder()
                 .request(resolve(cUrl))
                 .build();
+        return bean.setName(String.valueOf(bean.getRequest().getUrl()));
     }
 
     static RequestBean resolve(final String cUrl) {

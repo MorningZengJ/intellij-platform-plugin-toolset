@@ -167,9 +167,11 @@ public final class ScratchFileUtils {
         open(project, virtualFile);
     }
 
-    public static Stream<VirtualFile> childrenFile(final String dir) {
+    public static void childrenFile(final String dir, final Consumer<Stream<VirtualFile>> consumer) {
         final VirtualFile directory = directory(dir);
-        return Arrays.stream(directory.getChildren());
+        ApplicationManager.getApplication().invokeLater(
+                () -> consumer.accept(Arrays.stream(directory.getChildren()))
+        );
     }
 
     static void open(final Project project, final VirtualFile scratchFile) {

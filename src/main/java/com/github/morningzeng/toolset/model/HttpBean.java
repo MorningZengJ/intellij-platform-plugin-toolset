@@ -2,17 +2,23 @@ package com.github.morningzeng.toolset.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.github.morningzeng.toolset.Constants;
+import com.github.morningzeng.toolset.Constants.IconC.HttpMethod;
 import com.github.morningzeng.toolset.enums.EnumSupport;
 import com.github.morningzeng.toolset.enums.HttpBodyParamTypeEnum;
 import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
+import com.intellij.util.net.HTTPMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import javax.swing.Icon;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,6 +29,7 @@ import java.util.stream.Collectors;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @EqualsAndHashCode(callSuper = true)
 public final class HttpBean extends Children<HttpBean> {
     private String name;
@@ -40,9 +47,30 @@ public final class HttpBean extends Children<HttpBean> {
         private String description;
 
         public String headerText() {
-            return this.header.stream()
-                    .map(pair -> String.join(Constants.COLON_WITH_SPACE, pair.key, pair.value))
-                    .collect(Collectors.joining(System.lineSeparator()));
+            return Optional.ofNullable(this.header)
+                    .map(pairs -> pairs.stream()
+                            .map(pair -> String.join(Constants.COLON_WITH_SPACE, pair.key, pair.value))
+                            .collect(Collectors.joining(System.lineSeparator())))
+                    .orElse("");
+        }
+
+        public HTTPMethod method() {
+            return Optional.ofNullable(this.method)
+                    .map(HTTPMethod::valueOf)
+                    .orElse(HTTPMethod.GET);
+        }
+
+        public Icon methodIcon() {
+            return switch (this.method()) {
+                case GET -> HttpMethod.GET;
+                case POST -> HttpMethod.POST;
+                case PUT -> HttpMethod.PUT;
+                case PATCH -> HttpMethod.PATCH;
+                case DELETE -> HttpMethod.DELETE;
+                case HEAD -> HttpMethod.HEAD;
+                case OPTIONS -> HttpMethod.OPTIONS;
+                case TRACE -> HttpMethod.TRACE;
+            };
         }
     }
 
@@ -106,7 +134,7 @@ public final class HttpBean extends Children<HttpBean> {
     @AllArgsConstructor
     @EqualsAndHashCode(callSuper = true)
     public non-sealed static class PairWithTypeDescription extends Pair<String, String> {
-        @Builder.Default
+        @Default
         private final String type = HttpBodyParamTypeEnum.TEXT.key();
         private String description;
 
