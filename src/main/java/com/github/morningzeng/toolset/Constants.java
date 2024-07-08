@@ -45,6 +45,9 @@ public interface Constants {
         Icon BOX = IconLoader.getIcon("/images/svg/box.svg", CLASS_LOADER);
         Icon Time = IconLoader.getIcon("/images/svg/schedule_24dp_FILL0_wght400_GRAD0_opsz24.svg", CLASS_LOADER);
 
+        Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
+        Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
+
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);
             Icon POST = IconLoader.getIcon("/images/svg/http_method/post.svg", CLASS_LOADER);

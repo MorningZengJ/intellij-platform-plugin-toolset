@@ -61,7 +61,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     UNDER(2, "Underlined/ humped") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
             super.initialize(objectMapper);
         }
@@ -71,7 +71,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     IGNORE_TRANSIENT(3, "Ignore the transient keyword") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             objectMapper.setVisibility(
                     objectMapper.getSerializationConfig().getDefaultVisibilityChecker()
                             .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
@@ -86,7 +86,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     IGNORE_UNKNOWN(4, "Ignore undefined fields") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             super.initialize(objectMapper);
         }
@@ -96,7 +96,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     IGNORE_NULL(5, "Ignore null values") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             super.initialize(objectMapper);
         }
@@ -106,7 +106,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     KEY_NULL(6, "null to \"null\"") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             objectMapper.getSerializerProvider().setNullKeySerializer(new JsonSerializer<>() {
                 @Override
                 public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
@@ -121,7 +121,7 @@ public enum JacksonUtils implements JacksonSupport {
      */
     IGNORE_TRANSIENT_AND_NULL(11, "Output: Ignore the transient keyword, null") {
         @Override
-        void initialize(ObjectMapper objectMapper) {
+        public void initialize(ObjectMapper objectMapper) {
             IGNORE_TRANSIENT.initialize(objectMapper);
             IGNORE_NULL.initialize(objectMapper);
             super.initialize(objectMapper);
@@ -149,7 +149,7 @@ public enum JacksonUtils implements JacksonSupport {
      *
      * @param objectMapper {@link ObjectMapper}
      */
-    void initialize(ObjectMapper objectMapper) {
+    public void initialize(ObjectMapper objectMapper) {
         final JavaTimeModule javaTimeModule = new JavaTimeModule();
         javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .addSerializer(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd")))

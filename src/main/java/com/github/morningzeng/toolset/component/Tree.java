@@ -11,6 +11,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -42,6 +44,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
     public void addNodes(final Collection<T> ts) {
         this.ts.addAll(ts);
         this.builderNode(ts, this.root);
+        this.reloadTree(null);
     }
 
     public DefaultMutableTreeNode create(final T t, final boolean allowsChildren) {
@@ -53,9 +56,9 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                     if (n.getAllowsChildren()) {
                         n.add(node);
                         final T selectedValue = this.getSelectedValue();
-                        Optional.ofNullable(selectedValue).map(Children::getChildren).ifPresent(ts -> {
-                            ts.add(t);
-                            t.setParent(selectedValue);
+                        Optional.ofNullable(selectedValue).ifPresent(sv -> {
+                            sv.addChild(t);
+                            t.setParent(sv);
                         });
                         this.treeModel.reload(n);
                         this.expandPath(new TreePath(node.getPath()));
@@ -63,9 +66,9 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                         final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) n.getParent();
                         parent.add(node);
                         final T pt = this.getNodeValue(parent);
-                        Optional.ofNullable(pt).map(Children::getChildren).ifPresent(ts -> {
-                            ts.add(t);
-                            t.setParent(pt);
+                        Optional.ofNullable(pt).ifPresent(sv -> {
+                            sv.addChild(t);
+                            t.setParent(sv);
                         });
                         this.treeModel.reload(parent);
                         this.expandPath(new TreePath(parent.getPath()));
@@ -79,10 +82,20 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         return node;
     }
 
-    public void cleanUp(final Consumer<List<T>> flatConsumer) {
+    public void clear(final Consumer<List<T>> flatConsumer) {
         this.ts.clear();
         final List<T> flatTree = this.flatTree(this.ts);
         flatConsumer.accept(flatTree);
+        this.root.removeAllChildren();
+    }
+
+    @Override
+    public boolean isSelectionEmpty() {
+        if (CollectionUtils.isEmpty(this.ts)) {
+            return true;
+        }
+        final TreePath selection = super.getSelectionPath();
+        return selection == null || Objects.isNull(TreeUtil.getLastUserObject(this.ts.get(0).getClass(), selection));
     }
 
     public void delete(final Consumer<List<DefaultMutableTreeNode>> consumer) {
@@ -129,6 +142,17 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         }
         //noinspection unchecked
         return (T) selectedNode.getUserObject();
+    }
+
+    public void clearSelectionIfClickedOutside() {
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (Objects.isNull(Tree.this.getPathForLocation(e.getX(), e.getY()))) {
+                    Tree.this.clearSelection();
+                }
+            }
+        });
     }
 
     void builderNode(final Collection<T> ts, final DefaultMutableTreeNode parent) {

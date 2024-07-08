@@ -6,6 +6,8 @@ import com.github.morningzeng.toolset.Constants.IconC.HttpMethod;
 import com.github.morningzeng.toolset.enums.EnumSupport;
 import com.github.morningzeng.toolset.enums.HttpBodyParamTypeEnum;
 import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
+import com.github.morningzeng.toolset.utils.CURLUtils;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.net.HTTPMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +28,7 @@ import java.util.stream.Collectors;
  * @since 2024-07-01
  */
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
@@ -52,6 +54,14 @@ public final class HttpBean extends Children<HttpBean> {
                             .map(pair -> String.join(Constants.COLON_WITH_SPACE, pair.key, pair.value))
                             .collect(Collectors.joining(System.lineSeparator())))
                     .orElse("");
+        }
+
+        public void url(String url) {
+            if (StringUtil.isEmpty(url)) {
+                return;
+            }
+            url = "curl '%s' ".formatted(url);
+            this.url = CURLUtils.url(url);
         }
 
         public HTTPMethod method() {
@@ -115,6 +125,29 @@ public final class HttpBean extends Children<HttpBean> {
                         this.urlencoded.stream().map(PairWithTypeDescription::dataText).collect(Collectors.joining(System.lineSeparator()));
                 default -> null;
             };
+        }
+
+        public final void bodyText(final String text) {
+            switch (this.mode()) {
+                case RAW -> this.raw = text;
+                case FORM_DATA -> this.formData = text.lines()
+                        .<FormData>map(s -> {
+                            final String[] split = s.split(Constants.COLON_WITH_SPACE);
+                            return FormData.builder()
+                                    .key(split[0])
+                                    .value(split[1])
+                                    .build();
+                        })
+                        .toList();
+                case X_WWW_FORM_URLENCODED -> this.urlencoded = text.lines()
+                        .map(s -> {
+                            final String[] split = s.split(Constants.COLON_WITH_SPACE);
+                            return PairWithTypeDescription.with(split[0], split[1]);
+                        })
+                        .toList();
+                default -> {
+                }
+            }
         }
     }
 

@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.dataformat.xml.XmlFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator.Feature;
+import com.github.morningzeng.toolset.Constants;
+import com.github.morningzeng.toolset.utils.JacksonUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.SneakyThrows;
@@ -39,7 +42,7 @@ public @interface ScratchConfig {
 
     @AllArgsConstructor
     enum OutputType {
-        YAML("yaml", new YAMLFactory()),
+        YAML("yaml", new YAMLFactory().disable(Feature.WRITE_DOC_START_MARKER)),
         JSON("json", new JsonFactory()),
         XML("xml", new XmlFactory()),
         ;
@@ -58,11 +61,16 @@ public @interface ScratchConfig {
         private final JsonFactory factory;
 
         void initialize(final ObjectMapper objectMapper) {
+            JacksonUtils.IGNORE_TRANSIENT_AND_NULL.initialize(objectMapper);
             objectMapper.setPropertyNamingStrategy(PropertyNamingStrategies.KEBAB_CASE);
         }
 
         ObjectMapper mapper() {
             return OBJECT_MAPPERS.get(this);
+        }
+
+        public String fullName(final String filename) {
+            return String.join(Constants.DOT, filename, this.suffix);
         }
 
         @SneakyThrows

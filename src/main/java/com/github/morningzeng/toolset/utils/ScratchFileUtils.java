@@ -71,6 +71,11 @@ public final class ScratchFileUtils {
         write(file, outputType.serialize(t));
     }
 
+    @SneakyThrows
+    public static <T> void write(final VirtualFile file, final ScratchConfig.OutputType outputType, final T t) {
+        write(file, outputType.serialize(t));
+    }
+
     public static void write(final String name, final String content) {
         write(name, content, virtualFile -> {
         });
@@ -168,21 +173,19 @@ public final class ScratchFileUtils {
     }
 
     public static void childrenFile(final String dir, final Consumer<Stream<VirtualFile>> consumer) {
-        final VirtualFile directory = directory(dir);
         ApplicationManager.getApplication().invokeLater(
-                () -> consumer.accept(Arrays.stream(directory.getChildren()))
+                () -> {
+                    final VirtualFile directory = directory(dir);
+                    consumer.accept(Arrays.stream(directory.getChildren()));
+                }
         );
     }
 
-    static void open(final Project project, final VirtualFile scratchFile) {
-        ApplicationManager.getApplication().invokeAndWait(() -> FileEditorManager.getInstance(project).openFile(scratchFile, true));
-    }
-
-    static VirtualFile findOrCreate(final String filename) {
+    public static VirtualFile findOrCreate(final String filename) {
         return findOrCreate(null, filename);
     }
 
-    static VirtualFile findOrCreate(final String directory, final String filename) {
+    public static VirtualFile findOrCreate(final String directory, final String filename) {
         return ApplicationManager.getApplication().runWriteAction((Computable<VirtualFile>) () -> {
             try {
                 return directory(directory).findOrCreateChildData(null, filename);
@@ -190,6 +193,10 @@ public final class ScratchFileUtils {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    static void open(final Project project, final VirtualFile scratchFile) {
+        ApplicationManager.getApplication().invokeAndWait(() -> FileEditorManager.getInstance(project).openFile(scratchFile, true));
     }
 
     static VirtualFile directory(final String directory) {

@@ -42,12 +42,12 @@ public final class CURLUtils {
                 .build();
     }
 
-    static UrlBean url(final String cUrl) {
+    public static UrlBean url(final String cUrl) {
         final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location.+?(?= .+?[\"']))? +?[\"'].+(?=[\"'] )");
-        final String[] locationSpces = getByPattern(compile, cUrl).split(" ");
-        String location = locationSpces[locationSpces.length - 1];
+        final String[] locationSpace = getByPattern(compile, cUrl).split(" ");
+        String location = locationSpace[locationSpace.length - 1];
         final String url = location.trim().substring(1);
-        final String[] protocolSplit = url.split("(?i)//:");
+        final String[] protocolSplit = url.split("(?i)://");
 
         String protocol = "http";
         String hostUrl = url;
