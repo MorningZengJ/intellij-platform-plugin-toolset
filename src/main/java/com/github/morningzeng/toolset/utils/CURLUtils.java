@@ -43,7 +43,7 @@ public final class CURLUtils {
     }
 
     public static UrlBean url(final String cUrl) {
-        final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location.+?(?= .+?[\"']))? +?[\"'].+(?=[\"'] )");
+        final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location.+?(?= .+?[\"']))? +?[\"'].+?(?=[\"'] )");
         final String[] locationSpace = getByPattern(compile, cUrl).split(" ");
         String location = locationSpace[locationSpace.length - 1];
         final String url = location.trim().substring(1);
@@ -103,7 +103,7 @@ public final class CURLUtils {
     }
 
     static List<Pair<String, String>> header(final String cUrl) {
-        final Pattern compile = Pattern.compile("(?i)(?<=(-H)|(--header)) +?[\"'].+(?=[\"'] )");
+        final Pattern compile = Pattern.compile("(?i)(?<=(-H)|(--header)) +?[\"'].+?(?=[\"'] *)");
         final Matcher matcher = compile.matcher(cUrl);
         final List<Pair<String, String>> headers = Lists.newArrayList();
         while (matcher.find()) {

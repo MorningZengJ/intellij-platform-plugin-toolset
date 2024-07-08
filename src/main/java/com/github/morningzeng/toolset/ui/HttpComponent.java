@@ -26,7 +26,6 @@ import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
@@ -151,17 +150,17 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                         return bean;
                     })
                     .toList();
-            this.requestTree.addNodes(beans);
+            this.requestTree.addNodes(beans, httpBean -> Objects.isNull(httpBean.getRequest()));
         });
     }
 
-    private JBPanel<?> getOrCreateHttpTabPanel(final HttpBean httpBean) {
-        return this.getOrCreateHttpTabPanel(httpBean, true);
+    private void getOrCreateHttpTabPanel(final HttpBean httpBean) {
+        this.getOrCreateHttpTabPanel(httpBean, true);
     }
 
     private JBPanel<?> getOrCreateHttpTabPanel(final HttpBean httpBean, final boolean addTree) {
         if (addTree) {
-            this.requestTree.create(httpBean, true);
+            this.requestTree.create(httpBean, Objects.isNull(httpBean.getRequest()));
         }
         return this.components.computeIfAbsent(httpBean, hb -> {
             if (Objects.isNull(httpBean.getRequest())) {
@@ -179,36 +178,8 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                             .name(group)
                             .build();
                     getOrCreateHttpTabPanel(httpBean);
-                }) {
-                    @Override
-                    public @NotNull ActionUpdateThread getActionUpdateThread() {
-                        return super.getActionUpdateThread();
-                    }
-
-                    @Override
-                    public void update(@NotNull final AnActionEvent e) {
-                        Optional.ofNullable(requestTree.getSelectedValue())
-                                .ifPresentOrElse(
-                                        httpBean -> e.getPresentation().setEnabled(Objects.isNull(httpBean.getRequest())),
-                                        () -> e.getPresentation().setEnabled(true)
-                                );
-                    }
-                },
+                }),
                 new AnAction("Add Request Item") {
-                    @Override
-                    public @NotNull ActionUpdateThread getActionUpdateThread() {
-                        return super.getActionUpdateThread();
-                    }
-
-                    @Override
-                    public void update(@NotNull final AnActionEvent e) {
-                        Optional.ofNullable(requestTree.getSelectedValue())
-                                .ifPresentOrElse(
-                                        httpBean -> e.getPresentation().setEnabled(Objects.isNull(httpBean.getRequest())),
-                                        () -> e.getPresentation().setEnabled(true)
-                                );
-                    }
-
                     @Override
                     public void actionPerformed(@NotNull final AnActionEvent e) {
                         final HttpBean selectedValue = requestTree.getSelectedValue();

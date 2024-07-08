@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Morning Zeng
@@ -35,15 +36,15 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         this.setRootVisible(false);
     }
 
-    public void setNodes(final Collection<T> ts) {
+    public void setNodes(final Collection<T> ts, final Function<T, Boolean> allowsChildren) {
         this.root.removeAllChildren();
         this.ts.clear();
-        this.addNodes(ts);
+        this.addNodes(ts, allowsChildren);
     }
 
-    public void addNodes(final Collection<T> ts) {
+    public void addNodes(final Collection<T> ts, final Function<T, Boolean> allowsChildren) {
         this.ts.addAll(ts);
-        this.builderNode(ts, this.root);
+        this.builderNode(ts, this.root, allowsChildren);
         this.reloadTree(null);
     }
 
@@ -91,19 +92,22 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
 
     @Override
     public boolean isSelectionEmpty() {
-        if (CollectionUtils.isEmpty(this.ts)) {
-            return true;
-        }
-        final TreePath selection = super.getSelectionPath();
-        return selection == null || Objects.isNull(TreeUtil.getLastUserObject(this.ts.get(0).getClass(), selection));
+        return Objects.isNull(this.getSelectedValue());
     }
 
     public void delete(final Consumer<List<DefaultMutableTreeNode>> consumer) {
         Optional.ofNullable(this.getSelectionPaths())
                 .ifPresent(treePaths -> {
+                    DefaultMutableTreeNode next = null;
                     final List<DefaultMutableTreeNode> treeNodes = Lists.newArrayList();
                     for (final TreePath path : treePaths) {
                         final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) path.getLastPathComponent();
+                        if (Objects.isNull(next) || next.equals(treeNode)) {
+                            final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) treeNode.getParent();
+                            if (Objects.isNull(next = treeNode.getNextSibling())) {
+                                next = parent;
+                            }
+                        }
                         this.treeModel.removeNodeFromParent(treeNode);
                         treeNodes.add(treeNode);
                         final T t = this.getNodeValue(treeNode);
@@ -111,6 +115,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                     }
                     this.reloadTree(null);
                     consumer.accept(treeNodes);
+                    this.setSelectionPath(new TreePath(this.treeModel.getPathToRoot(next)));
                 });
     }
 
@@ -140,8 +145,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         if (Objects.isNull(selectedNode)) {
             return null;
         }
-        //noinspection unchecked
-        return (T) selectedNode.getUserObject();
+        return this.getNodeValue(selectedNode);
     }
 
     public void clearSelectionIfClickedOutside() {
@@ -155,17 +159,17 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         });
     }
 
-    void builderNode(final Collection<T> ts, final DefaultMutableTreeNode parent) {
+    void builderNode(final Collection<T> ts, final DefaultMutableTreeNode parent, final Function<T, Boolean> allowsChildren) {
         if (Objects.isNull(ts) || ts.isEmpty()) {
             return;
         }
         final T pt = this.getNodeValue(parent);
         for (final T t : ts) {
-            final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(t);
+            final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(t, allowsChildren.apply(t));
             parent.add(treeNode);
             Optional.ofNullable(pt).ifPresent(t::setParent);
             final List<T> children = t.getChildren();
-            this.builderNode(children, treeNode);
+            this.builderNode(children, treeNode, allowsChildren);
         }
     }
 

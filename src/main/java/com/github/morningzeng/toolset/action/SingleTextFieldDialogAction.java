@@ -20,7 +20,7 @@ import java.util.function.Consumer;
  * @author Morning Zeng
  * @since 2024-05-22
  */
-public class SingleTextFieldDialogAction extends AnAction {
+public final class SingleTextFieldDialogAction extends AnAction {
 
     private final Project project;
     private final String title;
