@@ -217,6 +217,13 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         return new AnAction("Save All", "Save all HTTP request to file", IconC.SAVE_ALL) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
+                final List<HttpBean> data = requestTree.data();
+                data.forEach(bean -> {
+                    final VirtualFile virtualFile = virtualFileMap.computeIfAbsent(
+                            bean, httpBean -> ScratchFileUtils.findOrCreate("HTTP", OutputType.YAML.fullName(httpBean.getName()))
+                    );
+                    ScratchFileUtils.write(virtualFile, OutputType.YAML, bean);
+                });
             }
         };
     }
@@ -227,6 +234,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             public void actionPerformed(@NotNull final AnActionEvent e) {
                 HttpBean selectedValue = requestTree.getSelectedValue();
                 if (Objects.isNull(selectedValue)) {
+                    Messages.showMessageDialog(project, "Please select the tree node you want to save", "Save HTTP Request File", Nodes.Folder);
                     return;
                 }
                 while (selectedValue.getParent() != null) {
