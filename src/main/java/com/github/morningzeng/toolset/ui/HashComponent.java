@@ -2,7 +2,6 @@ package com.github.morningzeng.toolset.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
@@ -10,83 +9,71 @@ import com.github.morningzeng.toolset.utils.HashCrypto;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.icons.AllIcons.General;
-import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Morning Zeng
  * @since 2024-05-21
  */
-public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
+public final class HashComponent extends CryptoComponent<HashCryptoProp> {
 
     final HashCrypto[] cryptos = Arrays.stream(HashCrypto.values())
             .toArray(HashCrypto[]::new);
-    final List<HashCryptoProp> props = ScratchFileUtils.read(new TypeReference<>() {
-    });
-    private final Project project;
-    private final ComboBox<HashCryptoProp> cryptoPropComboBox = new ComboBox<>(
-            Optional.ofNullable(props)
-                    .map(cryptoProps -> cryptoProps.stream()
-                            .sorted(Comparator.comparing(HashCryptoProp::getSorted))
-                            .<HashCryptoProp>mapMulti((prop, consumer) -> {
-                                consumer.accept(prop);
-                                prop.getChildren().stream()
-                                        .sorted(Comparator.comparing(HashCryptoProp::getSorted))
-                                        .forEach(consumer);
-                            })
-                            .toArray(HashCryptoProp[]::new))
-                    .orElse(new HashCryptoProp[0])
-    );
     private final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     private final ComboBox<HashCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
-    private final LanguageTextArea textArea;
     private final JButton calculation = new JButton("Calculation", IconC.DOUBLE_ARROW_DOWN);
-    private final LanguageTextArea encryptTextArea;
-
-    {
-        this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
-            if (Objects.isNull(value)) {
-                return new JLabel();
-            }
-            final String template = "%s - %s ( %s )";
-            return new JLabel(template.formatted(value.getTitle(), value.getDescription(), StringUtils.maskSensitive(value.getKey())));
-        });
-    }
 
     public HashComponent(final Project project) {
-        this.project = project;
-        this.textArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
-        this.encryptTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "", true);
-        this.textArea.setPlaceholder("Text content that needs to be hashed");
-        this.encryptTextArea.setPlaceholder("The hash value corresponding to the text");
+        super(project);
 
         this.setLayout(new GridBagLayout());
         GridLayoutUtils.builder()
                 .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
                 .newCell().weightX(0).add(this.cryptoManageBtn)
                 .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.textArea)
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
                 .newRow().weightY(0).add(this.calculation)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptTextArea);
+                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
 
         this.cryptoManageBtn.setEnabled(false);
         this.cryptoPropComboBox.setEnabled(false);
         this.initEvent();
+    }
+
+    @Override
+    List<HashCryptoProp> getCryptoProps() {
+        return ScratchFileUtils.read(new TypeReference<>() {
+        });
+    }
+
+    @Override
+    Comparator<? super HashCryptoProp> comparator() {
+        return Comparator.comparing(HashCryptoProp::getSorted);
+    }
+
+    @Override
+    String cryptoPropText(final HashCryptoProp prop) {
+        if (prop.isDirectory()) {
+            return prop.getTitle();
+        }
+        final String template = "%s - %s ( %s )";
+        return template.formatted(prop.getTitle(), prop.getDescription(), StringUtils.maskSensitive(prop.getKey()));
+    }
+
+    @Override
+    boolean isDirectory(final HashCryptoProp prop) {
+        return prop.isDirectory();
     }
 
     void initEvent() {
@@ -100,11 +87,11 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
                 String enc;
                 if (crypto == HashCrypto.HMAC) {
                     final HashCryptoProp prop = this.cryptoPropComboBox.getItem();
-                    enc = crypto.enc(this.textArea.getText(), prop.getKey());
+                    enc = crypto.enc(this.decryptArea.getText(), prop.getKey());
                 } else {
-                    enc = crypto.enc(this.textArea.getText());
+                    enc = crypto.enc(this.decryptArea.getText());
                 }
-                this.encryptTextArea.setText(enc);
+                this.encryptArea.setText(enc);
             } catch (Exception ex) {
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }

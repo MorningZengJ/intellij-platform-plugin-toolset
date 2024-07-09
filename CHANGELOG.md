@@ -8,11 +8,13 @@
 
 ### Added
 
-- Added the feature of importing Postman Collection
+- Added the feature of importing Postman Collection.
 
 ### Changed
 
 - Improved parsing of cURL commands
+- The migration configuration is stored in Scratch. Back up your key before upgrading.
+- Optimize a number of functions.
 
 ### Fixed
 
