@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.github.morningzeng.toolset.Constants;
 import com.github.morningzeng.toolset.Constants.CompletionItem;
 import com.github.morningzeng.toolset.Constants.IconC;
@@ -28,6 +29,7 @@ import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -69,6 +71,7 @@ import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +97,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         final AnAction importAction = ActionUtils.drawerActions(
                 "Import", "Import HTTP Request", ToolbarDecorator.Import,
                 new CURLAction(project, this::getOrCreateHttpTabPanel),
-                new PostmanAction(project)
+                new PostmanAction(project, httpBean -> this.requestTree.addNodes(Collections.singletonList(httpBean), bean -> Objects.isNull(bean.getRequest())))
 
         );
         final ActionBar actionBar = new ActionBar(
@@ -118,9 +121,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     .map(RequestBean::methodIcon)
                     .orElse(Nodes.Folder);
             final String text = httpBean.getName();
-            final JBLabel label = new JBLabel(text, icon, SwingConstants.LEFT);
-            label.setIconTextGap(0);
-            return label;
+            return new JBLabel(text, icon, SwingConstants.LEFT);
         });
         this.requestTree.clearSelectionIfClickedOutside();
 
@@ -318,10 +319,12 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
     static class PostmanAction extends AnAction {
         private final Project project;
+        private final Consumer<HttpBean> consumer;
 
-        PostmanAction(final Project project) {
+        PostmanAction(final Project project, final Consumer<HttpBean> consumer) {
             super("Postman Collection...");
             this.project = project;
+            this.consumer = consumer;
         }
 
         @Override
@@ -331,6 +334,10 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
                 {
                     this.browseButton.setPreferredSize(new Dimension(750, this.browseButton.getHeight()));
+                    this.browseButton.addBrowseFolderListener(
+                            "Select Postman Collection File", "Select postman collection file",
+                            project, FileChooserDescriptorFactory.createSingleFileDescriptor()
+                    );
                     init();
                     setTitle("Import Postman Collection");
                 }
@@ -346,13 +353,15 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     try {
                         final String filepath = this.browseButton.getText();
                         final String content = Files.readString(Path.of(filepath));
-                        final List<HttpBean> httpBeans = JacksonUtils.IGNORE_TRANSIENT_AND_NULL.fromJson(content, new TypeReference<>() {
+                        final HttpBean httpBean = JacksonUtils.IGNORE_UNKNOWN.fromJson(content, new TypeReference<>() {
                         });
-                        httpBeans.forEach(httpBean -> new HttpTabPanel(project, httpBean));
+                        final JsonNode jsonNode = JacksonUtils.IGNORE_UNKNOWN.fromJson(content);
+                        final String text = jsonNode.get("info").get("name").asText();
+                        httpBean.setName(text);
+                        consumer.accept(httpBean);
+                        super.doOKAction();
                     } catch (IOException ex) {
                         Messages.showMessageDialog(project, ex.getMessage(), "Import Error", Messages.getErrorIcon());
-                    } finally {
-                        super.doOKAction();
                     }
                 }
 
