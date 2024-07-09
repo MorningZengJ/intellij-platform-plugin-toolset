@@ -3,7 +3,6 @@ package com.github.morningzeng.toolset.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants;
 import com.github.morningzeng.toolset.annotations.ScratchConfig;
-import com.google.common.collect.Maps;
 import com.intellij.ide.scratch.ScratchFileService;
 import com.intellij.ide.scratch.ScratchRootType;
 import com.intellij.openapi.application.ApplicationManager;
@@ -21,11 +20,12 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -43,25 +43,22 @@ public final class ScratchFileUtils {
 
     @SneakyThrows
     public static <T> void write(final T t) {
-//        write(name, IGNORE_TRANSIENT_AND_NULL.toPrettyJson(t));
-        final Class<?> tClass = t.getClass();
+        if (Objects.isNull(t)) {
+            return;
+        }
+        Class<?> tClass;
+        if (t instanceof Collection<?> collection) {
+            tClass = collection.stream().findFirst().orElseThrow().getClass();
+        } else {
+            tClass = t.getClass();
+        }
         final ScratchConfig scratchConfig = tClass.getAnnotation(ScratchConfig.class);
         if (Objects.isNull(scratchConfig)) {
             return;
         }
-        final String filename = String.join(Constants.DOT, scratchConfig.filename(), scratchConfig.outputType().suffix());
+        final String filename = String.join(Constants.DOT, scratchConfig.value(), scratchConfig.outputType().suffix());
         final VirtualFile file = findOrCreate(scratchConfig.directory(), filename);
-        final String content = read(file);
-
-        Map<String, Object> yamlMap;
-        if (StringUtil.isEmpty(content)) {
-            yamlMap = Maps.newHashMap();
-        } else {
-            yamlMap = scratchConfig.outputType().deserialize(content, new TypeReference<>() {
-            });
-        }
-        yamlMap.put(scratchConfig.value(), t);
-        write(file, scratchConfig.outputType().serialize(yamlMap));
+        write(file, scratchConfig.outputType().serialize(t));
     }
 
     @SneakyThrows
@@ -136,14 +133,64 @@ public final class ScratchFileUtils {
         return read(findOrCreate(directory, filename));
     }
 
+    public static <T> T read(final Class<T> type) {
+        final ScratchConfig scratchConfig = type.getAnnotation(ScratchConfig.class);
+        if (Objects.isNull(scratchConfig)) {
+            throw new IllegalArgumentException("ScratchConfig annotation is missing");
+        }
+        return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
+    }
+
+    public static <T> T read(final TypeReference<T> type) {
+        ScratchConfig scratchConfig = null;
+        if (type.getType() instanceof Class<?> tClass) {
+            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
+        }
+        if (type.getType() instanceof ParameterizedType parameterizedType) {
+            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
+        }
+        if (Objects.isNull(scratchConfig)) {
+            throw new IllegalArgumentException("ScratchConfig annotation is missing");
+        }
+        return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
+    }
+
+    public static <T> T read(final Type type) {
+        ScratchConfig scratchConfig = null;
+        if (type instanceof Class<?> tClass) {
+            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
+        }
+        if (type instanceof ParameterizedType parameterizedType) {
+            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
+        }
+        if (Objects.isNull(scratchConfig)) {
+            throw new IllegalArgumentException("ScratchConfig annotation is missing");
+        }
+        return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
+    }
+
     public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Class<T> type) {
-        final String json = read(directory, filename);
-        return outputType.deserialize(json, type);
+        final String read = read(directory, outputType.fullName(filename));
+        if (StringUtil.isEmpty(read)) {
+            return null;
+        }
+        return outputType.deserialize(read, type);
     }
 
     public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
-        final String json = read(directory, filename);
-        return outputType.deserialize(json, type);
+        final String read = read(directory, outputType.fullName(filename));
+        if (StringUtil.isEmpty(read)) {
+            return null;
+        }
+        return outputType.deserialize(read, type);
+    }
+
+    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Type type) {
+        final String read = read(directory, outputType.fullName(filename));
+        if (StringUtil.isEmpty(read)) {
+            return null;
+        }
+        return outputType.deserialize(read, type);
     }
 
     public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final Type type) {
@@ -158,11 +205,6 @@ public final class ScratchFileUtils {
 
     public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
         final String json = read(file);
-        return outputType.deserialize(json, type);
-    }
-
-    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Type type) {
-        final String json = read(directory, filename);
         return outputType.deserialize(json, type);
     }
 

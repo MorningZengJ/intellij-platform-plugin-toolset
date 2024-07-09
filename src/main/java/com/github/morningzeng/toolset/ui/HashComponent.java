@@ -1,12 +1,13 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
-import com.github.morningzeng.toolset.config.HashCryptoProp;
-import com.github.morningzeng.toolset.config.LocalConfigFactory;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
+import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.HashCrypto;
+import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
@@ -22,9 +23,10 @@ import javax.swing.JLabel;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Morning Zeng
@@ -34,15 +36,21 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
 
     final HashCrypto[] cryptos = Arrays.stream(HashCrypto.values())
             .toArray(HashCrypto[]::new);
-    final LocalConfigFactory.State state = LocalConfigFactory.getInstance().getState();
-
+    final List<HashCryptoProp> props = ScratchFileUtils.read(new TypeReference<>() {
+    });
     private final Project project;
-
     private final ComboBox<HashCryptoProp> cryptoPropComboBox = new ComboBox<>(
-            this.state.hashCryptoPropsMap().values().stream()
-                    .flatMap(Collection::stream)
-                    .sorted(Comparator.comparing(HashCryptoProp::getSorted))
-                    .toArray(HashCryptoProp[]::new)
+            Optional.ofNullable(props)
+                    .map(cryptoProps -> cryptoProps.stream()
+                            .sorted(Comparator.comparing(HashCryptoProp::getSorted))
+                            .<HashCryptoProp>mapMulti((prop, consumer) -> {
+                                consumer.accept(prop);
+                                prop.getChildren().stream()
+                                        .sorted(Comparator.comparing(HashCryptoProp::getSorted))
+                                        .forEach(consumer);
+                            })
+                            .toArray(HashCryptoProp[]::new))
+                    .orElse(new HashCryptoProp[0])
     );
     private final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     private final ComboBox<HashCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
@@ -56,7 +64,7 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
                 return new JLabel();
             }
             final String template = "%s - %s ( %s )";
-            return new JLabel(template.formatted(value.getTitle(), value.getDesc(), StringUtils.maskSensitive(value.getKey())));
+            return new JLabel(template.formatted(value.getTitle(), value.getDescription(), StringUtils.maskSensitive(value.getKey())));
         });
     }
 
@@ -83,9 +91,8 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
 
     void initEvent() {
         this.cryptoManageBtn.addActionListener(e -> {
-            final HashPropDialog dialog = new HashPropDialog(this.project);
+            final HashPropDialog dialog = new HashPropDialog(this.project, this::refresh);
             dialog.showAndGet();
-            this.refresh();
         });
         this.calculation.addActionListener(e -> {
             try {
@@ -116,12 +123,17 @@ public final class HashComponent extends JBPanel<JBPanelWithEmptyText> {
         });
     }
 
-    void refresh() {
+    void refresh(final List<HashCryptoProp> props) {
         this.cryptoPropComboBox.removeAllItems();
-        this.state.hashCryptoPropsMap().values().stream()
-                .flatMap(Collection::stream)
+        Optional.ofNullable(props).ifPresent(hashCryptoProps -> hashCryptoProps.stream()
                 .sorted(Comparator.comparing(HashCryptoProp::getSorted))
-                .forEach(this.cryptoPropComboBox::addItem);
+                .<HashCryptoProp>mapMulti((prop, consumer) -> {
+                    consumer.accept(prop);
+                    prop.getChildren().stream()
+                            .sorted(Comparator.comparing(HashCryptoProp::getSorted))
+                            .forEach(consumer);
+                })
+                .forEach(this.cryptoPropComboBox::addItem));
     }
 
 }

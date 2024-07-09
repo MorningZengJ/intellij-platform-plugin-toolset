@@ -113,16 +113,11 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                 splitter.setSecondComponent(this.getOrCreateHttpTabPanel(selectedValue, false));
             }
         });
-        this.requestTree.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
-            final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
-            final HttpBean hb = (HttpBean) treeNode.getUserObject();
-            if (Objects.isNull(hb)) {
-                return null;
-            }
-            final Icon icon = Optional.ofNullable(hb.getRequest())
+        this.requestTree.cellRenderer(httpBean -> {
+            final Icon icon = Optional.ofNullable(httpBean.getRequest())
                     .map(RequestBean::methodIcon)
                     .orElse(Nodes.Folder);
-            final String text = hb.getName();
+            final String text = httpBean.getName();
             final JBLabel label = new JBLabel(text, icon, SwingConstants.LEFT);
             label.setIconTextGap(0);
             return label;

@@ -1,31 +1,37 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.config.LocalConfigFactory;
-import com.github.morningzeng.toolset.config.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
+import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.github.morningzeng.toolset.utils.SymmetricCrypto;
 import com.intellij.icons.AllIcons.General;
+import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTextArea;
 import com.intellij.util.ui.GridBag;
 
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.JButton;
-import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Morning Zeng
@@ -37,7 +43,6 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
     final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
             .filter(crypto -> TYPE.equals(crypto.getType()))
             .toArray(SymmetricCrypto[]::new);
-    final LocalConfigFactory.State state;
     final Project project;
     /**
      * Represents a combo box used for selecting a SymmetricCryptoProp.
@@ -151,23 +156,37 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
         this.encryptArea.setPlaceholder("Encrypted text content");
         this.decryptArea.setPlaceholder("Decrypted text content");
 
-        this.state = LocalConfigFactory.getInstance().getState();
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
 
-        this.cryptoPropComboBox = new ComboBox<>(this.state.symmetricCryptoPropsMap().values().stream()
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
-                .toArray(SymmetricCryptoProp[]::new));
+        final List<SymmetricCryptoProp> props = ScratchFileUtils.read(new TypeReference<>() {
+        });
+        this.cryptoPropComboBox = new ComboBox<>(
+                Optional.ofNullable(props)
+                        .map(symmetricCryptoProps -> symmetricCryptoProps.stream()
+                                .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
+                                .<SymmetricCryptoProp>mapMulti((prop, consumer) -> {
+                                    consumer.accept(prop);
+                                    prop.getChildren().stream()
+                                            .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
+                                            .forEach(consumer);
+                                })
+                                .toArray(SymmetricCryptoProp[]::new))
+                        .orElse(new SymmetricCryptoProp[0])
+        );
         this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             if (Objects.isNull(value)) {
-                return new JLabel();
+                return new JBLabel();
             }
+            final Icon icon = value.isDirectory() ? Nodes.Folder : Nodes.NodePlaceholder;
             final String template = "%s - %s ( %s [ %s ] / %s [ %s ] )";
-            return new JLabel(template.formatted(
-                    value.getTitle(), value.getDesc(),
+            final String text = template.formatted(
+                    value.getTitle(), value.getDescription(),
                     StringUtils.maskSensitive(value.getKey()), value.keyType(),
                     StringUtils.maskSensitive(value.getIv()), value.ivType()
-            ));
+            );
+            final JBLabel label = new JBLabel(text, icon, SwingConstants.LEFT);
+            label.setEnabled(!value.isDirectory());
+            return label;
         });
 
         this.initLayout();
@@ -234,18 +253,22 @@ public final class AESComponent extends JBPanel<JBPanelWithEmptyText> {
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
-            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project);
+            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, this::refresh);
             dialog.showAndGet();
-            this.refresh();
         });
     }
 
-    void refresh() {
+    void refresh(final List<SymmetricCryptoProp> props) {
         this.cryptoPropComboBox.removeAllItems();
-        this.state.symmetricCryptoPropsMap().values().stream()
-                .flatMap(Collection::stream)
+        Optional.ofNullable(props).ifPresent(symmetricCryptoProps -> symmetricCryptoProps.stream()
                 .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
-                .forEach(this.cryptoPropComboBox::addItem);
+                .<SymmetricCryptoProp>mapMulti((prop, consumer) -> {
+                    consumer.accept(prop);
+                    prop.getChildren().stream()
+                            .sorted(Comparator.comparing(SymmetricCryptoProp::getSorted))
+                            .forEach(consumer);
+                })
+                .forEach(this.cryptoPropComboBox::addItem));
     }
 
 }

@@ -7,26 +7,19 @@ import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField
 import com.github.morningzeng.toolset.config.JWTProp;
 import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
+import com.github.morningzeng.toolset.model.Children;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
-import com.google.common.collect.Sets;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
-import com.intellij.util.ui.tree.TreeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.event.ItemEvent;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Morning Zeng
@@ -45,7 +38,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
 
     public JWTPropDialog(final Project project) {
         super(project);
-        this.btnPanel.setLayout(new BoxLayout(this.btnPanel, BoxLayout.LINE_AXIS));
+        this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
 
         this.initTree();
 
@@ -55,26 +48,11 @@ public final class JWTPropDialog extends AbstractPropDialog {
     }
 
     void initTree() {
-        final Set<Entry<String, Set<JWTProp>>> entries = stateFactory.jwtPropsMap().entrySet();
-        this.tree.setNodes(entries, Entry::getKey, Entry::getValue);
-        this.tree.addTreeSelectionListener(e -> {
-            final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
-            if (Objects.nonNull(selectedNode) && !selectedNode.getAllowsChildren()) {
-                final JWTProp prop = (JWTProp) selectedNode.getUserObject();
-                this.createRightPanel(prop);
-            }
-        });
     }
 
     AnAction[] initGroupAction() {
         return new AnAction[]{
                 new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    stateFactory.jwtPropsMap().computeIfAbsent(group, g -> Sets.newHashSet());
-                    final DefaultMutableTreeNode root = this.tree.getRoot();
-                    final DefaultMutableTreeNode groupNode = new DefaultMutableTreeNode(group);
-                    root.add(groupNode);
-                    this.tree.reloadTree();
-                    TreeUtil.selectNode(tree, groupNode);
                 }),
                 new AnAction("KeyPair") {
                     @Override
@@ -85,51 +63,17 @@ public final class JWTPropDialog extends AbstractPropDialog {
         };
     }
 
-    void saveConfig() {
-        this.writeProp();
-        final Map<String, Set<JWTProp>> collect = this.tree.leafNodes().stream().collect(
-                Collectors.groupingBy(node -> {
-                    final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-                    return parent.isRoot() ? node.getUserObject().toString() : parent.getUserObject().toString();
-                }, Collectors.mapping(
-                        node -> (JWTProp) node.getUserObject(), Collectors.toUnmodifiableSet()
-                ))
-        );
-        stateFactory.jwtPropsMap(collect);
+    @Override
+    void writeProp() {
+
     }
 
     @Override
-    <T> void createRightPanel(final T t) {
-        final JBPanel<JBPanelWithEmptyText> panel = this.defaultRightPanel();
-        if (Objects.isNull(t)) {
-            return;
-        }
-        if (t instanceof JWTProp cryptoProp) {
-            this.itemRightPanel(panel, cryptoProp);
-        }
+    void createRightPanel(final Children children) {
+
     }
 
     void createPropItem() {
-        final JWTProp cryptoProp = JWTProp.builder()
-                .title("Key pairs")
-                .build();
-        this.tree.createNodeOnSelectNode(cryptoProp, false);
-        this.createRightPanel(cryptoProp);
-    }
-
-    void writeProp() {
-        this.tree.lastSelected(selectedNode -> {
-            if (selectedNode.getUserObject() instanceof JWTProp prop) {
-                prop.setTitle(this.titleTextField.getText())
-                        .setSignAlgorithm(this.signAlgorithmCombo.getItem())
-                        .setSymmetricKey(this.symmetricKeyTextField.getText())
-                        .setSymmetricKeyType(this.symmetricKeyTypeCombo.getItem())
-                        .setPrivateKey(this.privateKeyTextArea.getText())
-                        .setPublicKey(this.publicKeyTextArea.getText())
-                        .setDesc(this.descTextArea.getText());
-                this.tree.reloadTree(selectedNode);
-            }
-        });
     }
 
     void itemRightPanel(final JBPanel<JBPanelWithEmptyText> panel, final JWTProp prop) {

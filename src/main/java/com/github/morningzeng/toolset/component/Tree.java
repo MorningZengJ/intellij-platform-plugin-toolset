@@ -11,6 +11,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -43,8 +44,10 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
     }
 
     public void addNodes(final Collection<T> ts, final Function<T, Boolean> allowsChildren) {
-        this.ts.addAll(ts);
-        this.builderNode(ts, this.root, allowsChildren);
+        if (CollectionUtils.isNotEmpty(ts)) {
+            this.ts.addAll(ts);
+            this.builderNode(ts, this.root, allowsChildren);
+        }
         this.reloadTree(null);
     }
 
@@ -156,6 +159,21 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                     Tree.this.clearSelection();
                 }
             }
+        });
+    }
+
+    public List<T> data() {
+        return this.ts;
+    }
+
+    public void cellRenderer(final Function<T, Component> cellRenderer) {
+        this.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
+            final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
+            final T t = this.getNodeValue(treeNode);
+            if (Objects.isNull(t)) {
+                return null;
+            }
+            return cellRenderer.apply(t);
         });
     }
 

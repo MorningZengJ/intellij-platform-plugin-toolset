@@ -36,8 +36,6 @@ public @interface ScratchConfig {
 
     String directory() default "";
 
-    String filename() default "toolset-config";
-
     OutputType outputType() default OutputType.YAML;
 
     @AllArgsConstructor

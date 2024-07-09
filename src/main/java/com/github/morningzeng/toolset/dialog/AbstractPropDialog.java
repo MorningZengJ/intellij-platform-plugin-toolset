@@ -1,10 +1,15 @@
 package com.github.morningzeng.toolset.dialog;
 
-import com.github.morningzeng.toolset.component.DialogGroupAction;
-import com.github.morningzeng.toolset.component.TreeComponent;
-import com.github.morningzeng.toolset.config.LocalConfigFactory;
+import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.component.ActionBar;
+import com.github.morningzeng.toolset.component.Tree;
+import com.github.morningzeng.toolset.model.Children;
 import com.github.morningzeng.toolset.support.ScrollSupport;
+import com.github.morningzeng.toolset.utils.ActionUtils;
+import com.github.morningzeng.toolset.utils.ScratchFileUtils;
+import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.JBSplitter;
@@ -19,26 +24,44 @@ import javax.swing.JComponent;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
  * @since 2024-05-27
  */
-public abstract sealed class AbstractPropDialog extends DialogWrapper implements DialogSupport
+public abstract sealed class AbstractPropDialog<T extends Children<T>> extends DialogWrapper implements DialogSupport
         permits HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
     final Project project;
     final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
-    final JBPanel<JBPanelWithEmptyText> btnPanel = new DialogGroupAction(this, this.pane, this.initGroupAction());
-    final TreeComponent tree = new TreeComponent();
-
-    private final LocalConfigFactory configFactory = LocalConfigFactory.getInstance();
-    final LocalConfigFactory.State stateFactory = configFactory.getState();
+    final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", General.Add, this.initGroupAction());
+    final Tree<T> tree = new Tree<>();
+    final ActionBar actionBar = new ActionBar(this.addActions, this.deleteAction());
+    private final Consumer<List<T>> okAfterConsumer;
 
     protected AbstractPropDialog(@Nullable final Project project) {
+        this(project, symmetricCryptoProps -> {
+        });
+    }
+
+    protected AbstractPropDialog(@Nullable final Project project, final Consumer<List<T>> okAfterConsumer) {
         super(project);
         this.project = project;
+        this.okAfterConsumer = okAfterConsumer;
+
+        this.tree.clearSelectionIfClickedOutside();
+    }
+
+    AnAction deleteAction() {
+        return new AnAction(IconC.REMOVE_RED) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                delete();
+            }
+        };
     }
 
     @Override
@@ -57,8 +80,9 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
 
     @Override
     protected void doOKAction() {
-        this.saveConfig();
-        this.configFactory.loadState(this.stateFactory);
+        this.writeProp();
+        ScratchFileUtils.write(this.tree.data());
+        this.okAfterConsumer.accept(this.tree.data());
         super.doOKAction();
     }
 
@@ -68,7 +92,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
                 Stream.of(new DialogWrapperAction("Apply") {
                     @Override
                     protected void doAction(final ActionEvent e) {
-                        configFactory.loadState(stateFactory);
+                        okAfterConsumer.accept(tree.data());
                     }
                 }),
                 Stream.of(super.createActions())
@@ -77,9 +101,9 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
 
     abstract AnAction[] initGroupAction();
 
-    abstract void saveConfig();
+    abstract void writeProp();
 
-    abstract <T> void createRightPanel(final T t);
+    abstract void createRightPanel(final T t);
 
     JBPanel<JBPanelWithEmptyText> defaultRightPanel() {
         final JBPanel<JBPanelWithEmptyText> panel = new JBPanel<>();
@@ -92,7 +116,7 @@ public abstract sealed class AbstractPropDialog extends DialogWrapper implements
         final JBPanel<JBPanelWithEmptyText> leftPanel = new JBPanel<>();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 
-        leftPanel.add(this.btnPanel);
+        leftPanel.add(this.actionBar);
 
         // add scroll
         leftPanel.add(ScrollSupport.getInstance(this.tree).verticalAsNeededScrollPane());
