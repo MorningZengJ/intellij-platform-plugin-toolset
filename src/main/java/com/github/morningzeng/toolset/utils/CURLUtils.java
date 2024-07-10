@@ -70,7 +70,7 @@ public final class CURLUtils {
             query = Arrays.stream(queryPath.split("&"))
                     .map(keyValuePair -> {
                         final String[] split = keyValuePair.split("=");
-                        return PairWithTypeDescription.with(split[0], split[1]);
+                        return PairWithTypeDescription.with(split[0], split.length > 1 ? split[1] : null);
                     })
                     .toList();
         }
