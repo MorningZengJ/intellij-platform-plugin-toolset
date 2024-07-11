@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
@@ -98,7 +99,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
         );
         final ActionBar actionBar = new ActionBar(
-                this.addAction(), this.deleteAction(), importAction, this.saveAllAction(), this.saveFileAction(), this.reloadFileAction()
+                this.addAction(), this.deleteAction(), importAction, this.saveAllAction(), this.saveFileAction(), this.reloadFileAction(), this.copyAction()
         );
         final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .3f);
         splitter.setDividerWidth(3);
@@ -183,13 +184,14 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     public void actionPerformed(@NotNull final AnActionEvent e) {
                         final HttpBean selectedValue = requestTree.getSelectedValue();
 
-                        final String requestName = Optional.ofNullable(selectedValue).map(HttpBean::getName).orElse("request");
-                        final String name = "%s#%s".formatted(requestName, requestTree.childrenCount() + 1);
+                        final String name = Optional.ofNullable(selectedValue)
+                                .map(sv -> Objects.isNull(sv.getRequest()) ? sv : sv.getParent())
+                                .map(sv -> "%s#%s".formatted(sv.getName(), Optional.ofNullable(sv.getChildren()).map(List::size).orElse(0) + 1))
+                                .orElse("request#%s".formatted(requestTree.childrenCount() + 1));
+
                         final HttpBean httpBean = HttpBean.builder()
                                 .name(name)
-                                .request(
-                                        RequestBean.builder().build()
-                                )
+                                .request(RequestBean.builder().build())
                                 .build();
                         getOrCreateHttpTabPanel(httpBean);
                     }
@@ -252,6 +254,33 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
                 reloadScratchFile();
+            }
+        };
+    }
+
+    AnAction copyAction() {
+        return new AnAction("Convert to CURL and Copy", "Convert to cURL and Copy", Actions.Copy) {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return super.getActionUpdateThread();
+            }
+
+            @Override
+            public void update(@NotNull final AnActionEvent e) {
+                //noinspection ConstantValue
+                Optional.ofNullable(requestTree.getSelectedValue())
+                        .map(HttpBean::getRequest).filter(Objects::nonNull)
+                        .ifPresentOrElse(httpBean -> e.getPresentation().setEnabled(true), () -> e.getPresentation().setEnabled(false));
+            }
+
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                Optional.ofNullable(requestTree.getSelectedValue())
+                        .ifPresent(httpBean -> {
+                            final String cURL = CURLUtils.cURL(httpBean);
+                            final String title = "Convert `" + httpBean.getName() + "` to CURL";
+                            Messages.showMessageDialog(cURL, title, httpBean.getRequest().methodIcon());
+                        });
             }
         };
     }
@@ -497,7 +526,9 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             this.headersPanel.addFocusListener(new FocusAdapter() {
                 @Override
                 public void focusLost(final FocusEvent e) {
-                    httpBean.getRequest().setHeader(
+                    final List<Pair<String, String>> header = httpBean.getRequest().getHeader();
+                    header.clear();
+                    header.addAll(
                             headersPanel.getText().lines()
                                     .map(s -> {
                                         final String[] split = s.split(Constants.COLON_WITH_SPACE);

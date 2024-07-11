@@ -26,6 +26,12 @@ import java.util.regex.Pattern;
  */
 public final class CURLUtils {
 
+    public static String cURL(final HttpBean bean) {
+        return Optional.ofNullable(bean.getRequest())
+                .map(RequestBean::cURL)
+                .orElse("");
+    }
+
     public static HttpBean from(final String cUrl) {
         final HttpBean bean = HttpBean.builder()
                 .request(resolve(cUrl))
