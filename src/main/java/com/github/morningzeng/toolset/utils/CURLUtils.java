@@ -43,7 +43,7 @@ public final class CURLUtils {
     }
 
     public static UrlBean url(final String cUrl) {
-        final Pattern compile = Pattern.compile("(?i)(?<=curl)( +?--location.+?(?= .+?[\"']))? +?[\"'].+?(?=[\"'] )");
+        final Pattern compile = Pattern.compile("(?i)((?<=curl)( +?--location.*(?= .+?[\"']))? +?[\"'].+?(?=[\"'] ?))|((?<=--location) +?[\"'].+?(?=[\"'] ?))");
         final String[] locationSpace = getByPattern(compile, cUrl).split(" ");
         String location = locationSpace[locationSpace.length - 1];
         final String url = location.trim().substring(1);
@@ -149,7 +149,7 @@ public final class CURLUtils {
         if (ignore) {
             return null;
         }
-        throw new IllegalArgumentException("Invalid cURL: " + cUrl);
+        throw new IllegalArgumentException("Parsing cURL Lost: " + cUrl);
     }
 
     static List<String> host(final String hostname) {

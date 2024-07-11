@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
@@ -18,6 +19,7 @@ import javax.swing.JButton;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +55,15 @@ public final class HashComponent extends CryptoComponent<HashCryptoProp> {
 
     @Override
     List<HashCryptoProp> getCryptoProps() {
-        return ScratchFileUtils.read(new TypeReference<>() {
-        });
+        try {
+            return ScratchFileUtils.read(new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(), "Configuration File Is Incorrect");
+            final ScratchConfig scratchConfig = HashCryptoProp.class.getAnnotation(ScratchConfig.class);
+            ScratchFileUtils.openFile(this.project, scratchConfig.directory(), scratchConfig.value());
+        }
+        return Collections.emptyList();
     }
 
     @Override

@@ -132,21 +132,25 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
 
     private void reloadScratchFile() {
         this.requestTree.clear(httpBeans -> this.components.clear());
-        ScratchFileUtils.childrenFile("HTTP", stream -> {
-            final List<HttpBean> beans = stream.filter(file -> !file.isDirectory())
-                    .sorted(
-                            Comparator.comparing(VirtualFile::getName)
-                                    .thenComparing(VirtualFile::getPath)
-                    )
-                    .map(file -> {
-                        final HttpBean bean = ScratchFileUtils.read(file, OutputType.YAML, new TypeReference<>() {
-                        });
-                        this.virtualFileMap.put(bean, file);
-                        return bean;
-                    })
-                    .toList();
-            this.requestTree.addNodes(beans, httpBean -> Objects.isNull(httpBean.getRequest()));
-        });
+        try {
+            ScratchFileUtils.childrenFile("HTTP", stream -> {
+                final List<HttpBean> beans = stream.filter(file -> !file.isDirectory())
+                        .sorted(
+                                Comparator.comparing(VirtualFile::getName)
+                                        .thenComparing(VirtualFile::getPath)
+                        )
+                        .map(file -> {
+                            final HttpBean bean = ScratchFileUtils.read(file, OutputType.YAML, new TypeReference<>() {
+                            });
+                            this.virtualFileMap.put(bean, file);
+                            return bean;
+                        })
+                        .toList();
+                this.requestTree.addNodes(beans, httpBean -> Objects.isNull(httpBean.getRequest()));
+            });
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(), "Failed Load");
+        }
     }
 
     private void getOrCreateHttpTabPanel(final HttpBean httpBean) {
@@ -291,6 +295,8 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                     try {
                         final HttpBean httpBean = CURLUtils.from(this.textArea.getText());
                         consumer.accept(httpBean);
+                    } catch (Exception e) {
+                        Messages.showErrorDialog(e.getMessage(), "Import Error");
                     } finally {
                         this.textArea.releaseEditor();
                         super.doOKAction();
@@ -341,8 +347,8 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                         final List<HttpBean> httpBeans = JacksonUtils.IGNORE_TRANSIENT_AND_NULL.fromJson(content, new TypeReference<>() {
                         });
                         httpBeans.forEach(httpBean -> new HttpTabPanel(project, httpBean));
-                    } catch (IOException ex) {
-                        Messages.showMessageDialog(project, ex.getMessage(), "Import Error", Messages.getErrorIcon());
+                    } catch (Exception ex) {
+                        Messages.showErrorDialog(ex.getMessage(), "Import Error");
                     } finally {
                         super.doOKAction();
                     }

@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [1.2.3]
+
+### Fixed
+
+- Fixed the bug that the cURL was imported with an error
+- Fixed the bug that the load crypto configuration with an error
+
 ## [1.2.2]
 
 ### Fixed
