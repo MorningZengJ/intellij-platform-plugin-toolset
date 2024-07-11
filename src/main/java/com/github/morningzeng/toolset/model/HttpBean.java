@@ -88,7 +88,7 @@ public final class HttpBean extends Children<HttpBean> {
                 case POST -> HttpMethod.POST;
                 case PUT -> HttpMethod.PUT;
                 case PATCH -> HttpMethod.PATCH;
-                case DELETE -> HttpMethod.DELETE;
+                case DELETE -> HttpMethod.HTTP_DELETE;
                 case HEAD -> HttpMethod.HEAD;
                 case OPTIONS -> HttpMethod.OPTIONS;
                 case TRACE -> HttpMethod.TRACE;

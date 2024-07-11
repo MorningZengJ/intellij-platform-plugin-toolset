@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
@@ -60,7 +61,7 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
             }
         });
         this.tree.cellRenderer(prop -> {
-            final Icon icon = prop.isDirectory() ? Nodes.Folder : Nodes.NodePlaceholder;
+            final Icon icon = prop.isDirectory() ? Nodes.Folder : IconC.TREE_NODE;
             return new JBLabel(prop.getTitle(), icon, SwingConstants.LEFT);
         });
     }

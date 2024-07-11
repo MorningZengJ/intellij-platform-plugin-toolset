@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.model.Children;
 import com.intellij.icons.AllIcons.General;
@@ -58,7 +59,7 @@ public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPa
                 return box;
             }
             final boolean directory = this.isDirectory(value);
-            final Icon icon = directory ? Nodes.Folder : Nodes.NodePlaceholder;
+            final Icon icon = directory ? Nodes.Folder : IconC.TREE_NODE;
             final JBLabel label = new JBLabel(this.cryptoPropText(value), icon, SwingConstants.LEFT);
             label.setEnabled(!directory);
             if (index == -1) {

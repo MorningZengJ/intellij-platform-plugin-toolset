@@ -48,12 +48,14 @@ public interface Constants {
         Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
         Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
 
+        Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
+
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);
             Icon POST = IconLoader.getIcon("/images/svg/http_method/post.svg", CLASS_LOADER);
             Icon PUT = IconLoader.getIcon("/images/svg/http_method/put.svg", CLASS_LOADER);
             Icon PATCH = IconLoader.getIcon("/images/svg/http_method/patch.svg", CLASS_LOADER);
-            Icon DELETE = IconLoader.getIcon("/images/svg/http_method/delete.svg", CLASS_LOADER);
+            Icon HTTP_DELETE = IconLoader.getIcon("/images/svg/http_method/delete.svg", CLASS_LOADER);
             Icon HEAD = IconLoader.getIcon("/images/svg/http_method/head.svg", CLASS_LOADER);
             Icon OPTIONS = IconLoader.getIcon("/images/svg/http_method/options.svg", CLASS_LOADER);
             Icon TRACE = IconLoader.getIcon("/images/svg/http_method/trace.svg", CLASS_LOADER);
