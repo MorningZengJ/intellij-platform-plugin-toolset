@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.2.2]
+
+### Fixed
+
+- Fixed the bug that the cURL was imported with an error
+
 ## [1.2.1]
 
 ### Added
