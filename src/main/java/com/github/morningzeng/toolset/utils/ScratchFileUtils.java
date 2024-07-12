@@ -3,6 +3,7 @@ package com.github.morningzeng.toolset.utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants;
 import com.github.morningzeng.toolset.annotations.ScratchConfig;
+import com.github.morningzeng.toolset.enums.OutputType;
 import com.intellij.ide.scratch.ScratchFileService;
 import com.intellij.ide.scratch.ScratchRootType;
 import com.intellij.openapi.application.ApplicationManager;
@@ -62,14 +63,14 @@ public final class ScratchFileUtils {
     }
 
     @SneakyThrows
-    public static <T> void write(final String directory, String filename, final ScratchConfig.OutputType outputType, final T t) {
+    public static <T> void write(final String directory, String filename, final OutputType outputType, final T t) {
         filename = String.join(Constants.DOT, filename, outputType.suffix());
         final VirtualFile file = findOrCreate(directory, filename);
         write(file, outputType.serialize(t));
     }
 
     @SneakyThrows
-    public static <T> void write(final VirtualFile file, final ScratchConfig.OutputType outputType, final T t) {
+    public static <T> void write(final VirtualFile file, final OutputType outputType, final T t) {
         write(file, outputType.serialize(t));
     }
 
@@ -169,7 +170,7 @@ public final class ScratchFileUtils {
         return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
     }
 
-    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Class<T> type) {
+    public static <T> T read(final String directory, final String filename, final OutputType outputType, final Class<T> type) {
         final String read = read(directory, outputType.fullName(filename));
         if (StringUtil.isEmpty(read)) {
             return null;
@@ -177,7 +178,7 @@ public final class ScratchFileUtils {
         return outputType.deserialize(read, type);
     }
 
-    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
+    public static <T> T read(final String directory, final String filename, final OutputType outputType, final TypeReference<T> type) {
         final String read = read(directory, outputType.fullName(filename));
         if (StringUtil.isEmpty(read)) {
             return null;
@@ -185,7 +186,7 @@ public final class ScratchFileUtils {
         return outputType.deserialize(read, type);
     }
 
-    public static <T> T read(final String directory, final String filename, final ScratchConfig.OutputType outputType, final Type type) {
+    public static <T> T read(final String directory, final String filename, final OutputType outputType, final Type type) {
         final String read = read(directory, outputType.fullName(filename));
         if (StringUtil.isEmpty(read)) {
             return null;
@@ -193,17 +194,17 @@ public final class ScratchFileUtils {
         return outputType.deserialize(read, type);
     }
 
-    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final Type type) {
+    public static <T> T read(final VirtualFile file, final OutputType outputType, final Type type) {
         final String json = read(file);
         return outputType.deserialize(json, type);
     }
 
-    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final Class<T> type) {
+    public static <T> T read(final VirtualFile file, final OutputType outputType, final Class<T> type) {
         final String json = read(file);
         return outputType.deserialize(json, type);
     }
 
-    public static <T> T read(final VirtualFile file, final ScratchConfig.OutputType outputType, final TypeReference<T> type) {
+    public static <T> T read(final VirtualFile file, final OutputType outputType, final TypeReference<T> type) {
         final String json = read(file);
         return outputType.deserialize(json, type);
     }

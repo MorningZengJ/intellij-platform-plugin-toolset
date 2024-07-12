@@ -24,24 +24,26 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.1")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.17.1")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.17.1")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.17.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
+    implementation(libs.libraries.jackson.databind)
+    implementation(libs.libraries.jackson.core)
+    implementation(libs.libraries.jackson.annotations)
+    implementation(libs.libraries.jackson.dataformat.yaml)
+    implementation(libs.libraries.jackson.dataformat.xml)
+    implementation(libs.libraries.jackson.dataformat.properties)
+    implementation(libs.libraries.jackson.dataformat.csv)
+    implementation(libs.libraries.jackson.dataformat.toml)
+    implementation(libs.libraries.jackson.datatype.jsr310)
 
-    implementation("com.squareup.okhttp3:okhttp:5.0.0-alpha.14")
+    implementation(libs.libraries.okhttp)
 
-    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    implementation(libs.libraries.jjwt.api)
 
-//    implementation(libs.annotations)
-    compileOnly("org.projectlombok:lombok:1.18.32")
+    compileOnly(libs.libraries.lombok)
 
-    annotationProcessor("org.projectlombok:lombok:1.18.32")
+    annotationProcessor(libs.libraries.lombok)
 
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    runtimeOnly(libs.libraries.jjwt.impl)
+    runtimeOnly(libs.libraries.jjwt.jackson)
 }
 
 // Set the JVM language level used to build the project.

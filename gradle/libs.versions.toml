@@ -1,6 +1,10 @@
 [versions]
 # libraries
 annotations = "24.1.0"
+jacksons = "2.17.2"
+okhttps = "5.0.0-alpha.14"
+jjwts = "0.12.5"
+lomboks = "1.18.32"
 
 # plugins
 kotlin = "1.9.23"
@@ -11,6 +15,30 @@ kover = "0.7.6"
 
 [libraries]
 annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+
+# jackson
+libraries-jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jacksons" }
+libraries-jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-core", version.ref = "jacksons" }
+libraries-jackson-annotations = { group = "com.fasterxml.jackson.core", name = "jackson-annotations", version.ref = "jacksons" }
+# jackson dataformat
+libraries-jackson-dataformat-yaml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-yaml", version.ref = "jacksons" }
+libraries-jackson-dataformat-xml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-xml", version.ref = "jacksons" }
+libraries-jackson-dataformat-properties = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-properties", version.ref = "jacksons" }
+libraries-jackson-dataformat-csv = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-csv", version.ref = "jacksons" }
+libraries-jackson-dataformat-toml = { group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-toml", version.ref = "jacksons" }
+# jackson datatype
+libraries-jackson-datatype-jsr310 = { group = "com.fasterxml.jackson.datatype", name = "jackson-datatype-jsr310", version.ref = "jacksons" }
+
+# okhttp
+libraries-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttps" }
+
+# JWT
+libraries-jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref = "jjwts" }
+libraries-jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwts" }
+libraries-jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwts" }
+
+# lombok
+libraries-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lomboks" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
