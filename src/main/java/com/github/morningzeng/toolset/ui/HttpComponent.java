@@ -23,17 +23,22 @@ import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.JacksonUtils;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBLabel;
@@ -74,6 +79,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -222,6 +228,25 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         return new AnAction("Save All", "Save all HTTP request to file", IconC.SAVE_ALL) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
+                final List<HttpBean> data = requestTree.data();
+                final Set<HttpBean> httpBeans = Sets.newHashSet(data);
+
+                virtualFileMap.entrySet().removeIf(entry -> {
+                    if (!httpBeans.contains(entry.getKey())) {
+                        try {
+                            final VirtualFile virtualFile = entry.getValue();
+                            ApplicationManager.getApplication().runWriteAction((ThrowableComputable<Void, Exception>) () -> {
+                                virtualFile.delete(null);
+                                return null;
+                            });
+                            return true;
+                        } catch (Exception ex) {
+                            final Notification notification = new Notification("virtual-file-notify", "Failed to delete the file", ex.getMessage(), NotificationType.WARNING);
+                            notification.notify(project);
+                        }
+                    }
+                    return false;
+                });
             }
         };
     }

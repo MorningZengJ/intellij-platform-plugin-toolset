@@ -13,6 +13,9 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Toolset" icon="/images/svg/box.svg" anchor="bottom"
                     factoryClass="com.github.morningzeng.toolset.ToolsetWindow"/>
+
+        <notificationGroup displayType="BALLOON" id="virtual-file-notify"
+                           toolWindowId="com.github.MorningZengJ.Toolset"/>
     </extensions>
 
     <applicationListeners>
