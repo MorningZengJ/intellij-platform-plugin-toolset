@@ -24,7 +24,6 @@ import com.github.morningzeng.toolset.utils.JacksonUtils;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons.Actions;
-import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -117,7 +116,7 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
         this.requestTree.cellRenderer(httpBean -> {
             final Icon icon = Optional.ofNullable(httpBean.getRequest())
                     .map(RequestBean::methodIcon)
-                    .orElse(Nodes.Folder);
+                    .orElse(IconC.FOLDER_COLOR);
             final String text = httpBean.getName();
             final JBLabel label = new JBLabel(text, icon, SwingConstants.LEFT);
             label.setIconTextGap(0);

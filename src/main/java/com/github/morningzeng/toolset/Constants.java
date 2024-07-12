@@ -48,6 +48,7 @@ public interface Constants {
         Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
         Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
 
+        Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
         Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
 
         interface HttpMethod {

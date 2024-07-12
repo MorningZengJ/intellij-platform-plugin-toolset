@@ -9,7 +9,6 @@ import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -67,7 +66,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
             }
         });
         this.tree.cellRenderer(prop -> {
-            final Icon icon = prop.isDirectory() ? Nodes.Folder : IconC.TREE_NODE;
+            final Icon icon = prop.isDirectory() ? IconC.FOLDER_COLOR : IconC.TREE_NODE;
             return new JBLabel(prop.getTitle(), icon, SwingConstants.LEFT);
         });
     }

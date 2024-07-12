@@ -8,7 +8,6 @@ import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField
 import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.intellij.icons.AllIcons.Nodes;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -61,7 +60,7 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
             }
         });
         this.tree.cellRenderer(prop -> {
-            final Icon icon = prop.isDirectory() ? Nodes.Folder : IconC.TREE_NODE;
+            final Icon icon = prop.isDirectory() ? IconC.FOLDER_COLOR : IconC.TREE_NODE;
             return new JBLabel(prop.getTitle(), icon, SwingConstants.LEFT);
         });
     }
