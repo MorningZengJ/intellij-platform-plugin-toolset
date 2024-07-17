@@ -229,8 +229,7 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
             this.datepickerWithClock.setText(Optional.ofNullable(this.remind.getDate())
                     .map(DateFormatter.YYYY_MM_DD_HH_MM_SS::format)
                     .orElse(""));
-            this.cycleCheckBox.setSelected(this.remind.isCycle());
-            
+
             this.cycleUnitRadio.setEnabled(this.remind.isCycle());
             this.dayOfWeekCheckBoxBar.setEnabled(this.remind.isCycle());
             this.dayOfWeekCheckBoxBar.setVisible(ChronoUnit.DAYS.equals(this.remind.getCycleUnit()));
@@ -296,13 +295,15 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
                 this.rerun.run();
                 this.cycleUnitRadio.setEnabled(this.remind.isCycle());
             });
-            this.cycleUnitRadio.addChangeListener(chronoUnit -> {
+            this.cycleUnitRadio.addItemListener(chronoUnit -> {
                 this.rerun.run();
                 this.remind.setCycleUnit(chronoUnit);
-                this.dayOfWeekCheckBoxBar.setEnabled(this.remind.isCycle());
-                this.dayOfWeekCheckBoxBar.setVisible(ChronoUnit.DAYS.equals(this.remind.getCycleUnit()));
             });
-            this.dayOfWeekCheckBoxBar.addChangeListener((dayOfWeek, selected) -> {
+            this.cycleUnitRadio.addItemListener(ChronoUnit.DAYS, chronoUnit -> {
+                this.dayOfWeekCheckBoxBar.setEnabled(this.remind.isCycle());
+                this.dayOfWeekCheckBoxBar.setVisible(ChronoUnit.DAYS.equals(chronoUnit));
+            });
+            this.dayOfWeekCheckBoxBar.addItemListener((dayOfWeek, selected) -> {
                 if (selected) {
                     this.remind.getCycleDayOfWeeks().add(dayOfWeek);
                 } else {

@@ -59,7 +59,9 @@ public final class CheckBoxBar<T> extends JBPanel<JBPanelWithEmptyText> {
         this.checkBoxMap.values().forEach(checkBox -> checkBox.setEnabled(enabled));
     }
 
-    public void addChangeListener(final BiConsumer<? super T, Boolean> action) {
-        this.checkBoxMap.forEach((t, checkBox) -> action.accept(t, checkBox.isSelected()));
+    public void addItemListener(final BiConsumer<? super T, Boolean> action) {
+        this.checkBoxMap.forEach(
+                (t, checkBox) -> checkBox.addItemListener(e -> action.accept(t, checkBox.isSelected()))
+        );
     }
 }

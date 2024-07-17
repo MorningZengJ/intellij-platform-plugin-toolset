@@ -20,7 +20,6 @@ import java.util.stream.Collectors;
 public final class RadioBar<T> extends JBPanel<JBPanelWithEmptyText> {
 
     private final Map<T, JBRadioButton> radioMap;
-    private volatile T selectedItem;
 
     @SafeVarargs
     public RadioBar(final T defaultCheck, final T... radios) {
@@ -38,18 +37,22 @@ public final class RadioBar<T> extends JBPanel<JBPanelWithEmptyText> {
         this.radioMap.forEach((t, radio) -> radio.addItemListener(e -> {
             final boolean selected = e.getStateChange() == ItemEvent.SELECTED;
             if (selected) {
-                this.selectedItem = t;
                 radioMap.values().stream()
                         .filter(Predicate.not(radio::equals))
                         .forEach(item -> item.setSelected(false));
-            } else {
-                this.selectedItem = null;
             }
         }));
     }
 
-    public void addChangeListener(final Consumer<? super T> action) {
-        this.radioMap.values().forEach(radio -> radio.addChangeListener(e -> action.accept(this.selectedItem)));
+    public void addItemListener(final Consumer<? super T> action) {
+        this.radioMap.keySet().forEach(t -> this.addItemListener(t, action));
+    }
+
+    public void addItemListener(final T t, final Consumer<? super T> action) {
+        this.radioMap.get(t).addItemListener(e -> {
+            final T bean = e.getStateChange() == ItemEvent.SELECTED ? t : null;
+            action.accept(bean);
+        });
     }
 
     @Override
