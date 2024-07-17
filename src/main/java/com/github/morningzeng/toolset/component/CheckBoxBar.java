@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -56,5 +57,9 @@ public final class CheckBoxBar<T> extends JBPanel<JBPanelWithEmptyText> {
     public void setEnabled(final boolean enabled) {
         super.setEnabled(enabled);
         this.checkBoxMap.values().forEach(checkBox -> checkBox.setEnabled(enabled));
+    }
+
+    public void addChangeListener(final BiConsumer<? super T, Boolean> action) {
+        this.checkBoxMap.forEach((t, checkBox) -> action.accept(t, checkBox.isSelected()));
     }
 }
