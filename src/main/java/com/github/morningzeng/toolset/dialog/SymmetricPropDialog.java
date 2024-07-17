@@ -1,7 +1,6 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -65,10 +63,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
                 this.createRightPanel(prop);
             }
         });
-        this.tree.cellRenderer(prop -> {
-            final Icon icon = prop.isDirectory() ? IconC.FOLDER_COLOR : IconC.TREE_NODE;
-            return new JBLabel(prop.getTitle(), icon, SwingConstants.LEFT);
-        });
+        this.tree.cellRenderer(prop -> new JBLabel(prop.getTitle(), prop.icon(), SwingConstants.LEFT));
     }
 
     AnAction[] initGroupAction() {

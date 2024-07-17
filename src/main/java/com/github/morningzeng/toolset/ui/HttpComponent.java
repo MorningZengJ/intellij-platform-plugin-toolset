@@ -6,12 +6,9 @@ import com.github.morningzeng.toolset.Constants.CompletionItem;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
-import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
-import com.github.morningzeng.toolset.component.Tree;
 import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
-import com.github.morningzeng.toolset.enums.OutputType;
 import com.github.morningzeng.toolset.model.HttpBean;
 import com.github.morningzeng.toolset.model.HttpBean.BodyBean;
 import com.github.morningzeng.toolset.model.HttpBean.RequestBean;
@@ -21,13 +18,8 @@ import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.CURLUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.JacksonUtils;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -38,10 +30,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
-import com.intellij.openapi.util.ThrowableComputable;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.JBSplitter;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -62,11 +51,8 @@ import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.SwingConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.FocusAdapter;
@@ -74,212 +60,77 @@ import java.awt.event.FocusEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
  * @since 2024-06-07
  */
 @Slf4j
-public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
-    private final Project project;
-
-    private final Tree<HttpBean> requestTree = new Tree<>();
-    private final Map<HttpBean, JBPanel<?>> components = Maps.newHashMap();
-    private final Map<HttpBean, VirtualFile> virtualFileMap = Maps.newHashMap();
+public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
 
     public HttpComponent(final Project project) {
-        this.project = project;
+        super(project, HttpBean.class, "http-tab-splitter");
+    }
+
+    @Override
+    AnAction[] actions() {
+        final AnAction[] actions = super.actions();
         final AnAction importAction = ActionUtils.drawerActions(
                 "Import", "Import HTTP Request", ToolbarDecorator.Import,
-                new CURLAction(project, this::getOrCreateHttpTabPanel),
+                new CURLAction(project, this::getOrCreatePanel),
                 new PostmanAction(project)
-
         );
-        final ActionBar actionBar = new ActionBar(
-                this.addAction(), this.deleteAction(), importAction, this.saveAllAction(), this.saveFileAction(), this.reloadFileAction(), this.copyAction()
-        );
-        final JBSplitter splitter = new JBSplitter(false, "http-tab-splitter", .05f, .3f);
-        splitter.setDividerWidth(3);
-        splitter.setFirstComponent(ScrollSupport.getInstance(this.requestTree).verticalAsNeededScrollPane());
-
-        this.reloadScratchFile();
-        splitter.setSecondComponent(new JBPanelWithEmptyText());
-
-        this.requestTree.addTreeSelectionListener(e -> {
-            final HttpBean selectedValue = this.requestTree.getSelectedValue();
-            if (Objects.nonNull(selectedValue)) {
-                splitter.setSecondComponent(this.getOrCreateHttpTabPanel(selectedValue, false));
-            }
-        });
-        this.requestTree.cellRenderer(httpBean -> {
-            final Icon icon = Optional.ofNullable(httpBean.getRequest())
-                    .map(RequestBean::methodIcon)
-                    .orElse(IconC.FOLDER_COLOR);
-            final String text = httpBean.getName();
-            final JBLabel label = new JBLabel(text, icon, SwingConstants.LEFT);
-            label.setIconTextGap(0);
-            return label;
-        });
-        this.requestTree.clearSelectionIfClickedOutside();
-
-        this.setLayout(new GridBagLayout());
-        GridLayoutUtils.builder()
-                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(actionBar)
-                .newRow().fill(GridBag.BOTH).weightY(1).add(splitter);
+        return Stream.concat(Stream.concat(Stream.of(this.addAction(), importAction), Stream.of(actions)), Stream.of(this.copyAction()))
+                .toArray(AnAction[]::new);
     }
 
-    private void reloadScratchFile() {
-        this.requestTree.clear(httpBeans -> this.components.clear());
-        try {
-            ScratchFileUtils.childrenFile("HTTP", stream -> {
-                final List<HttpBean> beans = stream.filter(file -> !file.isDirectory())
-                        .sorted(
-                                Comparator.comparing(VirtualFile::getName)
-                                        .thenComparing(VirtualFile::getPath)
-                        )
-                        .map(file -> {
-                            final HttpBean bean = ScratchFileUtils.read(file, OutputType.YAML, new TypeReference<>() {
-                            });
-                            this.virtualFileMap.put(bean, file);
-                            return bean;
-                        })
-                        .toList();
-                this.requestTree.addNodes(beans, httpBean -> Objects.isNull(httpBean.getRequest()));
-            });
-        } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(), "Failed Load");
-        }
+    @Override
+    JBPanel<?> childPanel(final HttpBean httpBean) {
+        return new HttpTabPanel(project, httpBean);
     }
 
-    private void getOrCreateHttpTabPanel(final HttpBean httpBean) {
-        this.getOrCreateHttpTabPanel(httpBean, true);
+    @Override
+    String configFileDirectory() {
+        return "HTTP";
     }
 
-    private JBPanel<?> getOrCreateHttpTabPanel(final HttpBean httpBean, final boolean addTree) {
-        if (addTree) {
-            this.requestTree.create(httpBean, Objects.isNull(httpBean.getRequest()));
-        }
-        return this.components.computeIfAbsent(httpBean, hb -> {
-            if (Objects.isNull(httpBean.getRequest())) {
-                return new JBPanelWithEmptyText();
-            }
-            return new HttpTabPanel(project, hb);
-        });
+    private void getOrCreatePanel(final HttpBean httpBean) {
+        this.getOrCreatePanel(httpBean, true);
     }
 
     AnAction addAction() {
         return ActionUtils.drawerActions(
-                "Add", "Add HTTP requests", IconC.ADD_GREEN,
-                new SingleTextFieldDialogAction(this.project, "Add Request Group", "Group", group -> {
+                "Add", "Add Group And Item", IconC.ADD_GREEN,
+                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
                     final HttpBean httpBean = HttpBean.builder()
                             .name(group)
                             .build();
-                    getOrCreateHttpTabPanel(httpBean);
+                    getOrCreatePanel(httpBean, true);
                 }),
-                new AnAction("Add Request Item") {
+                new AnAction("Add Item") {
                     @Override
                     public void actionPerformed(@NotNull final AnActionEvent e) {
-                        final HttpBean selectedValue = requestTree.getSelectedValue();
+                        final HttpBean selectedValue = tree.getSelectedValue();
 
                         final String name = Optional.ofNullable(selectedValue)
-                                .map(sv -> Objects.isNull(sv.getRequest()) ? sv : sv.getParent())
-                                .map(sv -> "%s#%s".formatted(sv.getName(), Optional.ofNullable(sv.getChildren()).map(List::size).orElse(0) + 1))
-                                .orElse("request#%s".formatted(requestTree.childrenCount() + 1));
+                                .map(sv -> sv.isGroup() ? sv : sv.getParent())
+                                .map(sv -> "%s#%s".formatted(sv.name(), Optional.ofNullable(sv.getChildren()).map(List::size).orElse(0) + 1))
+                                .orElse("request#%s".formatted(tree.childrenCount() + 1));
 
                         final HttpBean httpBean = HttpBean.builder()
                                 .name(name)
                                 .request(RequestBean.builder().build())
                                 .build();
-                        getOrCreateHttpTabPanel(httpBean);
+                        getOrCreatePanel(httpBean, true);
                     }
                 }
         );
-    }
-
-    AnAction deleteAction() {
-        return new AnAction("Delete", "Delete HTTP Request", IconC.REMOVE_RED) {
-            @Override
-            public void actionPerformed(@NotNull final AnActionEvent e) {
-                if (requestTree.isSelectionEmpty()) {
-                    return;
-                }
-                requestTree.delete(treeNodes -> {
-                    for (final DefaultMutableTreeNode treeNode : treeNodes) {
-                        final HttpBean httpBean = (HttpBean) treeNode.getUserObject();
-                        Optional.ofNullable(components.remove(httpBean))
-                                .filter(HttpTabPanel.class::isInstance)
-                                .map(HttpTabPanel.class::cast)
-                                .ifPresent(HttpTabPanel::release);
-                    }
-                });
-            }
-        };
-    }
-
-    AnAction saveAllAction() {
-        return new AnAction("Save All", "Save all HTTP request to file", IconC.SAVE_ALL) {
-            @Override
-            public void actionPerformed(@NotNull final AnActionEvent e) {
-                final List<HttpBean> data = requestTree.data();
-                final Set<HttpBean> httpBeans = Sets.newHashSet(data);
-
-                virtualFileMap.entrySet().removeIf(entry -> {
-                    if (!httpBeans.contains(entry.getKey())) {
-                        try {
-                            final VirtualFile virtualFile = entry.getValue();
-                            ApplicationManager.getApplication().runWriteAction((ThrowableComputable<Void, Exception>) () -> {
-                                virtualFile.delete(null);
-                                return null;
-                            });
-                            return true;
-                        } catch (Exception ex) {
-                            final Notification notification = new Notification("virtual-file-notify", "Failed to delete the file", ex.getMessage(), NotificationType.WARNING);
-                            notification.notify(project);
-                        }
-                    }
-                    return false;
-                });
-            }
-        };
-    }
-
-    AnAction saveFileAction() {
-        return new AnAction("Save", "Save HTTP request to file", IconC.SAVE) {
-            @Override
-            public void actionPerformed(@NotNull final AnActionEvent e) {
-                HttpBean selectedValue = requestTree.getSelectedValue();
-                if (Objects.isNull(selectedValue)) {
-                    return;
-                }
-                while (selectedValue.getParent() != null) {
-                    if (virtualFileMap.containsKey(selectedValue)) {
-                        break;
-                    }
-                    selectedValue = selectedValue.getParent();
-                }
-                final VirtualFile virtualFile = virtualFileMap.computeIfAbsent(
-                        selectedValue, httpBean -> ScratchFileUtils.findOrCreate("HTTP", OutputType.YAML.fullName(httpBean.getName()))
-                );
-                ScratchFileUtils.write(virtualFile, OutputType.YAML, selectedValue);
-            }
-        };
-    }
-
-    AnAction reloadFileAction() {
-        return new AnAction("Reload", "Reload HTTP request from file", Actions.Refresh) {
-            @Override
-            public void actionPerformed(@NotNull final AnActionEvent e) {
-                reloadScratchFile();
-            }
-        };
     }
 
     AnAction copyAction() {
@@ -292,14 +143,14 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
             @Override
             public void update(@NotNull final AnActionEvent e) {
                 //noinspection ConstantValue
-                Optional.ofNullable(requestTree.getSelectedValue())
+                Optional.ofNullable(tree.getSelectedValue())
                         .map(HttpBean::getRequest).filter(Objects::nonNull)
                         .ifPresentOrElse(httpBean -> e.getPresentation().setEnabled(true), () -> e.getPresentation().setEnabled(false));
             }
 
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                Optional.ofNullable(requestTree.getSelectedValue())
+                Optional.ofNullable(tree.getSelectedValue())
                         .ifPresent(httpBean -> {
                             final String cURL = CURLUtils.cURL(httpBean);
                             final String title = "Convert `" + httpBean.getName() + "` to CURL";
@@ -496,12 +347,14 @@ public final class HttpComponent extends JBPanel<JBPanelWithEmptyText> {
                             .method(this.urlBar.getItem().name(), requestBody)
                             .headers(headers)
                             .build();
-                    try (final Response response = httpClient.newCall(request).execute()) {
-                        final String result = response.body().string();
-                        this.responseArea.setText(result);
-                    } catch (IOException ex) {
-                        Messages.showMessageDialog(this.project, ex.getMessage(), "Request Error", Messages.getErrorIcon());
-                    }
+                    ApplicationManager.getApplication().executeOnPooledThread(() -> {
+                        try (final Response response = httpClient.newCall(request).execute()) {
+                            final String result = response.body().string();
+                            this.responseArea.setText(result);
+                        } catch (IOException ex) {
+                            Messages.showMessageDialog(this.project, ex.getMessage(), "Request Error", Messages.getErrorIcon());
+                        }
+                    });
                 } catch (Exception exc) {
                     Messages.showMessageDialog(this.project, exc.getMessage(), "Request Error", Messages.getErrorIcon());
                 }

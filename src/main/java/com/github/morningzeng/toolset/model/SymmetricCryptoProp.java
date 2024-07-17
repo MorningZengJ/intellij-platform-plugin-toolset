@@ -41,4 +41,14 @@ public class SymmetricCryptoProp extends Children<SymmetricCryptoProp> {
     public DataToBinaryTypeEnum ivType() {
         return Optional.ofNullable(this.ivType).orElse(DataToBinaryTypeEnum.TEXT);
     }
+
+    @Override
+    public String name() {
+        return this.title;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return false;
+    }
 }

@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.ui.HttpComponent;
+import com.github.morningzeng.toolset.ui.RemindsComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -48,6 +49,12 @@ public enum TabEnum implements TabSupport {
         @Override
         public JComponent component(final Project project) {
             return new HttpComponent(project);
+        }
+    },
+    REMINDS("Reminds", null, "You may need to add some reminders, to-dos?", true) {
+        @Override
+        public JComponent component(final Project project) {
+            return new RemindsComponent(project);
         }
     },
     TOKEN("Token", null, "Generate and Resolve JWT", false) {

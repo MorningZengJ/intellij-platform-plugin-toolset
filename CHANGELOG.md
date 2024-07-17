@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.2.4]
+
+### Changed
+
+- Replaced some icons.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.2.3]
 
 ### Fixed

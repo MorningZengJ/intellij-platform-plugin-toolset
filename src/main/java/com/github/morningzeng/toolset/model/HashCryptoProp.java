@@ -35,4 +35,14 @@ public class HashCryptoProp extends Children<HashCryptoProp> {
     public DataToBinaryTypeEnum keyType() {
         return Optional.ofNullable(this.keyType).orElse(DataToBinaryTypeEnum.TEXT);
     }
+
+    @Override
+    public String name() {
+        return this.title;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return this.directory;
+    }
 }

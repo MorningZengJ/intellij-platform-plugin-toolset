@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 
+import javax.swing.Icon;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,5 +41,13 @@ public abstract class Children<T> {
         }
         this.children.add(child);
     }
+
+    public Icon icon() {
+        return this.isGroup() ? IconC.FOLDER_COLOR : IconC.TREE_NODE;
+    }
+
+    public abstract String name();
+
+    public abstract boolean isGroup();
 
 }

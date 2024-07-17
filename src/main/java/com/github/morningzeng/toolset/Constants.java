@@ -5,6 +5,7 @@ import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.ReflectionUtil;
 
 import javax.swing.Icon;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -33,6 +34,10 @@ public interface Constants {
 
     }
 
+    interface DateFormatter {
+        DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    }
+
     interface IconC {
 
         ClassLoader CLASS_LOADER = IconC.class.getClassLoader();
@@ -50,6 +55,8 @@ public interface Constants {
 
         Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
         Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
+
+        Icon CLOCK_COLOR = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
 
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);

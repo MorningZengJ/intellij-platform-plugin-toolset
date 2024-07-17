@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.github.morningzeng.toolset.Constants;
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.Constants.IconC.HttpMethod;
 import com.github.morningzeng.toolset.enums.EnumSupport;
 import com.github.morningzeng.toolset.enums.HttpBodyParamTypeEnum;
@@ -21,6 +22,7 @@ import org.apache.commons.compress.utils.Lists;
 
 import javax.swing.Icon;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,24 @@ import java.util.stream.Collectors;
 public final class HttpBean extends Children<HttpBean> {
     private String name;
     private RequestBean request;
+
+    @Override
+    public Icon icon() {
+        return Optional.ofNullable(this.request)
+                .map(RequestBean::methodIcon)
+                .orElse(IconC.FOLDER_COLOR);
+    }
+
+    @Override
+    public String name() {
+        return this.name;
+    }
+
+    @Override
+    public boolean isGroup() {
+        return Objects.isNull(this.request);
+    }
+
 
     @Data
     @Builder

@@ -16,6 +16,8 @@
 
         <notificationGroup displayType="BALLOON" id="virtual-file-notify"
                            toolWindowId="com.github.MorningZengJ.Toolset"/>
+        <notificationGroup displayType="STICKY_BALLOON" id="remind-notify"
+                           toolWindowId="com.github.MorningZengJ.Toolset"/>
     </extensions>
 
     <applicationListeners>
