@@ -109,7 +109,7 @@ public final class CURLUtils {
     }
 
     static List<Pair<String, String>> header(final String cUrl) {
-        final Pattern compile = Pattern.compile("(?i)(?<=(-H)|(--header)) +?[\"'].+?(?=[\"'] *)");
+        final Pattern compile = Pattern.compile("(?i)(?<=(-H)|(--header)) +?[\"'].+?(?=(([\"'] *\\\\)|([\"'] *$)|( (-H|--header))) *)");
         final Matcher matcher = compile.matcher(cUrl);
         final List<Pair<String, String>> headers = Lists.newArrayList();
         while (matcher.find()) {
@@ -118,7 +118,7 @@ public final class CURLUtils {
                 group = group.substring(1);
             }
             final String[] split = group.split(":");
-            headers.add(Pair.of(split[0], split[1]));
+            headers.add(Pair.of(split[0], split.length > 1 ? split[1] : ""));
         }
         return headers;
     }

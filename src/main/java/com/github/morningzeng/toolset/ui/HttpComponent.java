@@ -177,11 +177,10 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
                     try {
                         final HttpBean httpBean = CURLUtils.from(this.textArea.getText());
                         consumer.accept(httpBean);
-                    } catch (Exception e) {
-                        Messages.showErrorDialog(e.getMessage(), "Import Error");
-                    } finally {
                         this.textArea.releaseEditor();
                         super.doOKAction();
+                    } catch (Exception e) {
+                        Messages.showErrorDialog(e.getMessage(), "Import Error");
                     }
                 }
 
