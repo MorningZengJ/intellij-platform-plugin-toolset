@@ -44,7 +44,8 @@ import java.util.function.Predicate;
  * @author Morning Zeng
  * @since 2024-07-15
  */
-public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits HttpComponent, RemindsComponent {
+public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText>
+        permits HttpComponent, RemindsComponent {
 
     protected final Project project;
     protected final JBSplitter splitter;
