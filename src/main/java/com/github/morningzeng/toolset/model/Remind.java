@@ -36,6 +36,7 @@ public final class Remind extends Children<Remind> {
     private boolean directory;
     private boolean cycle;
     private ChronoUnit cycleUnit;
+    private int intervalTime;
     private transient ScheduledFuture<?> scheduledFuture;
 
     @Override
