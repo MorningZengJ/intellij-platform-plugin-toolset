@@ -52,7 +52,7 @@ public final class JWTPropDialog extends AbstractPropDialog {
 
     AnAction[] initGroupAction() {
         return new AnAction[]{
-                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
+                new SingleTextFieldDialogAction("Group", "Add Group", group -> {
                 }),
                 new AnAction("KeyPair") {
                     @Override

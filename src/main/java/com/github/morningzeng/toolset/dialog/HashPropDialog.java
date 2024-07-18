@@ -62,7 +62,7 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
 
     AnAction[] initGroupAction() {
         return new AnAction[]{
-                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
+                new SingleTextFieldDialogAction("Group", "Add Group", group -> {
                     final HashCryptoProp prop = HashCryptoProp.builder().title(group).directory(true).build();
                     this.tree.create(prop, true);
                 }),

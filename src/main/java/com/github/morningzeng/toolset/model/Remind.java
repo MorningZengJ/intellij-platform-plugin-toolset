@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 
@@ -45,6 +46,10 @@ public final class Remind extends Children<Remind> {
     @Override
     public boolean isGroup() {
         return this.directory;
+    }
+
+    public String content() {
+        return Optional.ofNullable(this.content).orElse("");
     }
 
 }

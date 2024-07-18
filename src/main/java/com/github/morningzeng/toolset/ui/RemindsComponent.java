@@ -2,19 +2,16 @@ package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.DateFormatter;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.CheckBoxBar;
 import com.github.morningzeng.toolset.component.DatePicker;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.component.RadioBar;
 import com.github.morningzeng.toolset.model.Remind;
-import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.google.common.collect.Lists;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
@@ -59,7 +56,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
@@ -140,13 +136,6 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
     }
 
     @Override
-    AnAction[] actions() {
-        final AnAction[] actions = super.actions();
-        return Stream.concat(Stream.of(this.addAction()), Stream.of(actions))
-                .toArray(AnAction[]::new);
-    }
-
-    @Override
     void reloadFileEvent(final AnActionEvent e) {
         super.reloadFileEvent(e);
         this.schedule();
@@ -162,33 +151,12 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
         return "Reminds";
     }
 
-    AnAction addAction() {
-        return ActionUtils.drawerActions(
-                "Add", "Add Group And Item", IconC.ADD_GREEN,
-                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    final Remind remind = Remind.builder()
-                            .name(group)
-                            .directory(true)
-                            .build();
-                    getOrCreatePanel(remind, true);
-                }),
-                new AnAction("Add Item") {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        final Remind selectedValue = tree.getSelectedValue();
-
-                        final String name = Optional.ofNullable(selectedValue)
-                                .map(sv -> sv.isGroup() ? sv : sv.getParent())
-                                .map(sv -> "%s#%s".formatted(sv.name(), Optional.ofNullable(sv.getChildren()).map(List::size).orElse(0) + 1))
-                                .orElse("request#%s".formatted(tree.childrenCount() + 1));
-
-                        final Remind httpBean = Remind.builder()
-                                .name(name)
-                                .build();
-                        getOrCreatePanel(httpBean, true);
-                    }
-                }
-        );
+    @Override
+    Remind generateBean(final String name, final boolean isGroup) {
+        return Remind.builder()
+                .name(name)
+                .directory(isGroup)
+                .build();
     }
 
     static class RemindPanel extends JBPanel<JBPanelWithEmptyText> {
@@ -222,7 +190,7 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
                     Arrays.stream(DayOfWeek.values()).collect(
                             Collectors.toMap(Function.identity(), this.remind.getCycleDayOfWeeks()::contains)
                     ));
-            this.contentTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, this.remind.getContent());
+            this.contentTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, this.remind.content());
             this.contentTextArea.setPlaceholder("Please enter the details of the agent/reminder...");
             this.nameTextField.setPlaceholder("Please enter a name for the to-do/reminder...");
             this.nameTextField.setText(this.remind.getName());

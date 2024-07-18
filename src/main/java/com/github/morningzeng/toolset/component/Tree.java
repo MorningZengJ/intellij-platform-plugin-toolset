@@ -76,6 +76,9 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                         });
                         this.treeModel.reload(parent);
                         this.expandPath(new TreePath(parent.getPath()));
+                        if (this.root.equals(parent)) {
+                            this.ts.add(t);
+                        }
                     }
                 }, () -> {
                     this.root.add(node);

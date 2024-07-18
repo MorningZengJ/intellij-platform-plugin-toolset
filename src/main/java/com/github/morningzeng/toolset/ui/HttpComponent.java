@@ -3,14 +3,13 @@ package com.github.morningzeng.toolset.ui;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants;
 import com.github.morningzeng.toolset.Constants.CompletionItem;
-import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.ComboBoxEditorTextField;
 import com.github.morningzeng.toolset.component.CollapsibleTitledSeparator;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.enums.HttpBodyTypeEnum;
 import com.github.morningzeng.toolset.model.HttpBean;
 import com.github.morningzeng.toolset.model.HttpBean.BodyBean;
+import com.github.morningzeng.toolset.model.HttpBean.HttpBeanBuilder;
 import com.github.morningzeng.toolset.model.HttpBean.RequestBean;
 import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.support.ScrollSupport;
@@ -65,7 +64,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
@@ -80,14 +78,14 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
 
     @Override
     AnAction[] actions() {
-        final AnAction[] actions = super.actions();
         final AnAction importAction = ActionUtils.drawerActions(
                 "Import", "Import HTTP Request", ToolbarDecorator.Import,
                 new CURLAction(project, this::getOrCreatePanel),
                 new PostmanAction(project)
         );
-        return Stream.concat(Stream.concat(Stream.of(this.addAction(), importAction), Stream.of(actions)), Stream.of(this.copyAction()))
-                .toArray(AnAction[]::new);
+        return new AnAction[]{
+                this.addAction(), this.deleteAction(), importAction, this.copyAction(), this.saveAllAction(), this.saveFileAction(), this.reloadFileAction()
+        };
     }
 
     @Override
@@ -100,37 +98,17 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
         return "HTTP";
     }
 
-    private void getOrCreatePanel(final HttpBean httpBean) {
-        this.getOrCreatePanel(httpBean, true);
+    @Override
+    HttpBean generateBean(final String name, final boolean isGroup) {
+        final HttpBeanBuilder<?, ?> builder = HttpBean.builder().name(name);
+        if (!isGroup) {
+            builder.request(RequestBean.builder().build());
+        }
+        return builder.build();
     }
 
-    AnAction addAction() {
-        return ActionUtils.drawerActions(
-                "Add", "Add Group And Item", IconC.ADD_GREEN,
-                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
-                    final HttpBean httpBean = HttpBean.builder()
-                            .name(group)
-                            .build();
-                    getOrCreatePanel(httpBean, true);
-                }),
-                new AnAction("Add Item") {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        final HttpBean selectedValue = tree.getSelectedValue();
-
-                        final String name = Optional.ofNullable(selectedValue)
-                                .map(sv -> sv.isGroup() ? sv : sv.getParent())
-                                .map(sv -> "%s#%s".formatted(sv.name(), Optional.ofNullable(sv.getChildren()).map(List::size).orElse(0) + 1))
-                                .orElse("request#%s".formatted(tree.childrenCount() + 1));
-
-                        final HttpBean httpBean = HttpBean.builder()
-                                .name(name)
-                                .request(RequestBean.builder().build())
-                                .build();
-                        getOrCreatePanel(httpBean, true);
-                    }
-                }
-        );
+    private void getOrCreatePanel(final HttpBean httpBean) {
+        this.getOrCreatePanel(httpBean, true);
     }
 
     AnAction copyAction() {

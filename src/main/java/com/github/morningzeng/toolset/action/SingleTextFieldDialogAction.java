@@ -2,14 +2,12 @@ package com.github.morningzeng.toolset.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTextField;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -22,30 +20,26 @@ import java.util.function.Consumer;
  */
 public class SingleTextFieldDialogAction extends AnAction {
 
-    private final Project project;
     private final String title;
-    private final String label;
     private final Consumer<String> consumer;
 
-    public SingleTextFieldDialogAction(final Project project, final String title, final String label, final Consumer<String> consumer) {
-        super(label);
-        this.project = project;
-        this.title = title;
-        this.label = label;
-        this.consumer = consumer;
+    public SingleTextFieldDialogAction(final String text, final String title, final Consumer<String> consumer) {
+        this(text, null, null, title, consumer);
     }
 
-    public SingleTextFieldDialogAction(final @Nullable Icon icon, final Project project, final String title, final String label, final Consumer<String> consumer) {
-        super(icon);
-        this.project = project;
+    public SingleTextFieldDialogAction(final Icon icon, final String title, final Consumer<String> consumer) {
+        this(null, null, icon, title, consumer);
+    }
+
+    public SingleTextFieldDialogAction(final String text, final String description, final Icon icon, final String title, final Consumer<String> consumer) {
+        super(text, description, icon);
         this.title = title;
-        this.label = label;
         this.consumer = consumer;
     }
 
     @Override
     public void actionPerformed(@NotNull final AnActionEvent e) {
-        new DialogWrapper(this.project) {
+        new DialogWrapper(true) {
             private final JBTextField textField = new JBTextField();
 
             {
@@ -57,7 +51,7 @@ public class SingleTextFieldDialogAction extends AnAction {
             protected JComponent createCenterPanel() {
                 final JBPanel<JBPanelWithEmptyText> panel = new JBPanel<>();
                 panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-                panel.add(new JBLabel(label));
+                panel.add(new JBLabel("Name"));
                 panel.add(this.textField);
                 return panel;
             }

@@ -1,12 +1,14 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.Tree;
 import com.github.morningzeng.toolset.enums.OutputType;
 import com.github.morningzeng.toolset.model.Children;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.ui.HttpComponent.HttpTabPanel;
+import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils.GridLayoutUtilsBuilder;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Morning Zeng
@@ -48,7 +51,7 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
     protected final Class<T> tClass;
     protected final Tree<T> tree = new Tree<>();
     protected final Map<T, JBPanel<?>> components = Maps.newHashMap();
-    protected final Map<T, VirtualFile> virtualFileMap = Maps.newHashMap();
+    protected final Map<String, VirtualFile> virtualFileMap = Maps.newHashMap();
 
     public AbstractTreePanelComponent(final Project project, final Class<T> tClass, final String proportionKey) {
         this(project, tClass, proportionKey, true);
@@ -87,7 +90,7 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
                         )
                         .map(file -> {
                             final T t = ScratchFileUtils.read(file, OutputType.YAML, this.tClass);
-                            this.virtualFileMap.put(t, file);
+                            this.virtualFileMap.put(t.name(), file);
                             return t;
                         })
                         .toList();
@@ -99,7 +102,21 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
     }
 
     AnAction[] actions() {
-        return new AnAction[]{this.deleteAction(), this.saveAllAction(), this.saveFileAction(), this.reloadFileAction()};
+        return new AnAction[]{this.addAction(), this.deleteAction(), this.saveAllAction(), this.saveFileAction(), this.reloadFileAction()};
+    }
+
+    AnAction addAction() {
+        return ActionUtils.drawerActions(
+                "Add", "Add Group And Item", IconC.ADD_GREEN,
+                new SingleTextFieldDialogAction(
+                        "Group", "Add Group",
+                        name -> this.getOrCreatePanel(this.generateBean(name, true), true)
+                ),
+                new SingleTextFieldDialogAction(
+                        "Item", "Add Item",
+                        name -> this.getOrCreatePanel(this.generateBean(name, false), true)
+                )
+        );
     }
 
     AnAction deleteAction() {
@@ -118,7 +135,7 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
                                 .map(HttpTabPanel.class::cast)
                                 .ifPresent(HttpTabPanel::release);
                         if (Objects.isNull(t.getParent())) {
-                            virtualFileMap.remove(t);
+                            virtualFileMap.remove(t.name());
                         }
                     }
                 });
@@ -130,19 +147,19 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
         return new AnAction("Save All", "Save all to file", IconC.SAVE_ALL) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                ScratchFileUtils.childrenFile(configFileDirectory(), stream -> stream.filter(file -> !file.isDirectory())
+                ScratchFileUtils.childrenFile(configFileDirectory(), stream -> stream.filter(Predicate.not(VirtualFile::isDirectory))
                         .forEach(virtualFile -> {
                             final T t = ScratchFileUtils.read(virtualFile, OutputType.YAML, tClass);
-                            if (!virtualFileMap.containsKey(t)) {
+                            if (!virtualFileMap.containsKey(t.name())) {
                                 deleteVirtualFile(virtualFile);
                             }
                         }));
                 final List<T> data = tree.data();
-                data.forEach(node -> {
+                data.forEach(t -> {
                     final VirtualFile virtualFile = virtualFileMap.computeIfAbsent(
-                            node, t -> ScratchFileUtils.findOrCreate(configFileDirectory(), OutputType.YAML.fullName(t.name()))
+                            t.name(), name -> ScratchFileUtils.findOrCreate(configFileDirectory(), OutputType.YAML.fullName(name))
                     );
-                    ScratchFileUtils.write(virtualFile, OutputType.YAML, node);
+                    ScratchFileUtils.write(virtualFile, OutputType.YAML, t);
                 });
             }
         };
@@ -157,13 +174,13 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
                     return;
                 }
                 while (selectedValue.getParent() != null) {
-                    if (virtualFileMap.containsKey(selectedValue)) {
+                    if (virtualFileMap.containsKey(selectedValue.name())) {
                         break;
                     }
                     selectedValue = selectedValue.getParent();
                 }
                 final VirtualFile virtualFile = virtualFileMap.computeIfAbsent(
-                        selectedValue, t -> ScratchFileUtils.findOrCreate(configFileDirectory(), OutputType.YAML.fullName(t.name()))
+                        selectedValue.name(), name -> ScratchFileUtils.findOrCreate(configFileDirectory(), OutputType.YAML.fullName(name))
                 );
                 ScratchFileUtils.write(virtualFile, OutputType.YAML, selectedValue);
             }
@@ -185,6 +202,13 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
 
     JBPanel<?> getOrCreatePanel(final T t, final boolean addTree) {
         if (addTree) {
+            final T selectedValue = this.tree.getSelectedValue();
+            if (Objects.nonNull(selectedValue) && selectedValue.isGroup()) {
+                t.setParent(selectedValue);
+            } else if (this.virtualFileMap.containsKey(t.name())) {
+                Messages.showErrorDialog("%s already exists".formatted(t.name()), "Duplicate Name");
+                return new JBPanelWithEmptyText();
+            }
             this.tree.create(t, t.isGroup());
         }
         return this.components.computeIfAbsent(t, hb -> {
@@ -198,6 +222,8 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
     abstract JBPanel<?> childPanel(final T t);
 
     abstract String configFileDirectory();
+
+    abstract T generateBean(final String name, final boolean isGroup);
 
     private void initTree() {
         this.tree.clearSelectionIfClickedOutside();

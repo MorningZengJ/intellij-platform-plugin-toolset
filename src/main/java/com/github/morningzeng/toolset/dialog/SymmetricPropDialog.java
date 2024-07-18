@@ -68,7 +68,7 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
 
     AnAction[] initGroupAction() {
         return new AnAction[]{
-                new SingleTextFieldDialogAction(this.project, "Add Group", "Group", group -> {
+                new SingleTextFieldDialogAction("Group", "Add Group", group -> {
                     final SymmetricCryptoProp prop = SymmetricCryptoProp.builder().title(group).directory(true).build();
                     this.tree.create(prop, true);
                 }) {
