@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.ui.AESComponent;
+import com.github.morningzeng.toolset.ui.DESComponent;
 import com.github.morningzeng.toolset.ui.HashComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBPanel;
@@ -29,7 +30,7 @@ public enum CryptoTabEnum implements TabSupport {
     DES("DES", null, "DES") {
         @Override
         public JComponent component(final Project project) {
-            return new JBPanel<JBPanelWithEmptyText>();
+            return new DESComponent(project);
         }
     },
     AES("AES", null, "AES") {

@@ -49,6 +49,6 @@ public class SymmetricCryptoProp extends Children<SymmetricCryptoProp> {
 
     @Override
     public boolean isGroup() {
-        return false;
+        return this.directory;
     }
 }

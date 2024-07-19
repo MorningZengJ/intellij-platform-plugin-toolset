@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.dialog;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComboBox;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
 import java.awt.event.ItemEvent;
+import java.util.List;
 
 /**
  * @author Morning Zeng
@@ -40,14 +42,9 @@ public final class JWTPropDialog extends AbstractPropDialog {
         super(project);
         this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
 
-        this.initTree();
-
         init();
         setTitle("JWT Properties");
         this.initEvent();
-    }
-
-    void initTree() {
     }
 
     AnAction[] initGroupAction() {
@@ -61,6 +58,17 @@ public final class JWTPropDialog extends AbstractPropDialog {
                     }
                 }
         };
+    }
+
+    @Override
+    TypeReference<List<?>> typeReference() {
+        return new TypeReference<>() {
+        };
+    }
+
+    @Override
+    Children generateBean(final String name, final boolean isGroup) {
+        return null;
     }
 
     @Override

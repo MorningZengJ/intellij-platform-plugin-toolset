@@ -1,11 +1,10 @@
 package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.ui.DateTimestamp;
 import com.github.morningzeng.toolset.ui.HttpComponent;
 import com.github.morningzeng.toolset.ui.RemindsComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,7 +41,7 @@ public enum TabEnum implements TabSupport {
     TIMESTAMP("Date & Time", IconC.Time, "Date and Time", false) {
         @Override
         public JComponent component(final Project project) {
-            return new JBPanel<JBPanelWithEmptyText>();
+            return new DateTimestamp(project);
         }
     },
     HTTP("HTTP", null, "HTTP Client", true) {

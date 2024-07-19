@@ -1,28 +1,19 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.intellij.openapi.actionSystem.ActionUpdateThread;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
-import javax.swing.SwingConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.List;
 import java.util.Objects;
@@ -46,55 +37,25 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
         super(project, okAfterConsumer);
         this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
 
-        this.initTree();
-
         init();
         setTitle("Symmetric Properties");
     }
 
-    void initTree() {
-        final List<SymmetricCryptoProp> props = ScratchFileUtils.read(new TypeReference<>() {
-        });
-        this.tree.setNodes(props, SymmetricCryptoProp::isDirectory);
-        this.tree.addTreeSelectionListener(e -> {
-            final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
-            if (Objects.nonNull(selectedNode) && !selectedNode.getAllowsChildren()) {
-                final SymmetricCryptoProp prop = (SymmetricCryptoProp) selectedNode.getUserObject();
-                this.createRightPanel(prop);
-            }
-        });
-        this.tree.cellRenderer(prop -> new JBLabel(prop.getTitle(), prop.icon(), SwingConstants.LEFT));
+    @Override
+    TypeReference<List<SymmetricCryptoProp>> typeReference() {
+        return new TypeReference<>() {
+        };
     }
 
-    AnAction[] initGroupAction() {
-        return new AnAction[]{
-                new SingleTextFieldDialogAction("Group", "Add Group", group -> {
-                    final SymmetricCryptoProp prop = SymmetricCryptoProp.builder().title(group).directory(true).build();
-                    this.tree.create(prop, true);
-                }) {
-                    @Override
-                    public @NotNull ActionUpdateThread getActionUpdateThread() {
-                        return super.getActionUpdateThread();
-                    }
-
-                    @Override
-                    public void update(@NotNull final AnActionEvent e) {
-                        e.getPresentation().setEnabled(tree.isSelectionEmpty());
-                    }
-                },
-                new AnAction("KeyPair") {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        createPropItem();
-                    }
-                }
-        };
+    @Override
+    SymmetricCryptoProp generateBean(final String name, final boolean isGroup) {
+        return SymmetricCryptoProp.builder().title(name).directory(isGroup).build();
     }
 
     @Override
     void writeProp() {
         final SymmetricCryptoProp prop = this.tree.getSelectedValue();
-        if (Objects.isNull(prop)) {
+        if (Objects.isNull(prop) || prop.isDirectory()) {
             return;
         }
         prop.setTitle(this.titleTextField.getText())
@@ -113,14 +74,6 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
             return;
         }
         this.itemRightPanel(panel, prop);
-    }
-
-    void createPropItem() {
-        final SymmetricCryptoProp cryptoProp = SymmetricCryptoProp.builder()
-                .title("Key pairs")
-                .build();
-        this.tree.create(cryptoProp, false);
-        this.createRightPanel(cryptoProp);
     }
 
     void itemRightPanel(final JBPanel<JBPanelWithEmptyText> panel, final SymmetricCryptoProp cryptoProp) {

@@ -1,12 +1,17 @@
 package com.github.morningzeng.toolset;
 
+import com.google.common.collect.Maps;
 import com.google.common.net.HttpHeaders;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.util.ReflectionUtil;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.experimental.Accessors;
 
 import javax.swing.Icon;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -34,8 +39,32 @@ public interface Constants {
 
     }
 
+    interface DateFormatterPreserve {
+        DateTimeFormatterPreserve YYYY_MM_DD_HH_MM_SS = DateTimeFormatterPreserve.of("yyyy-MM-dd HH:mm:ss");
+
+        @Getter
+        @Accessors(fluent = true)
+        @EqualsAndHashCode
+        class DateTimeFormatterPreserve {
+            public final static DateTimeFormatterPreserve EMPTY = new DateTimeFormatterPreserve(null);
+            private final static Map<String, DateTimeFormatterPreserve> CACHE = Maps.newHashMap();
+            private final String format;
+            @EqualsAndHashCode.Exclude
+            private final DateTimeFormatter formatter;
+
+            private DateTimeFormatterPreserve(final String format) {
+                this.format = format;
+                this.formatter = Optional.ofNullable(format).map(DateTimeFormatter::ofPattern).orElse(null);
+            }
+
+            public static DateTimeFormatterPreserve of(final String format) {
+                return CACHE.computeIfAbsent(format, k -> new DateTimeFormatterPreserve(format));
+            }
+        }
+    }
+
     interface DateFormatter {
-        DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter YYYY_MM_DD_HH_MM_SS = DateFormatterPreserve.YYYY_MM_DD_HH_MM_SS.formatter;
     }
 
     interface IconC {
@@ -44,7 +73,8 @@ public interface Constants {
         Icon DOUBLE_ARROW_DOWN = IconLoader.getIcon("/images/svg/keyboard_double_arrow_down_24dp.svg", CLASS_LOADER);
         Icon DOUBLE_ARROW_UP = IconLoader.getIcon("/images/svg/keyboard_double_arrow_up_24dp.svg", CLASS_LOADER);
 
-        Icon ADD_GREEN = IconLoader.getIcon("/images/svg/add_drawer.svg", CLASS_LOADER);
+        Icon ADD_DRAWER = IconLoader.getIcon("/images/svg/add_drawer.svg", CLASS_LOADER);
+        Icon ADD = IconLoader.getIcon("/images/svg/add.svg", CLASS_LOADER);
         Icon REMOVE_RED = IconLoader.getIcon("/images/svg/remove.svg", CLASS_LOADER);
 
         Icon BOX = IconLoader.getIcon("/images/svg/box.svg", CLASS_LOADER);

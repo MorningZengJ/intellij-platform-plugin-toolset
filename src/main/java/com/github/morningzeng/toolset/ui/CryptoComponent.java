@@ -25,7 +25,7 @@ import java.util.Optional;
  * @author Morning Zeng
  * @since 2024-07-09
  */
-public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AESComponent, HashComponent {
+public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AESComponent, DESComponent, HashComponent {
     protected final ComboBox<T> cryptoPropComboBox = new ComboBox<>();
     protected final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     protected final LanguageTextArea encryptArea;
@@ -78,9 +78,11 @@ public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPa
                 .sorted(this.comparator())
                 .<T>mapMulti((prop, consumer) -> {
                     consumer.accept(prop);
-                    prop.getChildren().stream()
-                            .sorted(this.comparator())
-                            .forEach(consumer);
+                    Optional.ofNullable(prop.getChildren()).ifPresent(
+                            ts -> ts.stream()
+                                    .sorted(this.comparator())
+                                    .forEach(consumer)
+                    );
                 })
                 .forEach(this.cryptoPropComboBox::addItem));
     }

@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * @author Morning Zeng
@@ -56,6 +57,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
 
         Optional.ofNullable(this.getLastSelectedPathComponent())
                 .map(DefaultMutableTreeNode.class::cast)
+                .filter(Predicate.not(this.root::equals))
                 .ifPresentOrElse(n -> {
                     if (n.getAllowsChildren()) {
                         n.add(node);
@@ -117,6 +119,9 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                         this.treeModel.removeNodeFromParent(treeNode);
                         treeNodes.add(treeNode);
                         final T t = this.getNodeValue(treeNode);
+                        if (Objects.isNull(t.getParent())) {
+                            this.ts.remove(t);
+                        }
                         Optional.ofNullable(t.getParent()).ifPresent(parent -> parent.getChildren().remove(t));
                     }
                     this.reloadTree(null);

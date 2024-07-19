@@ -1,25 +1,17 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
-import javax.swing.SwingConstants;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.util.List;
 import java.util.Objects;
@@ -40,45 +32,25 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
         super(project, callback);
         this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
 
-        this.initTree();
-
         init();
         setTitle("Hash Properties");
     }
 
-    void initTree() {
-        final List<HashCryptoProp> props = ScratchFileUtils.read(new TypeReference<>() {
-        });
-        this.tree.setNodes(props, HashCryptoProp::isDirectory);
-        this.tree.addTreeSelectionListener(e -> {
-            final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
-            if (Objects.nonNull(selectedNode) && !selectedNode.getAllowsChildren()) {
-                final HashCryptoProp prop = (HashCryptoProp) selectedNode.getUserObject();
-                this.createRightPanel(prop);
-            }
-        });
-        this.tree.cellRenderer(prop -> new JBLabel(prop.getTitle(), prop.icon(), SwingConstants.LEFT));
+    @Override
+    TypeReference<List<HashCryptoProp>> typeReference() {
+        return new TypeReference<>() {
+        };
     }
 
-    AnAction[] initGroupAction() {
-        return new AnAction[]{
-                new SingleTextFieldDialogAction("Group", "Add Group", group -> {
-                    final HashCryptoProp prop = HashCryptoProp.builder().title(group).directory(true).build();
-                    this.tree.create(prop, true);
-                }),
-                new AnAction("KeyPair") {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        createPropItem();
-                    }
-                }
-        };
+    @Override
+    HashCryptoProp generateBean(final String name, final boolean isGroup) {
+        return HashCryptoProp.builder().title(name).directory(isGroup).build();
     }
 
     @Override
     void writeProp() {
         final HashCryptoProp prop = this.tree.getSelectedValue();
-        if (Objects.isNull(prop)) {
+        if (Objects.isNull(prop) || prop.isDirectory()) {
             return;
         }
         prop.setTitle(this.titleTextField.getText())
@@ -94,14 +66,6 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
             return;
         }
         this.itemRightPanel(panel, prop);
-    }
-
-    void createPropItem() {
-        final HashCryptoProp cryptoProp = HashCryptoProp.builder()
-                .title("Key pairs")
-                .build();
-        this.tree.create(cryptoProp, false);
-        this.createRightPanel(cryptoProp);
     }
 
     void itemRightPanel(final JBPanel<JBPanelWithEmptyText> panel, final HashCryptoProp cryptoProp) {

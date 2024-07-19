@@ -26,7 +26,6 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -43,20 +42,11 @@ public final class ScratchFileUtils {
     static final String ROOT_DIRECTORY = "Toolset";
 
     @SneakyThrows
-    public static <T> void write(final T t) {
+    public static <T> void write(final T t, final TypeReference<T> typeReference) {
         if (Objects.isNull(t)) {
             return;
         }
-        Class<?> tClass;
-        if (t instanceof Collection<?> collection) {
-            tClass = collection.stream().findFirst().orElseThrow().getClass();
-        } else {
-            tClass = t.getClass();
-        }
-        final ScratchConfig scratchConfig = tClass.getAnnotation(ScratchConfig.class);
-        if (Objects.isNull(scratchConfig)) {
-            return;
-        }
+        final ScratchConfig scratchConfig = getScratchConfig(typeReference);
         final String filename = String.join(Constants.DOT, scratchConfig.value(), scratchConfig.outputType().suffix());
         final VirtualFile file = findOrCreate(scratchConfig.directory(), filename);
         write(file, scratchConfig.outputType().serialize(t));
@@ -143,30 +133,12 @@ public final class ScratchFileUtils {
     }
 
     public static <T> T read(final TypeReference<T> type) {
-        ScratchConfig scratchConfig = null;
-        if (type.getType() instanceof Class<?> tClass) {
-            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
-        }
-        if (type.getType() instanceof ParameterizedType parameterizedType) {
-            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
-        }
-        if (Objects.isNull(scratchConfig)) {
-            throw new IllegalArgumentException("ScratchConfig annotation is missing");
-        }
+        final ScratchConfig scratchConfig = getScratchConfig(type);
         return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
     }
 
     public static <T> T read(final Type type) {
-        ScratchConfig scratchConfig = null;
-        if (type instanceof Class<?> tClass) {
-            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
-        }
-        if (type instanceof ParameterizedType parameterizedType) {
-            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
-        }
-        if (Objects.isNull(scratchConfig)) {
-            throw new IllegalArgumentException("ScratchConfig annotation is missing");
-        }
+        final ScratchConfig scratchConfig = getScratchConfig(type);
         return read(scratchConfig.directory(), scratchConfig.value(), scratchConfig.outputType(), type);
     }
 
@@ -265,6 +237,34 @@ public final class ScratchFileUtils {
         final Path parent = path.getParent();
         final VirtualFile parentDirectory = mkdirs(parent);
         return parentDirectory.createChildDirectory(null, path.getFileName().toString());
+    }
+
+    private static <T> @NotNull ScratchConfig getScratchConfig(final TypeReference<T> type) {
+        ScratchConfig scratchConfig = null;
+        if (type.getType() instanceof Class<?> tClass) {
+            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
+        }
+        if (type.getType() instanceof ParameterizedType parameterizedType) {
+            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
+        }
+        if (Objects.isNull(scratchConfig)) {
+            throw new IllegalArgumentException("ScratchConfig annotation is missing");
+        }
+        return scratchConfig;
+    }
+
+    private static @NotNull ScratchConfig getScratchConfig(final Type type) {
+        ScratchConfig scratchConfig = null;
+        if (type instanceof Class<?> tClass) {
+            scratchConfig = tClass.getAnnotation(ScratchConfig.class);
+        }
+        if (type instanceof ParameterizedType parameterizedType) {
+            scratchConfig = ((Class<?>) parameterizedType.getActualTypeArguments()[0]).getAnnotation(ScratchConfig.class);
+        }
+        if (Objects.isNull(scratchConfig)) {
+            throw new IllegalArgumentException("ScratchConfig annotation is missing");
+        }
+        return scratchConfig;
     }
 
 }

@@ -108,7 +108,7 @@ public abstract sealed class AbstractTreePanelComponent<T extends Children<T>> e
 
     AnAction addAction() {
         return ActionUtils.drawerActions(
-                "Add", "Add Group And Item", IconC.ADD_GREEN,
+                "Add", "Add Group And Item", IconC.ADD_DRAWER,
                 new SingleTextFieldDialogAction(
                         "Group", "Add Group",
                         name -> this.getOrCreatePanel(this.generateBean(name, true), true)

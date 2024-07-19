@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.2.5]
+
+### Added
+
+- Added a new feature: DES encrypt and decrypt.
+
+### Changed
+
+- Replaced some icons.
+
+### Fixed
+
+- Fixed the bug that the setting crypto configuration.
+
 ## [1.2.4]
 
 ### Added
