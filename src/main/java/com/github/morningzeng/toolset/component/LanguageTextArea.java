@@ -62,6 +62,14 @@ public final class LanguageTextArea extends LanguageTextField {
     private TextCompletionProvider provider;
     private boolean autoReformat = true;
 
+    public LanguageTextArea(final Project project) {
+        this(project, "");
+    }
+
+    public LanguageTextArea(final Project project, final String text) {
+        this(PlainTextLanguage.INSTANCE, project, text);
+    }
+
     public LanguageTextArea(final Language language, final Project project, @NotNull final String value) {
         this(language, project, value, false);
     }

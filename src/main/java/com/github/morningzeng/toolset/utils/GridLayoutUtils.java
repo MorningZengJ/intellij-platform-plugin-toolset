@@ -43,6 +43,7 @@ public class GridLayoutUtils {
 
         public GridLayoutUtilsBuilder newCell() {
             this.gridX++;
+            this.gridHeight = 1;
             return this;
         }
 

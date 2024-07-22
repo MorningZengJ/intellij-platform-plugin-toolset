@@ -38,7 +38,7 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", false) {
+    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", true) {
         @Override
         public JComponent component(final Project project) {
             return new DateTimestamp(project);
