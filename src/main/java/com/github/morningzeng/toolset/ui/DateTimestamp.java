@@ -52,8 +52,8 @@ public final class DateTimestamp extends JBPanel<JBPanelWithEmptyText> {
     private final ComboBox<ChronoUnit> timeUnitBox = new ComboBox<>(new ChronoUnit[]{ChronoUnit.SECONDS, ChronoUnit.MILLIS});
     private final EditorTextField datetimeTextField;
     private final EditorTextField timestampTextField;
-    private final JButton covertToTimestampButton = new JButton("Convert to Timestamp");
-    private final JButton convertToDatetimeButton = new JButton("Convert to Datetime");
+    private final JButton covertToTimestampButton = new JButton("Convert to Timestamp", IconC.DOUBLE_ANGLES_RIGHT);
+    private final JButton convertToDatetimeButton = new JButton("Convert to Datetime", IconC.DOUBLE_ANGLES_LEFT);
 
     public DateTimestamp(final Project project) {
 

@@ -47,7 +47,7 @@ public class JWTComponent extends JBPanel<JBPanelWithEmptyText> {
             .toArray(JWTProp[]::new)
     ));
     private final LabelTextArea jwtTextArea = new LabelTextArea("JWT");
-    private final HorizontalDoubleButton btnBar = new HorizontalDoubleButton(new JButton("Resolve", IconC.DOUBLE_ARROW_DOWN), new JButton("Generate", IconC.DOUBLE_ARROW_UP));
+    private final HorizontalDoubleButton btnBar = new HorizontalDoubleButton(new JButton("Resolve", IconC.DOUBLE_ANGLES_DOWN), new JButton("Generate", IconC.DOUBLE_ANGLES_UP));
     private final LabelTextArea headerTextArea = new LabelTextArea("Header");
     private final LabelTextArea payloadTextArea = new LabelTextArea("Payload");
 

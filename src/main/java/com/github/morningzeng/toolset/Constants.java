@@ -70,8 +70,10 @@ public interface Constants {
     interface IconC {
 
         ClassLoader CLASS_LOADER = IconC.class.getClassLoader();
-        Icon DOUBLE_ARROW_DOWN = IconLoader.getIcon("/images/svg/double_arrow_down.svg", CLASS_LOADER);
-        Icon DOUBLE_ARROW_UP = IconLoader.getIcon("/images/svg/double_arrow_up.svg", CLASS_LOADER);
+        Icon DOUBLE_ANGLES_DOWN = IconLoader.getIcon("/images/svg/double_angles_down.svg", CLASS_LOADER);
+        Icon DOUBLE_ANGLES_UP = IconLoader.getIcon("/images/svg/double_angles_up.svg", CLASS_LOADER);
+        Icon DOUBLE_ANGLES_RIGHT = IconLoader.getIcon("/images/svg/double_angles_right.svg", CLASS_LOADER);
+        Icon DOUBLE_ANGLES_LEFT = IconLoader.getIcon("/images/svg/double_angles_left.svg", CLASS_LOADER);
 
         Icon ADD_DRAWER = IconLoader.getIcon("/images/svg/add_drawer.svg", CLASS_LOADER);
         Icon ADD = IconLoader.getIcon("/images/svg/add.svg", CLASS_LOADER);

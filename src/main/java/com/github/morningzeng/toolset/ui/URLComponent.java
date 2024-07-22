@@ -27,8 +27,8 @@ public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
     private final LanguageTextArea encodeArea;
     private final LanguageTextArea decodeArea;
 
-    private final JButton encodeBtn = new JButton("Encode", IconC.DOUBLE_ARROW_DOWN);
-    private final JButton decodeBtn = new JButton("Decode", IconC.DOUBLE_ARROW_UP);
+    private final JButton encodeBtn = new JButton("Encode", IconC.DOUBLE_ANGLES_DOWN);
+    private final JButton decodeBtn = new JButton("Decode", IconC.DOUBLE_ANGLES_UP);
 
     public URLComponent(final Project project) {
         this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "", true);

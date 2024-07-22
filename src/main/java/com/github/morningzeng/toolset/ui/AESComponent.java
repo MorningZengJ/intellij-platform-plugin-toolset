@@ -48,8 +48,8 @@ public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
      * @since <version>
      */
     private final ComboBox<SymmetricCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
-    private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ARROW_DOWN);
-    private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ARROW_UP);
+    private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ANGLES_DOWN);
+    private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ANGLES_UP);
 
 
     /**

@@ -34,7 +34,7 @@ public final class HashComponent extends CryptoComponent<HashCryptoProp> {
             .toArray(HashCrypto[]::new);
     private final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     private final ComboBox<HashCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
-    private final JButton calculation = new JButton("Calculation", IconC.DOUBLE_ARROW_DOWN);
+    private final JButton calculation = new JButton("Calculation", IconC.DOUBLE_ANGLES_DOWN);
 
     public HashComponent(final Project project) {
         super(project);
