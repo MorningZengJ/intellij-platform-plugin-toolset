@@ -17,6 +17,7 @@ the [repository][gh:template] ).
 - Encoding & Decoding. eg: URL encoding and decoding, Base64 encoding and decoding.
 - HTTP. Import the CURL command and invoke the http/https request.
 - To-do reminders.
+- QR code generation
 
 [gh:template]: https://github.com/MorningZengJ/intellij-platform-plugin-toolset
 <!-- Plugin description end -->
