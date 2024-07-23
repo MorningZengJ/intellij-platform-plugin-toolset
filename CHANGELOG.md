@@ -4,6 +4,20 @@
 
 ## [Unreleased]
 
+## [1.2.6]
+
+### Added
+
+- Added a new feature: Generate a QR code, the logo can be from a file, a network, a base64 string.
+
+### Changed
+
+- Replaced some icons.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.2.5]
 
 ### Added

@@ -80,15 +80,13 @@ public interface Constants {
         Icon REMOVE_RED = IconLoader.getIcon("/images/svg/remove.svg", CLASS_LOADER);
 
         Icon BOX = IconLoader.getIcon("/images/svg/box.svg", CLASS_LOADER);
-        Icon Time = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
+        Icon CLOCK_COLOR = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
 
         Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
         Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
 
         Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
         Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
-
-        Icon CLOCK_COLOR = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
 
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);

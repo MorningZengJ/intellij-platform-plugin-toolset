@@ -5,6 +5,8 @@ jacksons = "2.17.2"
 okhttps = "5.0.0-alpha.14"
 jjwts = "0.12.5"
 lomboks = "1.18.32"
+zxing = "3.5.3"
+thumbnailator = "0.4.20"
 
 # plugins
 kotlin = "1.9.23"
@@ -39,6 +41,13 @@ libraries-jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", ver
 
 # lombok
 libraries-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lomboks" }
+
+# zxing
+libraries-zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+libraries-zxing-javase = { group = "com.google.zxing", name = "javase", version.ref = "zxing" }
+
+# net.coobird:thumbnailator
+libraries-thumbnailator = { group = "net.coobird", name = "thumbnailator", version.ref = "thumbnailator" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

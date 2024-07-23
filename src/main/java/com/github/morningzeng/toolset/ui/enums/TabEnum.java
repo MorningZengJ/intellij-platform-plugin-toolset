@@ -3,6 +3,7 @@ package com.github.morningzeng.toolset.ui.enums;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.ui.DateTimestamp;
 import com.github.morningzeng.toolset.ui.HttpComponent;
+import com.github.morningzeng.toolset.ui.QRCodeComponent;
 import com.github.morningzeng.toolset.ui.RemindsComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
@@ -30,6 +31,12 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
+    TIMESTAMP("Datetime", IconC.CLOCK_COLOR, "Date and Time", true) {
+        @Override
+        public JComponent component(final Project project) {
+            return new DateTimestamp(project);
+        }
+    },
     CODING("Encoding & Decoding", null, "Encoding and Decoding", true) {
         @Override
         public JComponent component(final Project project) {
@@ -38,16 +45,16 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    TIMESTAMP("Date & Time", IconC.Time, "Date and Time", true) {
-        @Override
-        public JComponent component(final Project project) {
-            return new DateTimestamp(project);
-        }
-    },
     HTTP("HTTP", null, "HTTP Client", true) {
         @Override
         public JComponent component(final Project project) {
             return new HttpComponent(project);
+        }
+    },
+    QRCODE("QRCode", null, "QR Code", true) {
+        @Override
+        public JComponent component(final Project project) {
+            return new QRCodeComponent(project);
         }
     },
     REMINDS("Reminds", null, "You may need to add some reminders, to-dos?", true) {

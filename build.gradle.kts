@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
-
 }
 
 group = properties("pluginGroup").get()
@@ -37,6 +36,10 @@ dependencies {
     implementation(libs.libraries.okhttp)
 
     implementation(libs.libraries.jjwt.api)
+
+    implementation(libs.libraries.zxing.core)
+    implementation(libs.libraries.zxing.javase)
+    implementation(libs.libraries.thumbnailator)
 
     compileOnly(libs.libraries.lombok)
 

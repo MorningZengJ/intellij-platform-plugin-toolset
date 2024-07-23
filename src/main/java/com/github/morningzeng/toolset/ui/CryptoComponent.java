@@ -60,7 +60,6 @@ public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPa
             final boolean directory = this.isDirectory(value);
             final Icon icon = directory ? IconC.FOLDER_COLOR : IconC.TREE_NODE;
             final JBLabel label = new JBLabel(this.cryptoPropText(value), icon, SwingConstants.LEFT);
-            label.setEnabled(!directory);
             if (index == -1) {
                 return label;
             }

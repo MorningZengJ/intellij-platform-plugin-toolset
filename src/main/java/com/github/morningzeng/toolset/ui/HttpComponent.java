@@ -23,6 +23,7 @@ import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -210,6 +211,10 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
 
                 {
                     this.browseButton.setPreferredSize(new Dimension(750, this.browseButton.getHeight()));
+                    this.browseButton.addBrowseFolderListener(
+                            "Select Postman Collection File", "Select postman collection file", project,
+                            FileChooserDescriptorFactory.createSingleFileDescriptor()
+                    );
                     init();
                     setTitle("Import Postman Collection");
                 }
