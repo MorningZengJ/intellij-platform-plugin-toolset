@@ -1,7 +1,8 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.component.LanguageTextArea;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.QrCodeUtils;
 import com.google.common.collect.Lists;
 import com.google.zxing.datamatrix.encoder.SymbolShapeHint;
@@ -23,7 +24,6 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.fields.ExtendableTextField;
-import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.JBImageIcon;
 
@@ -32,10 +32,8 @@ import javax.swing.JButton;
 import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -163,30 +161,47 @@ public final class QRCodeComponent extends JBSplitter {
     }
 
     private void initLayout() {
-        final JBPanel<JBPanelWithEmptyText> propPanel = new JBPanel<>(new GridBagLayout());
-
-        GridLayoutUtils.builder()
-                .container(propPanel).fill(GridBag.HORIZONTAL).add(this.linePanel(this.onColorButton, this.offColorButton, this.widthSpinner, this.heightSpinner, this.marginSpinner))
-                .newRow().add(this.linePanel(this.formatComboBox, this.charsetComboBox, this.errorCorrectionLevelComboBox))
-                .newRow().add(this.linePanel(this.logoTextField, this.strokeSpinner, this.logoRoundRectSpinner, this.logoStrokeColorButton))
-                .newRow().fill(GridBag.BOTH).weightX(1).weightY(1).add(this.contentTextArea)
-        ;
-
+        final JBPanel<JBPanelWithEmptyText> propPanel = GridBagUtils.builder()
+                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                        .newCell().add(
+                                GridBagUtils.builder()
+                                        .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
+                                                .newCell().add(this.onColorButton)
+                                                .newCell().add(this.offColorButton)
+                                                .newCell().weightX(.3).add(this.widthSpinner)
+                                                .newCell().add(this.heightSpinner)
+                                                .newCell().add(this.marginSpinner))
+                                        .build()
+                        ))
+                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                        .newCell().add(
+                                GridBagUtils.builder()
+                                        .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
+                                                .newCell().weightX(.3).add(this.formatComboBox)
+                                                .newCell().add(this.charsetComboBox)
+                                                .newCell().add(this.errorCorrectionLevelComboBox))
+                                        .build()
+                        ))
+                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                        .newCell().add(
+                                GridBagUtils.builder()
+                                        .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
+                                                .newCell().weightX(0).add(this.logoStrokeColorButton)
+                                                .newCell().weightX(.3).add(this.strokeSpinner)
+                                                .newCell().add(this.logoRoundRectSpinner)
+                                                .newCell().add(this.logoTextField))
+                                        .build()
+                        ))
+                .newRow(row -> row.fill(GridBagFill.BOTH)
+                        .newCell().weightX(1).weightY(1).add(this.contentTextArea))
+                .build();
         this.setFirstComponent(propPanel);
+
         final JBPanel<JBPanelWithEmptyText> qrCodePanel = new JBPanel<>();
         qrCodePanel.setLayout(new BoxLayout(qrCodePanel, BoxLayout.Y_AXIS));
         qrCodePanel.add(this.qrCodeLabel);
         qrCodePanel.add(this.generateQRCodeButton);
         this.setSecondComponent(qrCodePanel);
-    }
-
-    private JBPanel<JBPanelWithEmptyText> linePanel(final Component... components) {
-        final JBPanel<JBPanelWithEmptyText> panel = new JBPanel<>();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-        for (final Component component : components) {
-            panel.add(component);
-        }
-        return panel;
     }
 
     private void bindChooseColor(final ColorButton... colorButtons) {

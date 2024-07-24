@@ -32,7 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.HashMap;
@@ -115,7 +115,7 @@ public final class QrCodeUtils {
      * @param content  QR code content
      * @param logoPath Logo image address
      */
-    public BufferedImage toBufferedImageWithLogo(String content, String logoPath) throws WriterException, IOException {
+    public BufferedImage toBufferedImageWithLogo(String content, String logoPath) throws Exception {
         return this.getBufferedImageBuilder(content, logoPath).asBufferedImage();
     }
 
@@ -137,7 +137,7 @@ public final class QrCodeUtils {
      * @param logoPath     Logo image address
      * @param outputStream Output stream
      */
-    public void writeToStreamWithLogo(String content, @NonNull String logoPath, OutputStream outputStream) throws WriterException, IOException {
+    public void writeToStreamWithLogo(String content, @NonNull String logoPath, OutputStream outputStream) throws Exception {
         this.getBufferedImageBuilder(content, logoPath).toOutputStream(outputStream);
     }
 
@@ -159,7 +159,7 @@ public final class QrCodeUtils {
      * @param logoPath Logo image address
      * @param outPath  File path
      */
-    public void toFileWithLogo(String content, @NonNull String logoPath, @NonNull String outPath) throws WriterException, IOException {
+    public void toFileWithLogo(String content, @NonNull String logoPath, @NonNull String outPath) throws Exception {
         this.getBufferedImageBuilder(content, logoPath).toFile(new File(outPath));
     }
 
@@ -182,7 +182,7 @@ public final class QrCodeUtils {
      * @param content QR code content
      * @return Base64 encoded QR code
      */
-    public String toBase64Code(String content, @NonNull String logoPath) throws IOException, WriterException {
+    public String toBase64Code(String content, @NonNull String logoPath) throws Exception {
         try (final ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             this.writeToStreamWithLogo(content, logoPath, bout);
             return this.getBase64Code(bout);
@@ -201,9 +201,9 @@ public final class QrCodeUtils {
      * @param content  QR code content
      * @param logoPath Logo image address
      */
-    private Thumbnails.Builder<BufferedImage> getBufferedImageBuilder(String content, @NonNull String logoPath) throws WriterException, IOException {
+    private Thumbnails.Builder<BufferedImage> getBufferedImageBuilder(String content, @NonNull String logoPath) throws Exception {
         final BufferedImage qrcode = this.toBufferedImage(content);
-        final BufferedImage logo = getLogo(logoPath);
+        final BufferedImage logo = this.getLogo(logoPath);
         // The width of the logo
         final int width = Math.min(logo.getWidth(), qrcode.getWidth() * 15 / 100);
         // The height of the logo
@@ -230,10 +230,10 @@ public final class QrCodeUtils {
         return Thumbnails.of(combined).outputFormat(this.format).size(this.width, this.height);
     }
 
-    private BufferedImage getLogo(final @NotNull String logoPath) throws IOException {
+    private BufferedImage getLogo(final @NotNull String logoPath) throws Exception {
         final Builder<?> builder;
         if (logoPath.matches("^https?://.+$")) {
-            builder = Thumbnails.of(new URL(logoPath));
+            builder = Thumbnails.of(new URI(logoPath).toURL());
         } else if (logoPath.startsWith("data:image/")) {
             final byte[] decode = DECODER.decode(logoPath.split(",")[1]);
             try (final ByteArrayInputStream in = new ByteArrayInputStream(decode)) {
