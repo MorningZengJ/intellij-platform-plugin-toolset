@@ -186,10 +186,10 @@ public final class QRCodeComponent extends JBSplitter {
                         .newCell().add(
                                 GridBagUtils.builder()
                                         .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
-                                                .newCell().weightX(0).add(this.logoStrokeColorButton)
-                                                .newCell().weightX(.3).add(this.strokeSpinner)
+                                                .newCell().add(this.logoStrokeColorButton)
+                                                .newCell().add(this.strokeSpinner)
                                                 .newCell().add(this.logoRoundRectSpinner)
-                                                .newCell().add(this.logoTextField))
+                                                .newCell().weightX(1).add(this.logoTextField))
                                         .build()
                         ))
                 .newRow(row -> row.fill(GridBagFill.BOTH)
