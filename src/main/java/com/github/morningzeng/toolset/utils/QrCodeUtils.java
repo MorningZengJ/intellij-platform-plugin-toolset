@@ -26,6 +26,7 @@ import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -209,6 +210,16 @@ public final class QrCodeUtils {
         // The height of the logo
         final int height = Math.min(logo.getHeight(), qrcode.getHeight() * 15 / 100);
 
+        final BufferedImage roundedLogo = ImageUtil.createImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        final Graphics2D g2d = roundedLogo.createGraphics();
+        g2d.setComposite(AlphaComposite.Src);
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setColor(JBColor.WHITE);
+        g2d.fillRoundRect(0, 0, width, height, this.roundRectX, this.roundRectY);
+        g2d.setComposite(AlphaComposite.SrcAtop);
+        g2d.drawImage(logo, 0, 0, width, height, null);
+        g2d.dispose();
+
         final int x = Math.round((qrcode.getWidth() - width) / 2F);
         final int y = Math.round((qrcode.getHeight() - height) / 2F);
 
@@ -217,7 +228,7 @@ public final class QrCodeUtils {
         graphics.drawImage(qrcode, 0, 0, null);
         // Set the drawing method and transparency
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1));
-        graphics.drawImage(logo, x, y, width, height, null);
+        graphics.drawImage(roundedLogo, x, y, width, height, null);
         // border
         graphics.setStroke(new BasicStroke(this.stroke));
         // Border color
