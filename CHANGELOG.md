@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.2.7]
+
+### Changed
+
+- Optimized QR code generation, add another pattern of QR code.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.2.6]
 
 ### Added
