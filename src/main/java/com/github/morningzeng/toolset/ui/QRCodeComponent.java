@@ -3,7 +3,8 @@ package com.github.morningzeng.toolset.ui;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
-import com.github.morningzeng.toolset.utils.QrCodeUtils;
+import com.github.morningzeng.toolset.utils.qrcode.AbstractQRCode;
+import com.github.morningzeng.toolset.utils.qrcode.QRCodeFillTypeEnum;
 import com.google.common.collect.Lists;
 import com.google.zxing.datamatrix.encoder.SymbolShapeHint;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
@@ -91,6 +92,9 @@ public final class QRCodeComponent extends JBSplitter {
     private final LabeledComponent<JBIntSpinner> logoRoundRectSpinner = LabeledComponent.create(
             new JBIntSpinner(5, 0, 100), "Round rectangle", BorderLayout.WEST
     );
+    private final LabeledComponent<ComboBox<QRCodeFillTypeEnum>> fillTypeComboBox = LabeledComponent.create(
+            new ComboBox<>(QRCodeFillTypeEnum.values()), "QR Code fill type", BorderLayout.WEST
+    );
     private final LanguageTextArea contentTextArea;
     private final JBImageIcon imageIcon = new JBImageIcon(ImageUtil.createImage(500, 500, BufferedImage.TYPE_INT_ARGB));
     private final JBLabel qrCodeLabel = new JBLabel(this.imageIcon) {
@@ -134,9 +138,9 @@ public final class QRCodeComponent extends JBSplitter {
                     throw new IllegalArgumentException("The content of the QR code cannot be empty");
                 }
                 this.generateQRCodeButton.setEnabled(false);
-                final QrCodeUtils built = buildQRCode();
+                final AbstractQRCode built = buildQRCode();
                 final String logoPath = this.logoTextField.getComponent().getText();
-                final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImageWithLogo(content, logoPath);
+                final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImage(content, logoPath);
                 this.imageIcon.setImage(bufferedImage);
                 this.qrCodeLabel.setIcon(this.imageIcon);
                 this.qrCodeLabel.repaint();
@@ -177,7 +181,8 @@ public final class QRCodeComponent extends JBSplitter {
                         .newCell().add(
                                 GridBagUtils.builder()
                                         .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
-                                                .newCell().weightX(.3).add(this.formatComboBox)
+                                                .newCell().weightX(.3).add(this.fillTypeComboBox)
+                                                .newCell().add(this.formatComboBox)
                                                 .newCell().add(this.charsetComboBox)
                                                 .newCell().add(this.errorCorrectionLevelComboBox))
                                         .build()
@@ -215,10 +220,11 @@ public final class QRCodeComponent extends JBSplitter {
         }
     }
 
-    private QrCodeUtils buildQRCode() {
-        return QrCodeUtils.builder()
-                .onColor(this.onColorButton.getComponent().getColor().getRGB())
-                .offColor(this.offColorButton.getComponent().getColor().getRGB())
+    private <T extends AbstractQRCode> T buildQRCode() {
+        //noinspection unchecked
+        return (T) this.fillTypeComboBox.getComponent().getItem().builder()
+                .onColor(this.onColorButton.getComponent().getColor())
+                .offColor(this.offColorButton.getComponent().getColor())
                 .width(this.widthSpinner.getComponent().getNumber())
                 .height(this.heightSpinner.getComponent().getNumber())
                 .format(this.formatComboBox.getComponent().getItem())
