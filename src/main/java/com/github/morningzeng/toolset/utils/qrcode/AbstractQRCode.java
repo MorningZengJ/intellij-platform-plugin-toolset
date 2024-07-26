@@ -108,11 +108,24 @@ public abstract sealed class AbstractQRCode permits QRCodeRect, QRCodeRound {
         }
     }
 
+    @SneakyThrows
+    public String toBase64(final BufferedImage image) {
+        try (final ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
+            this.writeToStream(image, bout);
+            return this.getBase64Code(bout);
+        }
+    }
+
     public abstract void writeToStream(final String content, final OutputStream stream);
 
     @SneakyThrows
     public void writeToStream(final String content, final String logo, final OutputStream out) {
         this.mergeLogoWithQRCode(content, logo).toOutputStream(out);
+    }
+
+    @SneakyThrows
+    public void writeToStream(final BufferedImage image, final OutputStream out) {
+        Thumbnails.of(image).scale(1).outputFormat("PNG").toOutputStream(out);
     }
 
     public abstract void writeToFile(final String content, final String filepath);

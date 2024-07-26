@@ -8,6 +8,7 @@ import com.github.morningzeng.toolset.utils.qrcode.QRCodeFillTypeEnum;
 import com.google.common.collect.Lists;
 import com.google.zxing.datamatrix.encoder.SymbolShapeHint;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import com.intellij.icons.AllIcons.Actions;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
@@ -28,7 +29,6 @@ import com.intellij.ui.components.fields.ExtendableTextField;
 import com.intellij.util.ui.ImageUtil;
 import com.intellij.util.ui.JBImageIcon;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.UIManager;
 import java.awt.BorderLayout;
@@ -36,6 +36,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -43,6 +46,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author Morning Zeng
@@ -113,6 +117,7 @@ public final class QRCodeComponent extends JBSplitter {
         }
     };
     private final JButton generateQRCodeButton = new JButton("Generate QR Code");
+    private final JButton copyBase64Button = new JButton("Covert to Base64 and Copy");
 
     public QRCodeComponent(final Project project) {
         super(false, "qr-code-splitter", .5f, .95f);
@@ -131,23 +136,14 @@ public final class QRCodeComponent extends JBSplitter {
         this.logoTextField.getComponent().addBrowseFolderListener(
                 "Select Logo File", "Select logo file", this.project, FileChooserDescriptorFactory.createSingleFileDescriptor()
         );
-        this.generateQRCodeButton.addActionListener(e -> ApplicationManager.getApplication().executeOnPooledThread(() -> {
+        this.generateQRCodeButton.addActionListener(e -> this.generateQRCodeImage());
+        this.copyBase64Button.addActionListener(e -> this.generateQRCodeImage(image -> {
+            final String base64 = this.buildQRCode().toBase64(image);
             try {
-                final String content = this.contentTextArea.getText();
-                if (StringUtil.isEmpty(content)) {
-                    throw new IllegalArgumentException("The content of the QR code cannot be empty");
-                }
-                this.generateQRCodeButton.setEnabled(false);
-                final AbstractQRCode built = buildQRCode();
-                final String logoPath = this.logoTextField.getComponent().getText();
-                final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImage(content, logoPath);
-                this.imageIcon.setImage(bufferedImage);
-                this.qrCodeLabel.setIcon(this.imageIcon);
-                this.qrCodeLabel.repaint();
+                final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(new StringSelection(base64), null);
             } catch (Exception ex) {
-                ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Generate QR Code Error"));
-            } finally {
-                this.generateQRCodeButton.setEnabled(true);
+                Messages.showMessageDialog(base64, "Convert QR Code to Base64 and Copy", Actions.DiffWithClipboard);
             }
         }));
         this.addComponentListener(new ComponentAdapter() {
@@ -202,11 +198,15 @@ public final class QRCodeComponent extends JBSplitter {
                 .build();
         this.setFirstComponent(propPanel);
 
-        final JBPanel<JBPanelWithEmptyText> qrCodePanel = new JBPanel<>();
-        qrCodePanel.setLayout(new BoxLayout(qrCodePanel, BoxLayout.Y_AXIS));
-        qrCodePanel.add(this.qrCodeLabel);
-        qrCodePanel.add(this.generateQRCodeButton);
-        this.setSecondComponent(qrCodePanel);
+        final JBPanel<JBPanelWithEmptyText> panel = GridBagUtils.builder()
+                .newRow(row -> row.fill(GridBagFill.BOTH).newCell().weightX(1).weightY(1).add(this.qrCodeLabel))
+                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                        .newCell().add(GridBagUtils.builder()
+                                .newRow(crow -> crow.fill(GridBagFill.HORIZONTAL).newCell().add(this.generateQRCodeButton).newCell().add(this.copyBase64Button))
+                                .build())
+                )
+                .build();
+        this.setSecondComponent(panel);
     }
 
     private void bindChooseColor(final ColorButton... colorButtons) {
@@ -218,6 +218,34 @@ public final class QRCodeComponent extends JBSplitter {
                 Optional.ofNullable(chooseColor).ifPresent(colorButton::setColor);
             });
         }
+    }
+
+    private void generateQRCodeImage() {
+        generateQRCodeImage(bufferedImage -> {
+        });
+    }
+
+    private void generateQRCodeImage(final Consumer<BufferedImage> consumer) {
+        ApplicationManager.getApplication().executeOnPooledThread(() -> {
+            try {
+                final String content = this.contentTextArea.getText();
+                if (StringUtil.isEmpty(content)) {
+                    throw new IllegalArgumentException("The content of the QR code cannot be empty");
+                }
+                this.generateQRCodeButton.setEnabled(false);
+                final AbstractQRCode built = this.buildQRCode();
+                final String logoPath = this.logoTextField.getComponent().getText();
+                final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImage(content, logoPath);
+                this.imageIcon.setImage(bufferedImage);
+                this.qrCodeLabel.setIcon(this.imageIcon);
+                this.qrCodeLabel.repaint();
+                consumer.accept(bufferedImage);
+            } catch (Exception ex) {
+                ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Generate QR Code Error"));
+            } finally {
+                this.generateQRCodeButton.setEnabled(true);
+            }
+        });
     }
 
     private <T extends AbstractQRCode> T buildQRCode() {

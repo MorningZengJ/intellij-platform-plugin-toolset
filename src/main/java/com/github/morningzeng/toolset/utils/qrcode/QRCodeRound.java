@@ -23,14 +23,15 @@ public final class QRCodeRound extends AbstractQRCode {
     @Override
     @SneakyThrows
     public void writeToStream(final String content, final OutputStream out) {
-        Thumbnails.of(this.toBufferedImage(content))
-                .toOutputStream(out);
+        this.writeToStream(this.toBufferedImage(content), out);
     }
 
     @Override
     @SneakyThrows
     public void writeToFile(final String content, final String filepath) {
         Thumbnails.of(this.toBufferedImage(content))
+                .scale(1)
+                .outputFormat("PNG")
                 .toFile(filepath);
     }
 
