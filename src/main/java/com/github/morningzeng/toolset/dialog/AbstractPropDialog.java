@@ -126,7 +126,9 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                 ) {
                     @Override
                     public @NotNull ActionUpdateThread getActionUpdateThread() {
-                        return super.getActionUpdateThread();
+                        return Optional.of(super.getActionUpdateThread())
+                                .filter(ActionUpdateThread.BGT::equals)
+                                .orElse(ActionUpdateThread.EDT);
                     }
 
                     @Override

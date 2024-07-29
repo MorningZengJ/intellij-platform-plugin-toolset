@@ -116,7 +116,9 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
         return new AnAction("Convert to CURL and Copy", "Convert to cURL and Copy", Actions.Copy) {
             @Override
             public @NotNull ActionUpdateThread getActionUpdateThread() {
-                return super.getActionUpdateThread();
+                return Optional.of(super.getActionUpdateThread())
+                        .filter(ActionUpdateThread.BGT::equals)
+                        .orElse(ActionUpdateThread.EDT);
             }
 
             @Override
