@@ -31,7 +31,7 @@ public final class URLComponent extends JBPanel<JBPanelWithEmptyText> {
     private final JButton decodeBtn = new JButton("Decode", IconC.DOUBLE_ANGLES_UP);
 
     public URLComponent(final Project project) {
-        this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "", true);
+        this.encodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.decodeArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.encodeArea.setPlaceholder("URL encoded text");
         this.decodeArea.setPlaceholder("URL decoded text");

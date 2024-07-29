@@ -48,6 +48,7 @@ public final class HashComponent extends CryptoComponent<HashCryptoProp> {
                 .newRow().weightY(0).add(this.calculation)
                 .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
 
+        this.encryptArea.setReadOnly(true);
         this.cryptoManageBtn.setEnabled(false);
         this.cryptoPropComboBox.setEnabled(false);
         this.initEvent();
