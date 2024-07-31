@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.component.ImageLabel;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -22,20 +23,14 @@ import com.intellij.ui.JBColor;
 import com.intellij.ui.JBIntSpinner;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.colorpicker.ColorButton;
-import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.fields.ExtendableTextField;
-import com.intellij.util.ui.ImageUtil;
-import com.intellij.util.ui.JBImageIcon;
 
 import javax.swing.JButton;
-import javax.swing.UIManager;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -44,7 +39,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -100,22 +94,7 @@ public final class QRCodeComponent extends JBSplitter {
             new ComboBox<>(QRCodeFillTypeEnum.values()), "QR Code fill type", BorderLayout.WEST
     );
     private final LanguageTextArea contentTextArea;
-    private final JBImageIcon imageIcon = new JBImageIcon(ImageUtil.createImage(500, 500, BufferedImage.TYPE_INT_ARGB));
-    private final JBLabel qrCodeLabel = new JBLabel(this.imageIcon) {
-        @Override
-        protected void paintComponent(final Graphics g) {
-            super.paintComponent(g);
-            if (Objects.isNull(this.getIcon())) {
-                return;
-            }
-            final JBImageIcon icon = (JBImageIcon) this.getIcon();
-            final Image image = icon.getImage();
-            final int size = Math.min(this.getWidth(), this.getHeight());
-            g.setColor(UIManager.getColor("Label.background"));
-            g.fillRect(0, 0, this.getWidth(), this.getHeight());
-            g.drawImage(image, 0, 0, size, size, this);
-        }
-    };
+    private final ImageLabel qrCodeLabel = new ImageLabel(500, 500);
     private final JButton generateQRCodeButton = new JButton("Generate QR Code");
     private final JButton copyBase64Button = new JButton("Covert to Base64 and Copy");
 
@@ -236,9 +215,7 @@ public final class QRCodeComponent extends JBSplitter {
                 final AbstractQRCode built = this.buildQRCode();
                 final String logoPath = this.logoTextField.getComponent().getText();
                 final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImage(content, logoPath);
-                this.imageIcon.setImage(bufferedImage);
-                this.qrCodeLabel.setIcon(this.imageIcon);
-                this.qrCodeLabel.repaint();
+                this.qrCodeLabel.setImage(bufferedImage);
                 consumer.accept(bufferedImage);
             } catch (Exception ex) {
                 ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Generate QR Code Error"));

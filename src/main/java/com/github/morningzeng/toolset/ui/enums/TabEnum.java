@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.ui.AsciiImageComponent;
 import com.github.morningzeng.toolset.ui.DateTimestamp;
 import com.github.morningzeng.toolset.ui.HttpComponent;
 import com.github.morningzeng.toolset.ui.QRCodeComponent;
@@ -23,6 +24,12 @@ import java.util.Arrays;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum TabEnum implements TabSupport {
+    ASCII_IMAGE("Ascii Image", null, "Image convert ascii image", true) {
+        @Override
+        public JComponent component(final Project project) {
+            return new AsciiImageComponent(project);
+        }
+    },
     CRYPTO("Crypto", null, "Encrypt and Decrypt", true) {
         @Override
         public JComponent component(final Project project) {
