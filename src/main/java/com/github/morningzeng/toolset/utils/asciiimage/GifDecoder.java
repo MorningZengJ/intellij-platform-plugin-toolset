@@ -3,6 +3,7 @@ package com.github.morningzeng.toolset.utils.asciiimage;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.ImageUtil;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -15,6 +16,7 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -317,13 +319,14 @@ public class GifDecoder {
      * @param name String containing source
      * @return read status code (0 = no errors)
      */
+    @SneakyThrows
     public int read(String name) {
         status = STATUS_OK;
         try {
             name = name.trim().toLowerCase();
             if ((name.contains("file:"))
                     || (name.indexOf(":/") > 0)) {
-                URL url = new URL(name);
+                URL url = new URI(name).toURL();
                 in = new BufferedInputStream(url.openStream());
             } else {
                 in = new BufferedInputStream(new FileInputStream(name));

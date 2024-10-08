@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [1.4.1]
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.3.1]
 
 ### Fixed

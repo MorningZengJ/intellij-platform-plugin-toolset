@@ -24,7 +24,7 @@ import java.util.Arrays;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum TabEnum implements TabSupport {
-    ASCII_IMAGE("Ascii Image", null, "Image convert ascii image", true) {
+    ASCII_IMAGE("Ascii Image", null, "Image convert ascii image", false) {
         @Override
         public JComponent component(final Project project) {
             return new AsciiImageComponent(project);
