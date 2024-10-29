@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.content.AlertIcon;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,8 @@ public class ToolsetWindow implements ToolWindowFactory {
                 try {
                     final Content content = instance.createContent(tab.component(project), tab.title(), false);
                     content.setIcon(tab.icon());
+                    content.setAlertIcon(new AlertIcon(tab.icon()));
+                    content.setPopupIcon(tab.icon());
                     toolWindow.getContentManager().addContent(content);
                 } catch (Exception e) {
                     final Notification notification = new Notification(

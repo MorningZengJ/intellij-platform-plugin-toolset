@@ -2,7 +2,6 @@ package com.github.morningzeng.toolset.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
@@ -18,7 +17,6 @@ import com.intellij.util.ui.GridBag;
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -68,15 +66,8 @@ public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
 
     @Override
     List<SymmetricCryptoProp> getCryptoProps() {
-        try {
-            return ScratchFileUtils.read(new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(), "Configuration File Is Incorrect");
-            final ScratchConfig scratchConfig = SymmetricCryptoProp.class.getAnnotation(ScratchConfig.class);
-            ScratchFileUtils.openFile(this.project, scratchConfig.directory(), scratchConfig.value());
-        }
-        return Collections.emptyList();
+        return ScratchFileUtils.read(new TypeReference<>() {
+        });
     }
 
     @Override

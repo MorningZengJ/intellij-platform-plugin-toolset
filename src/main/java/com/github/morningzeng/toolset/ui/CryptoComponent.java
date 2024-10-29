@@ -1,12 +1,16 @@
 package com.github.morningzeng.toolset.ui;
 
 import com.github.morningzeng.toolset.Constants.IconC;
+import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.model.Children;
+import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
+import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
@@ -16,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +44,15 @@ public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPa
         this.encryptArea.setPlaceholder("Encrypted text content");
         this.decryptArea.setPlaceholder("Decrypted text content");
 
-        this.reloadCryptoProps(this.getCryptoProps());
+        List<T> cryptoProps = Collections.emptyList();
+        try {
+            cryptoProps = this.getCryptoProps();
+        } catch (Exception e) {
+            Messages.showErrorDialog(e.getMessage(), "Configuration File Is Incorrect");
+            final ScratchConfig scratchConfig = SymmetricCryptoProp.class.getAnnotation(ScratchConfig.class);
+            ScratchFileUtils.openFile(this.project, scratchConfig.directory(), scratchConfig.value());
+        }
+        this.reloadCryptoProps(cryptoProps);
         this.setCryptoPropRenderer();
     }
 
