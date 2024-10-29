@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.ui;
+package com.github.morningzeng.toolset.ui.crypto;
 
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.annotations.ScratchConfig;
@@ -30,7 +30,7 @@ import java.util.Optional;
  * @author Morning Zeng
  * @since 2024-07-09
  */
-public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AESComponent, DESComponent, HashComponent {
+public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits HashComponent, SymmetricCryptoComponent {
     protected final ComboBox<T> cryptoPropComboBox = new ComboBox<>();
     protected final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     protected final LanguageTextArea encryptArea;

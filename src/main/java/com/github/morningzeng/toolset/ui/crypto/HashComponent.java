@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.ui;
+package com.github.morningzeng.toolset.ui.crypto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;

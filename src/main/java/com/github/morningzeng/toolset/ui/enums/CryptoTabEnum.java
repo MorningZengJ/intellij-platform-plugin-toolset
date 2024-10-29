@@ -1,11 +1,10 @@
 package com.github.morningzeng.toolset.ui.enums;
 
-import com.github.morningzeng.toolset.ui.AESComponent;
-import com.github.morningzeng.toolset.ui.DESComponent;
-import com.github.morningzeng.toolset.ui.HashComponent;
+import com.github.morningzeng.toolset.ui.crypto.AESComponent;
+import com.github.morningzeng.toolset.ui.crypto.BlowfishComponent;
+import com.github.morningzeng.toolset.ui.crypto.DESComponent;
+import com.github.morningzeng.toolset.ui.crypto.HashComponent;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -43,7 +42,7 @@ public enum CryptoTabEnum implements TabSupport {
     BLOWFISH("Blowfish", null, "Blowfish") {
         @Override
         public JComponent component(final Project project) {
-            return new JBPanel<JBPanelWithEmptyText>();
+            return new BlowfishComponent(project);
         }
     },
 

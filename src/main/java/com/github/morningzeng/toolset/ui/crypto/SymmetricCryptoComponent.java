@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.ui;
+package com.github.morningzeng.toolset.ui.crypto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.ui.GridBag;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
@@ -23,13 +24,12 @@ import java.util.Objects;
 
 /**
  * @author Morning Zeng
- * @since 2024-05-11
+ * @since 2024-10-29
  */
-public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
+public sealed abstract class SymmetricCryptoComponent extends CryptoComponent<SymmetricCryptoProp> permits AESComponent, BlowfishComponent, DESComponent {
 
-    private final static String TYPE = "AES";
     final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
-            .filter(crypto -> TYPE.equals(crypto.getType()))
+            .filter(crypto -> getType().equals(crypto.getType()))
             .toArray(SymmetricCrypto[]::new);
     /**
      * Represents a combo box for selecting the type of symmetric encryption algorithm.
@@ -49,20 +49,15 @@ public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
     private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ANGLES_DOWN);
     private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ANGLES_UP);
 
-
-    /**
-     * Initializes a new instance of the AESComponent class.
-     * <p>
-     * This constructor initializes the layout and action listeners for the AESComponent.
-     * It calls the initLayout() and initAction() methods to set up the UI components and their actions.
-     */
-    public AESComponent(final Project project) {
+    public SymmetricCryptoComponent(final Project project) {
         super(project);
-
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
         this.initLayout();
         this.initAction();
     }
+
+    @NotNull
+    abstract String getType();
 
     @Override
     List<SymmetricCryptoProp> getCryptoProps() {
@@ -98,7 +93,7 @@ public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
      * <p>
      * This method sets up the GridBagLayout for the AESComponent and adds various components to it.
      */
-    private void initLayout() {
+    void initLayout() {
         this.setLayout(new GridBagLayout());
 
         final HorizontalDoubleButton buttonBar = new HorizontalDoubleButton(this.encryptBtn, this.decryptBtn);
@@ -160,5 +155,4 @@ public final class AESComponent extends CryptoComponent<SymmetricCryptoProp> {
             dialog.showAndGet();
         });
     }
-
 }
