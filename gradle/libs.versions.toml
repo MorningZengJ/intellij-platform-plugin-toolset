@@ -7,6 +7,8 @@ jjwts = "0.12.5"
 lomboks = "1.18.32"
 zxing = "3.5.3"
 thumbnailator = "0.4.20"
+hutool = "5.8.32"
+
 
 # plugins
 kotlin = "1.9.23"
@@ -48,6 +50,9 @@ libraries-zxing-javase = { group = "com.google.zxing", name = "javase", version.
 
 # net.coobird:thumbnailator
 libraries-thumbnailator = { group = "net.coobird", name = "thumbnailator", version.ref = "thumbnailator" }
+
+# sm crypto
+libraries-hutool-crypto = { group = "cn.hutool", name = "hutool-crypto", version.ref = "hutool" }
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }

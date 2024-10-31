@@ -30,14 +30,14 @@ import java.util.Optional;
  * @author Morning Zeng
  * @since 2024-07-09
  */
-public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits HashComponent, SymmetricCryptoComponent {
+public sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AbstractSymmetricCryptoComponent, HashComponent {
     protected final ComboBox<T> cryptoPropComboBox = new ComboBox<>();
     protected final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     protected final LanguageTextArea encryptArea;
     protected final LanguageTextArea decryptArea;
     final Project project;
 
-    public CryptoComponent(final Project project) {
+    public AbstractCryptoComponent(final Project project) {
         this.project = project;
         this.encryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.decryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
@@ -63,6 +63,10 @@ public sealed abstract class CryptoComponent<T extends Children<T>> extends JBPa
     abstract String cryptoPropText(final T t);
 
     abstract boolean isDirectory(final T t);
+
+    abstract void initLayout();
+
+    abstract void initAction();
 
     void setCryptoPropRenderer() {
         this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {

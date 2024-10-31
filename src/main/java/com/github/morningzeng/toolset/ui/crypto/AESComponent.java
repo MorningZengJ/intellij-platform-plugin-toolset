@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Morning Zeng
  * @since 2024-05-11
  */
-public final class AESComponent extends SymmetricCryptoComponent {
+public final class AESComponent extends AbstractInternationalSymmetricCryptoComponent {
 
     private final static String TYPE = "AES";
 

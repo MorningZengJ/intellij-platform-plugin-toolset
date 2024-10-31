@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Morning Zeng
  * @since 2024-05-11
  */
-public final class DESComponent extends SymmetricCryptoComponent {
+public final class DESComponent extends AbstractInternationalSymmetricCryptoComponent {
 
     private final static String TYPE = "DES";
 

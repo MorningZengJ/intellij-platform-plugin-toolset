@@ -114,6 +114,14 @@ public enum HashCrypto {
         }
     },
 
+    SM3("SM", "SM3") {
+        @Override
+        public String enc(final String data, final String... params) {
+            final cn.hutool.crypto.digest.SM3 sm3 = cn.hutool.crypto.digest.SM3.create();
+            return sm3.digestHex(data);
+        }
+    },
+
     /**
      * This enum represents a HMAC algorithm with its specific parameters.
      * <pre>

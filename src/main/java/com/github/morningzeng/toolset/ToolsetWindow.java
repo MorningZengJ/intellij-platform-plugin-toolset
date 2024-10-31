@@ -9,12 +9,14 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.AlertIcon;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Morning Zeng
  * @since 2024-05-08
  */
+@Slf4j
 public class ToolsetWindow implements ToolWindowFactory {
 
     @Override
@@ -29,6 +31,7 @@ public class ToolsetWindow implements ToolWindowFactory {
                     content.setPopupIcon(tab.icon());
                     toolWindow.getContentManager().addContent(content);
                 } catch (Exception e) {
+                    log.error("Load tab failed：{}", tab.title(), e);
                     final Notification notification = new Notification(
                             "remind-notify", "Toolset initialize error", e.getMessage(), NotificationType.ERROR
                     );

@@ -9,7 +9,6 @@ import com.github.morningzeng.toolset.utils.GridLayoutUtils;
 import com.github.morningzeng.toolset.utils.HashCrypto;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
-import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
@@ -28,30 +27,17 @@ import java.util.Optional;
  * @author Morning Zeng
  * @since 2024-05-21
  */
-public final class HashComponent extends CryptoComponent<HashCryptoProp> {
+public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp> {
 
     final HashCrypto[] cryptos = Arrays.stream(HashCrypto.values())
             .toArray(HashCrypto[]::new);
-    private final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     private final ComboBox<HashCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
     private final JButton calculation = new JButton("Calculation", IconC.DOUBLE_ANGLES_DOWN);
 
     public HashComponent(final Project project) {
         super(project);
-
-        this.setLayout(new GridBagLayout());
-        GridLayoutUtils.builder()
-                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
-                .newCell().weightX(0).add(this.cryptoManageBtn)
-                .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
-                .newRow().weightY(0).add(this.calculation)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
-
-        this.encryptArea.setReadOnly(true);
-        this.cryptoManageBtn.setEnabled(false);
-        this.cryptoPropComboBox.setEnabled(false);
-        this.initEvent();
+        this.initLayout();
+        this.initAction();
     }
 
     @Override
@@ -86,7 +72,23 @@ public final class HashComponent extends CryptoComponent<HashCryptoProp> {
         return prop.isDirectory();
     }
 
-    void initEvent() {
+    @Override
+    void initLayout() {
+        this.encryptArea.setReadOnly(true);
+        this.cryptoManageBtn.setEnabled(false);
+        this.cryptoPropComboBox.setEnabled(false);
+        this.setLayout(new GridBagLayout());
+        GridLayoutUtils.builder()
+                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
+                .newCell().weightX(0).add(this.cryptoManageBtn)
+                .newCell().add(this.cryptoComboBox)
+                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
+                .newRow().weightY(0).add(this.calculation)
+                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
+    }
+
+    @Override
+    void initAction() {
         this.cryptoManageBtn.addActionListener(e -> {
             final HashPropDialog dialog = new HashPropDialog(this.project, this::refresh);
             dialog.showAndGet();

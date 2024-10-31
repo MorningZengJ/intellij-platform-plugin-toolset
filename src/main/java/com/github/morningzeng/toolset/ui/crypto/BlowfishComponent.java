@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
  * @author Morning Zeng
  * @since 2024-10-29
  */
-public final class BlowfishComponent extends SymmetricCryptoComponent {
+public final class BlowfishComponent extends AbstractInternationalSymmetricCryptoComponent {
 
     private final static String TYPE = "Blowfish";
 

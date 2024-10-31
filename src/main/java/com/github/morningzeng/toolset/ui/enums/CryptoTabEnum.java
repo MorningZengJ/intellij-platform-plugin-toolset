@@ -4,6 +4,7 @@ import com.github.morningzeng.toolset.ui.crypto.AESComponent;
 import com.github.morningzeng.toolset.ui.crypto.BlowfishComponent;
 import com.github.morningzeng.toolset.ui.crypto.DESComponent;
 import com.github.morningzeng.toolset.ui.crypto.HashComponent;
+import com.github.morningzeng.toolset.ui.crypto.SM4Component;
 import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,18 +21,6 @@ import javax.swing.JComponent;
 @AllArgsConstructor
 @Accessors(fluent = true)
 public enum CryptoTabEnum implements TabSupport {
-    HASH("Hash", null, "Hash") {
-        @Override
-        public JComponent component(final Project project) {
-            return new HashComponent(project);
-        }
-    },
-    DES("DES", null, "DES") {
-        @Override
-        public JComponent component(final Project project) {
-            return new DESComponent(project);
-        }
-    },
     AES("AES", null, "AES") {
         @Override
         public JComponent component(final Project project) {
@@ -43,6 +32,24 @@ public enum CryptoTabEnum implements TabSupport {
         @Override
         public JComponent component(final Project project) {
             return new BlowfishComponent(project);
+        }
+    },
+    DES("DES", null, "DES") {
+        @Override
+        public JComponent component(final Project project) {
+            return new DESComponent(project);
+        }
+    },
+    HASH("Hash", null, "Hash") {
+        @Override
+        public JComponent component(final Project project) {
+            return new HashComponent(project);
+        }
+    },
+    SM("SM4", null, "SM4") {
+        @Override
+        public JComponent component(final Project project) {
+            return new SM4Component(project);
         }
     },
 

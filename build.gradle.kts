@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.libraries.zxing.core)
     implementation(libs.libraries.zxing.javase)
     implementation(libs.libraries.thumbnailator)
+    implementation(libs.libraries.hutool.crypto)
 
     compileOnly(libs.libraries.lombok)
 
