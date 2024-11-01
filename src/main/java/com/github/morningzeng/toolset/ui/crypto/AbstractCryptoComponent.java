@@ -15,6 +15,7 @@ import com.intellij.ui.components.JBBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -25,11 +26,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author Morning Zeng
  * @since 2024-07-09
  */
+@Slf4j
 public sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AbstractSymmetricCryptoComponent, AsymmetricComponent, HashComponent {
     protected final ComboBox<T> cryptoPropComboBox = new ComboBox<>();
     protected final JButton cryptoManageBtn = new JButton(General.Ellipsis);
@@ -48,6 +51,7 @@ public sealed abstract class AbstractCryptoComponent<T extends Children<T>> exte
         try {
             cryptoProps = this.getCryptoProps();
         } catch (Exception e) {
+            log.error("e: ", e);
             Messages.showErrorDialog(e.getMessage(), "Configuration File Is Incorrect");
             final ScratchConfig scratchConfig = SymmetricCryptoProp.class.getAnnotation(ScratchConfig.class);
             ScratchFileUtils.openFile(this.project, scratchConfig.directory(), scratchConfig.value());
@@ -67,6 +71,10 @@ public sealed abstract class AbstractCryptoComponent<T extends Children<T>> exte
     abstract void initLayout();
 
     abstract void initAction();
+
+    Predicate<T> filterProp() {
+        return prop -> true;
+    }
 
     void setCryptoPropRenderer() {
         this.cryptoPropComboBox.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
@@ -91,11 +99,13 @@ public sealed abstract class AbstractCryptoComponent<T extends Children<T>> exte
     protected void reloadCryptoProps(final List<T> props) {
         this.cryptoPropComboBox.removeAllItems();
         Optional.ofNullable(props).ifPresent(cryptoProps -> cryptoProps.stream()
+                .filter(this.filterProp())
                 .sorted(this.comparator())
                 .<T>mapMulti((prop, consumer) -> {
                     consumer.accept(prop);
                     Optional.ofNullable(prop.getChildren()).ifPresent(
                             ts -> ts.stream()
+                                    .filter(this.filterProp())
                                     .sorted(this.comparator())
                                     .forEach(consumer)
                     );

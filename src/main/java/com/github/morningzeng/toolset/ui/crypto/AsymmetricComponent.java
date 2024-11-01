@@ -18,6 +18,7 @@ import java.awt.GridBagLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author Morning Zeng
@@ -33,6 +34,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
         super(project);
         this.initLayout();
         this.initAction();
+        super.reloadCryptoProps(this.getCryptoProps());
     }
 
     @Override
@@ -112,9 +114,21 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
+        this.cryptoComboBox.addItemListener(e -> super.reloadCryptoProps(this.getCryptoProps()));
         this.cryptoManageBtn.addActionListener(e -> {
             final AsymmetricPropDialog dialog = new AsymmetricPropDialog(this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps);
             dialog.showAndGet();
         });
+    }
+
+    @Override
+    Predicate<AsymmetricCryptoProp> filterProp() {
+        return prop -> {
+            if (Objects.isNull(this.cryptoComboBox)) {
+                return false;
+            }
+            final AsymmetricCrypto crypto = this.cryptoComboBox.getItem();
+            return crypto.equals(prop.getCrypto());
+        };
     }
 }

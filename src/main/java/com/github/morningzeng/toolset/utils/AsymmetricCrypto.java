@@ -23,6 +23,43 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @AllArgsConstructor
 public enum AsymmetricCrypto {
 
+    RSA("RSA", "RSA") {
+        @Override
+        String publicEnc(final String key, final String data) {
+            return "";
+        }
+
+        @Override
+        String privateEnc(final String key, final String data) {
+            return "";
+        }
+
+        @Override
+        String publicDec(final String key, final String data) {
+            return "";
+        }
+
+        @Override
+        String privateDec(final String key, final String data) {
+            return "";
+        }
+
+        @Override
+        String sign(final String key, final String data) {
+            return "";
+        }
+
+        @Override
+        boolean verify(final String key, final String data, final String sign) {
+            return false;
+        }
+
+        @Override
+        public Pair<String, String> genKey() {
+            return null;
+        }
+    },
+
     SM2("SM", "SM2") {
         static final Map<String, cn.hutool.crypto.asymmetric.SM2> CRYPTO_MAP = Maps.newHashMap();
 
