@@ -87,6 +87,8 @@ public interface Constants {
 
         Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
         Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
+        @SuppressWarnings("SpellCheckingInspection")
+        Icon AUTORENEW = IconLoader.getIcon("/images/svg/autorenew.svg", CLASS_LOADER);
 
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);

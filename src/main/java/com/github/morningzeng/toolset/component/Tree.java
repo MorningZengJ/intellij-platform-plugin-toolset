@@ -211,7 +211,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
                 .toList();
     }
 
-    private T getNodeValue(final DefaultMutableTreeNode treeNode) {
+    public T getNodeValue(final DefaultMutableTreeNode treeNode) {
         //noinspection unchecked
         return (T) treeNode.getUserObject();
     }

@@ -30,7 +30,7 @@ import java.util.Optional;
  * @author Morning Zeng
  * @since 2024-07-09
  */
-public sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AbstractSymmetricCryptoComponent, HashComponent {
+public sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits AbstractSymmetricCryptoComponent, AsymmetricComponent, HashComponent {
     protected final ComboBox<T> cryptoPropComboBox = new ComboBox<>();
     protected final JButton cryptoManageBtn = new JButton(General.Ellipsis);
     protected final LanguageTextArea encryptArea;

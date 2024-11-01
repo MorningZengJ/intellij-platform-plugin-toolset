@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.ui.crypto.AESComponent;
+import com.github.morningzeng.toolset.ui.crypto.AsymmetricComponent;
 import com.github.morningzeng.toolset.ui.crypto.BlowfishComponent;
 import com.github.morningzeng.toolset.ui.crypto.DESComponent;
 import com.github.morningzeng.toolset.ui.crypto.HashComponent;
@@ -27,6 +28,12 @@ public enum CryptoTabEnum implements TabSupport {
             return new AESComponent(project);
         }
 
+    },
+    ASYMMETRIC("Asymmetric", null, "Asymmetric") {
+        @Override
+        public JComponent component(final Project project) {
+            return new AsymmetricComponent(project);
+        }
     },
     BLOWFISH("Blowfish", null, "Blowfish") {
         @Override

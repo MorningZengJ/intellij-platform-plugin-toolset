@@ -41,13 +41,13 @@ import java.util.stream.Stream;
  * @since 2024-05-27
  */
 public abstract sealed class AbstractPropDialog<T extends Children<T>> extends DialogWrapper implements DialogSupport
-        permits HashPropDialog, JWTPropDialog, SymmetricPropDialog {
+        permits AsymmetricPropDialog, HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
     final Project project;
     final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
     final Tree<T> tree = new Tree<>();
     final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", General.Add, this.initGroupAction());
-    final ActionBar actionBar = new ActionBar(this.addActions, this.deleteAction());
+    final ActionBar actionBar = new ActionBar(this.barActions());
     private final Consumer<List<T>> okAfterConsumer;
 
     protected AbstractPropDialog(@Nullable final Project project) {
@@ -73,6 +73,11 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                     }, () -> this.pane.setSecondComponent(emptyPanel));
         });
         this.tree.cellRenderer(prop -> new JBLabel(prop.name(), prop.icon(), SwingConstants.LEFT));
+        this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
+    }
+
+    AnAction[] barActions() {
+        return new AnAction[]{this.addActions, this.deleteAction()};
     }
 
     AnAction deleteAction() {

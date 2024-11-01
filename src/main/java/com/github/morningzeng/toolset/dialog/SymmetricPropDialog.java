@@ -13,7 +13,6 @@ import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.BoxLayout;
 import javax.swing.tree.TreeNode;
 import java.util.List;
 import java.util.Objects;
@@ -35,8 +34,6 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
 
     public SymmetricPropDialog(final Project project, final Consumer<List<SymmetricCryptoProp>> okAfterConsumer) {
         super(project, okAfterConsumer);
-        this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
-
         init();
         setTitle("Symmetric Properties");
     }
