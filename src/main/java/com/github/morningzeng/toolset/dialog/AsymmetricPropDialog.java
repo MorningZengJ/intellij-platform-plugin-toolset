@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -58,6 +59,9 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
                             @Override
                             public void actionPerformed(@NotNull final AnActionEvent e) {
                                 final Pair<String, String> cryptoKeyPair = crypto.genKey();
+                                if (Objects.isNull(cryptoKeyPair)) {
+                                    return;
+                                }
                                 final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
                                 final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
                                         .filter(node -> node instanceof DefaultMutableTreeNode)
@@ -89,6 +93,11 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
                         }
                 )
         ).toArray(AnAction[]::new);
+    }
+
+    @Override
+    Predicate<AsymmetricCryptoProp> enabledNode() {
+        return prop -> crypto.equals(prop.getCrypto());
     }
 
     @Override

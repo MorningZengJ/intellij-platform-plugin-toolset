@@ -31,6 +31,7 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -65,6 +66,14 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
         final JBPanel<JBPanelWithEmptyText> emptyPanel = new JBPanelWithEmptyText();
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
+            if (Objects.nonNull(selectNode)) {
+                final T value = tree.getNodeValue(selectNode);
+                if (!this.enabledNode().test(value)) {
+                    this.tree.clearSelection();
+                    this.pane.setSecondComponent(emptyPanel);
+                    return;
+                }
+            }
             Optional.ofNullable(selectNode)
                     .filter(Predicate.not(DefaultMutableTreeNode::getAllowsChildren))
                     .ifPresentOrElse(userObject -> {
@@ -72,7 +81,11 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                         this.createRightPanel(t);
                     }, () -> this.pane.setSecondComponent(emptyPanel));
         });
-        this.tree.cellRenderer(prop -> new JBLabel(prop.name(), prop.icon(), SwingConstants.LEFT));
+        this.tree.cellRenderer(prop -> {
+            final JBLabel label = new JBLabel(prop.name(), prop.icon(), SwingConstants.LEFT);
+            label.setEnabled(this.enabledNode().test(prop));
+            return label;
+        });
         this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
     }
 
@@ -87,6 +100,10 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                 delete();
             }
         };
+    }
+
+    Predicate<T> enabledNode() {
+        return t -> true;
     }
 
     @Override
