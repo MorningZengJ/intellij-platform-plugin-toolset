@@ -4,6 +4,23 @@
 
 ## [Unreleased]
 
+## [1.5.1]
+
+### Added
+
+- Added `SM2`, you can select `SM2` in `Crypto -> Asymmetric`.
+- Added `SM4`, which can be found in `Crypto -> SM4`.
+- Added `SM3`, you can select `SM3` in `Crypto -> Hash`.
+- Added `Blowfish`, located in `Crypto -> Blowfish`.
+
+### Changed
+
+- Refactored some components.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.4.1]
 
 ### Fixed

@@ -13,7 +13,9 @@ the [repository][gh:template] ).
 
 ## feature
 
-- Symmetric Crypto. eg: DES, AES, Blowfish. (Note: GUI for Blowfish are still in development).
+- Symmetric Crypto. eg: `DES`, `AES`, `Blowfish`, `SM4`.
+- Asymmetric Crypto. eg: `SM2`. (`RSA` to be implemented)
+- Hash. eg: `MD5`, `SHA`, `SM3`.
 - Encoding & Decoding. eg: URL encoding and decoding, Base64 encoding and decoding.
 - HTTP. Import the CURL command and invoke the http/https request.
 - To-do reminders.
