@@ -17,6 +17,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
+import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,31 +61,33 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
                             public void actionPerformed(@NotNull final AnActionEvent e) {
                                 final Pair<String, String> cryptoKeyPair = crypto.genKey();
                                 final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
+                                final String group = "%s (Generate)".formatted(crypto.name());
                                 final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
                                         .filter(node -> node instanceof DefaultMutableTreeNode)
                                         .map(node -> (DefaultMutableTreeNode) node)
                                         .filter(node -> {
                                             final AsymmetricCryptoProp prop = tree.getNodeValue(node);
-                                            return "Generate".equals(prop.getTitle());
+                                            return group.equals(prop.getTitle());
                                         })
                                         .findFirst();
                                 final DefaultMutableTreeNode generate = dirOpt.orElseGet(() -> {
                                     tree.clearSelection();
-                                    return tree.create(generateBean("Generate", true), true);
+                                    return tree.create(generateBean(group, true), true);
                                 });
-                                tree.setSelectionPath(new TreePath(generate));
+                                TreeUtil.selectNode(tree, generate);
+                                final String description = "Plugin generates %s".formatted(crypto.name());
                                 final AsymmetricCryptoProp publicKey = generateBean("PublicKey", false)
                                         .setIsPublicKey(true)
                                         .setKey(cryptoKeyPair.key())
                                         .setCrypto(crypto)
-                                        .setDescription("Plug-in generation");
+                                        .setDescription(description);
                                 tree.create(publicKey, false);
                                 tree.setSelectionPath(new TreePath(generate));
                                 final AsymmetricCryptoProp privateKey = generateBean("PrivateKey", false)
                                         .setIsPublicKey(false)
                                         .setKey(cryptoKeyPair.value())
                                         .setCrypto(crypto)
-                                        .setDescription("Plug-in generation");
+                                        .setDescription(description);
                                 tree.create(privateKey, false);
                             }
                         }
@@ -105,7 +108,7 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
 
     @Override
     AsymmetricCryptoProp generateBean(final String name, final boolean isGroup) {
-        return AsymmetricCryptoProp.builder().title(name).directory(isGroup).build();
+        return AsymmetricCryptoProp.builder().title(name).directory(isGroup).crypto(crypto).build();
     }
 
     @Override

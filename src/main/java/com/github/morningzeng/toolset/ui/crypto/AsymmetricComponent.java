@@ -2,7 +2,6 @@ package com.github.morningzeng.toolset.ui.crypto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.dialog.AsymmetricPropDialog;
 import com.github.morningzeng.toolset.model.AsymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.AsymmetricCrypto;
@@ -12,6 +11,8 @@ import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBPanelWithEmptyText;
 
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
@@ -29,6 +30,8 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
     private final ComboBox<AsymmetricCrypto> cryptoComboBox = new ComboBox<>(AsymmetricCrypto.values());
     private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ANGLES_DOWN);
     private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ANGLES_UP);
+    private final JButton signBtn = new JButton("Sign", IconC.SIGNATURE);
+    private final JButton verifyBtn = new JButton("Verify", IconC.SECURITY);
 
     public AsymmetricComponent(final Project project) {
         super(project);
@@ -67,7 +70,6 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
 
     @Override
     void initLayout() {
-        final HorizontalDoubleButton buttonBar = new HorizontalDoubleButton(this.encryptBtn, this.decryptBtn);
         this.setLayout(new GridBagLayout());
         GridBagUtils.builder(this)
                 .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
@@ -76,8 +78,17 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                         .newCell().add(this.cryptoComboBox))
                 .newRow(row -> row.fill(GridBagFill.BOTH)
                         .newCell().weightY(1).gridWidth(3).add(this.decryptArea))
-                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                        .newCell().weightY(0).add(buttonBar))
+                .newRow(row -> {
+                    final JBPanel<JBPanelWithEmptyText> btnPanel = GridBagUtils.builder()
+                            .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
+                                    .newCell().add(this.encryptBtn)
+                                    .newCell().add(this.decryptBtn)
+                                    .newCell().add(this.signBtn)
+                                    .newCell().add(this.verifyBtn))
+                            .build();
+                    row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightY(0).gridWidth(3).add(btnPanel);
+                })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
                         .newCell().weightY(1).gridWidth(3).add(this.encryptArea));
     }
@@ -110,6 +121,38 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                 final AsymmetricCrypto crypto = this.cryptoComboBox.getItem();
                 final String dec = prop.crypto(project, crypto).dec(this.encryptArea.getText());
                 this.decryptArea.setText(dec);
+            } catch (Exception ex) {
+                Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
+            }
+        });
+        this.signBtn.addActionListener(e -> {
+            try {
+                final AsymmetricCryptoProp prop = this.cryptoPropComboBox.getItem();
+                if (prop.isDirectory() || Objects.isNull(prop.getKey()) || prop.getIsPublicKey()) {
+                    Messages.showErrorDialog(project, "Please select a private key", "Error");
+                    return;
+                }
+                final AsymmetricCrypto crypto = this.cryptoComboBox.getItem();
+                final String sign = crypto.privateKey(prop.getKey()).sign(this.decryptArea.getText());
+                this.encryptArea.setText(sign);
+            } catch (Exception ex) {
+                Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
+            }
+        });
+        this.verifyBtn.addActionListener(e -> {
+            try {
+                final AsymmetricCryptoProp prop = this.cryptoPropComboBox.getItem();
+                if (prop.isDirectory() || Objects.isNull(prop.getKey()) || !prop.getIsPublicKey()) {
+                    Messages.showErrorDialog(project, "Please select a public key", "Error");
+                    return;
+                }
+                final AsymmetricCrypto crypto = this.cryptoComboBox.getItem();
+                final boolean verify = crypto.publicKey(prop.getKey()).verify(this.decryptArea.getText(), this.encryptArea.getText());
+                if (verify) {
+                    Messages.showInfoMessage("Signature verification passed", "Signature Verification");
+                } else {
+                    Messages.showWarningDialog("Signature verification failed", "Signature Verification");
+                }
             } catch (Exception ex) {
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
