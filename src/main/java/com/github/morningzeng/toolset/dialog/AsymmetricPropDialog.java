@@ -59,9 +59,6 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
                             @Override
                             public void actionPerformed(@NotNull final AnActionEvent e) {
                                 final Pair<String, String> cryptoKeyPair = crypto.genKey();
-                                if (Objects.isNull(cryptoKeyPair)) {
-                                    return;
-                                }
                                 final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
                                 final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
                                         .filter(node -> node instanceof DefaultMutableTreeNode)
