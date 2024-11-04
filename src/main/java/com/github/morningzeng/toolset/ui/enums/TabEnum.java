@@ -1,8 +1,6 @@
 package com.github.morningzeng.toolset.ui.enums;
 
-import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.ui.AsciiImageComponent;
-import com.github.morningzeng.toolset.ui.DateTimestamp;
 import com.github.morningzeng.toolset.ui.HttpComponent;
 import com.github.morningzeng.toolset.ui.QRCodeComponent;
 import com.github.morningzeng.toolset.ui.RemindsComponent;
@@ -38,17 +36,21 @@ public enum TabEnum implements TabSupport {
             return tabbedPane;
         }
     },
-    TIMESTAMP("Datetime", IconC.CLOCK_COLOR, "Date and Time", true) {
-        @Override
-        public JComponent component(final Project project) {
-            return new DateTimestamp(project);
-        }
-    },
     CODING("Encoding & Decoding", null, "Encoding and Decoding", true) {
         @Override
         public JComponent component(final Project project) {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             Arrays.stream(CodingEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
+            return tabbedPane;
+        }
+    },
+    GADGET("Gadget", null, "Gadget", true) {
+        @Override
+        public JComponent component(final Project project) {
+            final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
+            for (final GadgetTabEnum tab : GadgetTabEnum.values()) {
+                tab.putTab(project, tabbedPane);
+            }
             return tabbedPane;
         }
     },

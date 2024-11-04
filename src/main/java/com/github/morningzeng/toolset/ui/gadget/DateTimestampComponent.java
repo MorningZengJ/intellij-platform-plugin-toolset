@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.ui;
+package com.github.morningzeng.toolset.ui.gadget;
 
 import com.github.morningzeng.toolset.Constants.DateFormatterPreserve;
 import com.github.morningzeng.toolset.Constants.DateFormatterPreserve.DateTimeFormatterPreserve;
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Morning Zeng
  * @since 2024-07-19
  */
-public final class DateTimestamp extends JBPanel<JBPanelWithEmptyText> {
+public final class DateTimestampComponent extends JBPanel<JBPanelWithEmptyText> {
 
     private final AtomicLong timestamp;
     private final ZoneOffset defaultZoneOffset;
@@ -55,7 +55,7 @@ public final class DateTimestamp extends JBPanel<JBPanelWithEmptyText> {
     private final JButton covertToTimestampButton = new JButton("Convert to Timestamp", IconC.DOUBLE_ANGLES_RIGHT);
     private final JButton convertToDatetimeButton = new JButton("Convert to Datetime", IconC.DOUBLE_ANGLES_LEFT);
 
-    public DateTimestamp(final Project project) {
+    public DateTimestampComponent(final Project project) {
 
         this.presentTimestampTextField.second().setEnabled(false);
         this.presentTimestampTextField.labelConsumer(label -> label.setPreferredSize(new JBDimension(200, label.getHeight())));

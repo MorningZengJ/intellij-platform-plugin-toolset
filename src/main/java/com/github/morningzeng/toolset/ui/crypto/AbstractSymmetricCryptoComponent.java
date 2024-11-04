@@ -2,7 +2,6 @@ package com.github.morningzeng.toolset.ui.crypto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
@@ -11,9 +10,10 @@ import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBPanelWithEmptyText;
 
 import javax.swing.JButton;
-import java.awt.GridBagLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -66,8 +66,6 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
      * This method sets up the GridBagLayout for the AESComponent and adds various components to it.
      */
     void initLayout() {
-        final HorizontalDoubleButton buttonBar = new HorizontalDoubleButton(this.encryptBtn, this.decryptBtn);
-        this.setLayout(new GridBagLayout());
         GridBagUtils.builder(this)
                 .newRow(row -> {
                     row.fill(GridBagFill.HORIZONTAL)
@@ -77,8 +75,15 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
                 })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
                         .newCell().weightY(1).gridWidth(3).add(this.decryptArea))
-                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                        .newCell().weightY(0).add(buttonBar))
+                .newRow(row -> {
+                    final JBPanel<JBPanelWithEmptyText> btnPanel = GridBagUtils.builder()
+                            .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
+                                    .newCell().add(this.encryptBtn)
+                                    .newCell().add(this.decryptBtn))
+                            .build();
+                    row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightY(0).gridWidth(3).add(btnPanel);
+                })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
                         .newCell().weightY(1).gridWidth(3).add(this.encryptArea));
     }

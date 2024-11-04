@@ -5,6 +5,8 @@ import cn.hutool.crypto.Mode;
 import cn.hutool.crypto.Padding;
 import cn.hutool.crypto.symmetric.SM4;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.GridBagUtils.Row;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -26,8 +28,13 @@ public final class SM4Component extends AbstractSymmetricCryptoComponent {
 
     @Override
     void cryptoRow(final Row<AbstractSymmetricCryptoComponent> row) {
-        row.newCell().add(this.modeComboBox)
-                .newCell().add(this.paddingComboBox);
+        row.newCell().add(
+                GridBagUtils.builder()
+                        .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
+                                .newCell().add(this.modeComboBox)
+                                .newCell().add(this.paddingComboBox))
+                        .build()
+        );
     }
 
     @Override

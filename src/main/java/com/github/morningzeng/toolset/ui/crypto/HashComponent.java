@@ -5,14 +5,16 @@ import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.HashCrypto;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.util.ui.GridBag;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBPanelWithEmptyText;
 
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
@@ -78,13 +80,23 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
         this.cryptoManageBtn.setEnabled(false);
         this.cryptoPropComboBox.setEnabled(false);
         this.setLayout(new GridBagLayout());
-        GridLayoutUtils.builder()
-                .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.cryptoPropComboBox)
-                .newCell().weightX(0).add(this.cryptoManageBtn)
-                .newCell().add(this.cryptoComboBox)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(3).add(this.decryptArea)
-                .newRow().weightY(0).add(this.calculation)
-                .newRow().weightY(1).gridWidth(3).add(this.encryptArea);
+        GridBagUtils.builder(this)
+                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                        .newCell().weightX(1).add(this.cryptoPropComboBox)
+                        .newCell().weightX(0).add(this.cryptoManageBtn)
+                        .newCell().add(this.cryptoComboBox))
+                .newRow(row -> row.fill(GridBagFill.BOTH)
+                        .newCell().weightY(1).gridWidth(3).add(this.decryptArea))
+                .newRow(row -> {
+                    final JBPanel<JBPanelWithEmptyText> btnPanel = GridBagUtils.builder()
+                            .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
+                                    .newCell().add(this.calculation))
+                            .build();
+                    row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightY(0).gridWidth(3).add(btnPanel);
+                })
+                .newRow(row -> row.fill(GridBagFill.BOTH)
+                        .newCell().weightY(1).gridWidth(3).add(this.encryptArea));
     }
 
     @Override

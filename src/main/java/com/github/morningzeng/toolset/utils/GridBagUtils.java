@@ -27,6 +27,7 @@ public class GridBagUtils {
     }
 
     public static <T extends Container> GridBagBuilder<T> builder(final T container) {
+        container.setLayout(new GridBagLayout());
         return new GridBagBuilder<T>().container(container);
     }
 
