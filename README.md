@@ -17,6 +17,8 @@ the [repository][gh:template] ).
 - Asymmetric Crypto. eg: `SM2`. (`RSA` to be implemented)
 - Hash. eg: `MD5`, `SHA`, `SM3`.
 - Encoding & Decoding. eg: URL encoding and decoding, Base64 encoding and decoding.
+- Timestamp formatter.
+- UUID.
 - HTTP. Import the CURL command and invoke the http/https request.
 - To-do reminders.
 - QR code generation

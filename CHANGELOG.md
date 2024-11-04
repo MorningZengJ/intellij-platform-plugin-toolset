@@ -4,6 +4,21 @@
 
 ## [Unreleased]
 
+## [1.5.2]
+
+### Added
+
+- Added `UUID` generator.
+- Refactor `Datetime` into `Gadget`.
+
+### Changed
+
+- Optimized `Crypto` layout.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.5.1]
 
 ### Added
