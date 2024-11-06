@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.ui.enums;
 
 import com.github.morningzeng.toolset.ui.AsciiImageComponent;
 import com.github.morningzeng.toolset.ui.HttpComponent;
+import com.github.morningzeng.toolset.ui.JWTComponent;
 import com.github.morningzeng.toolset.ui.QRCodeComponent;
 import com.github.morningzeng.toolset.ui.RemindsComponent;
 import com.intellij.openapi.project.Project;
@@ -60,6 +61,12 @@ public enum TabEnum implements TabSupport {
             return new HttpComponent(project);
         }
     },
+    JWT("JWT", null, "Generate and Resolve JWT", true) {
+        @Override
+        public JComponent component(final Project project) {
+            return new JWTComponent(project);
+        }
+    },
     QRCODE("QRCode", null, "QR Code", true) {
         @Override
         public JComponent component(final Project project) {
@@ -70,14 +77,6 @@ public enum TabEnum implements TabSupport {
         @Override
         public JComponent component(final Project project) {
             return new RemindsComponent(project);
-        }
-    },
-    TOKEN("Token", null, "Generate and Resolve JWT", false) {
-        @Override
-        public JComponent component(final Project project) {
-            final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
-            Arrays.stream(TokenEnum.values()).forEach(tab -> tab.putTab(project, tabbedPane));
-            return tabbedPane;
         }
     },
 
