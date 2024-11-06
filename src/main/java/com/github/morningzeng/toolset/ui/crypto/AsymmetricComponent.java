@@ -7,7 +7,6 @@ import com.github.morningzeng.toolset.model.AsymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.AsymmetricCrypto;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
@@ -37,22 +36,22 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
         super(project);
         this.initLayout();
         this.initAction();
-        super.reloadCryptoProps(this.getCryptoProps());
+        super.reloadCryptoProps();
     }
 
     @Override
-    List<AsymmetricCryptoProp> getCryptoProps() {
-        return ScratchFileUtils.read(new TypeReference<>() {
-        });
+    protected TypeReference<List<AsymmetricCryptoProp>> typeReference() {
+        return new TypeReference<>() {
+        };
     }
 
     @Override
-    Comparator<? super AsymmetricCryptoProp> comparator() {
+    protected Comparator<? super AsymmetricCryptoProp> comparator() {
         return Comparator.comparing(AsymmetricCryptoProp::getSorted);
     }
 
     @Override
-    String cryptoPropText(final AsymmetricCryptoProp prop) {
+    protected String cryptoPropText(final AsymmetricCryptoProp prop) {
         if (prop.isDirectory()) {
             return prop.getTitle();
         }
@@ -64,12 +63,12 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
     }
 
     @Override
-    boolean isDirectory(final AsymmetricCryptoProp prop) {
+    protected boolean isDirectory(final AsymmetricCryptoProp prop) {
         return prop.isDirectory();
     }
 
     @Override
-    void initLayout() {
+    protected void initLayout() {
         this.setLayout(new GridBagLayout());
         GridBagUtils.builder(this)
                 .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
@@ -94,7 +93,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
     }
 
     @Override
-    void initAction() {
+    protected void initAction() {
         this.encryptBtn.addActionListener(e -> {
             try {
                 final AsymmetricCryptoProp prop = this.cryptoPropComboBox.getItem();
@@ -157,7 +156,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
-        this.cryptoComboBox.addItemListener(e -> super.reloadCryptoProps(this.getCryptoProps()));
+        this.cryptoComboBox.addItemListener(e -> super.reloadCryptoProps());
         this.cryptoManageBtn.addActionListener(e -> {
             final AsymmetricPropDialog dialog = new AsymmetricPropDialog(this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps);
             dialog.showAndGet();
@@ -165,7 +164,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
     }
 
     @Override
-    Predicate<AsymmetricCryptoProp> filterProp() {
+    protected Predicate<AsymmetricCryptoProp> filterProp() {
         return prop -> {
             if (Objects.isNull(this.cryptoComboBox)) {
                 return false;

@@ -6,7 +6,6 @@ import com.github.morningzeng.toolset.dialog.SymmetricPropDialog;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
@@ -32,18 +31,18 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
     }
 
     @Override
-    List<SymmetricCryptoProp> getCryptoProps() {
-        return ScratchFileUtils.read(new TypeReference<>() {
-        });
+    protected TypeReference<List<SymmetricCryptoProp>> typeReference() {
+        return new TypeReference<>() {
+        };
     }
 
     @Override
-    Comparator<? super SymmetricCryptoProp> comparator() {
+    protected Comparator<? super SymmetricCryptoProp> comparator() {
         return Comparator.comparing(SymmetricCryptoProp::getSorted);
     }
 
     @Override
-    String cryptoPropText(final SymmetricCryptoProp prop) {
+    protected String cryptoPropText(final SymmetricCryptoProp prop) {
         if (prop.isDirectory()) {
             return prop.getTitle();
         }
@@ -56,7 +55,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
     }
 
     @Override
-    boolean isDirectory(final SymmetricCryptoProp prop) {
+    protected boolean isDirectory(final SymmetricCryptoProp prop) {
         return prop.isDirectory();
     }
 
@@ -65,7 +64,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
      * <p>
      * This method sets up the GridBagLayout for the AESComponent and adds various components to it.
      */
-    void initLayout() {
+    protected void initLayout() {
         GridBagUtils.builder(this)
                 .newRow(row -> {
                     row.fill(GridBagFill.HORIZONTAL)
@@ -102,7 +101,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
      * <p>
      * If any exception occurs during encryption or decryption, an error message dialog is displayed.
      */
-    void initAction() {
+    protected void initAction() {
         this.encryptBtn.addActionListener(e -> {
             try {
                 final SymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();

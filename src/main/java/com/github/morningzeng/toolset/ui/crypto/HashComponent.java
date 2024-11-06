@@ -2,13 +2,11 @@ package com.github.morningzeng.toolset.ui.crypto;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.dialog.HashPropDialog;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.HashCrypto;
-import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.github.morningzeng.toolset.utils.StringUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -20,7 +18,6 @@ import javax.swing.JButton;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -43,25 +40,18 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
     }
 
     @Override
-    List<HashCryptoProp> getCryptoProps() {
-        try {
-            return ScratchFileUtils.read(new TypeReference<>() {
-            });
-        } catch (Exception e) {
-            Messages.showErrorDialog(e.getMessage(), "Configuration File Is Incorrect");
-            final ScratchConfig scratchConfig = HashCryptoProp.class.getAnnotation(ScratchConfig.class);
-            ScratchFileUtils.openFile(this.project, scratchConfig.directory(), scratchConfig.value());
-        }
-        return Collections.emptyList();
+    protected TypeReference<List<HashCryptoProp>> typeReference() {
+        return new TypeReference<>() {
+        };
     }
 
     @Override
-    Comparator<? super HashCryptoProp> comparator() {
+    protected Comparator<? super HashCryptoProp> comparator() {
         return Comparator.comparing(HashCryptoProp::getSorted);
     }
 
     @Override
-    String cryptoPropText(final HashCryptoProp prop) {
+    protected String cryptoPropText(final HashCryptoProp prop) {
         if (prop.isDirectory()) {
             return prop.getTitle();
         }
@@ -70,12 +60,12 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
     }
 
     @Override
-    boolean isDirectory(final HashCryptoProp prop) {
+    protected boolean isDirectory(final HashCryptoProp prop) {
         return prop.isDirectory();
     }
 
     @Override
-    void initLayout() {
+    protected void initLayout() {
         this.encryptArea.setReadOnly(true);
         this.cryptoManageBtn.setEnabled(false);
         this.cryptoPropComboBox.setEnabled(false);
@@ -100,7 +90,7 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
     }
 
     @Override
-    void initAction() {
+    protected void initAction() {
         this.cryptoManageBtn.addActionListener(e -> {
             final HashPropDialog dialog = new HashPropDialog(this.project, this::refresh);
             dialog.showAndGet();
