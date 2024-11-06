@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.utils.qrcode;
 
+import com.github.morningzeng.toolset.utils.PictureUtils;
 import com.google.common.collect.Maps;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.client.j2se.MatrixToImageConfig;
@@ -17,7 +18,6 @@ import lombok.SneakyThrows;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import net.coobird.thumbnailator.Thumbnails;
-import org.jetbrains.annotations.NotNull;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
@@ -25,11 +25,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -46,9 +44,7 @@ import java.util.Map;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract sealed class AbstractQRCode permits QRCodeRect, QRCodeRound {
 
-    protected final static String BASE64_PICTURE_PREFIX = "data:image/jpg;base64,";
     protected final static Base64.Encoder ENCODER = Base64.getEncoder();
-    protected final static Base64.Decoder DECODER = Base64.getDecoder();
     /**
      * parameters
      */
@@ -143,7 +139,7 @@ public abstract sealed class AbstractQRCode permits QRCodeRect, QRCodeRound {
      */
     protected Thumbnails.Builder<BufferedImage> mergeLogoWithQRCode(String content, @NonNull String logoPath) throws Exception {
         final BufferedImage qrcode = this.toBufferedImage(content);
-        final BufferedImage logo = this.getLogo(logoPath);
+        final BufferedImage logo = PictureUtils.fromPath(logoPath);
         // The width of the logo
         final int width = Math.min(logo.getWidth(), qrcode.getWidth() * 15 / 100);
         // The height of the logo
@@ -180,27 +176,8 @@ public abstract sealed class AbstractQRCode permits QRCodeRect, QRCodeRound {
         return Thumbnails.of(combined).outputFormat(this.format).size(this.width, this.height);
     }
 
-    private BufferedImage getLogo(final @NotNull String logoPath) throws Exception {
-        final Thumbnails.Builder<?> builder;
-        if (logoPath.matches("^https?://.+$")) {
-            builder = Thumbnails.of(new URI(logoPath).toURL());
-        } else if (logoPath.startsWith("data:image/")) {
-            final byte[] decode = DECODER.decode(logoPath.split(",")[1]);
-            try (final ByteArrayInputStream in = new ByteArrayInputStream(decode)) {
-                builder = Thumbnails.of(in);
-            }
-        } else {
-            builder = Thumbnails.of(logoPath);
-        }
-        return builder.scale(1)
-                .outputQuality(1)
-                .asBufferedImage();
-    }
-
     protected String getBase64Code(final ByteArrayOutputStream bout) {
-        final byte[] bytes = bout.toByteArray();
-        final String baseString = ENCODER.encodeToString(bytes).trim();
-        return BASE64_PICTURE_PREFIX + baseString.replaceAll("[\r\n]", "");
+        return PictureUtils.base64Code(bout);
     }
 
     @SuppressWarnings("unused")

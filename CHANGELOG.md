@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.5.3]
+
+### Changed
+
+- Refactored some components.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.5.2]
 
 ### Added
