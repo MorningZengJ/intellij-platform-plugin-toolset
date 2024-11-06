@@ -10,9 +10,9 @@
 [![Plugin](https://img.shields.io/badge/plugin-Toolset-x.svg?logo=JetBrains&color=FE2857)](https://plugins.jetbrains.com/plugin/24398)
 ![Download](https://img.shields.io/jetbrains/plugin/d/24398?color=FE2857)
 ![Version](https://img.shields.io/jetbrains/plugin/v/24398?logo=JetBrains&color=FE2857)
-[![Github](https://img.shields.io/badge/Github-Toolset-x.svg?logo=github&color=FE2857&logoColor=white)](https://github.com/MorningZengJ/intellij-platform-plugin-toolset)
+[![Github](https://img.shields.io/badge/Github-Toolset-x.svg?logo=github&color=FE2857&logoColor=white)][gh:template]
 
-<!-- Plugin description --> 
+<!-- Plugin description -->
 **Toolset** is a multi-tool plug-in for Intellij ( See
 the [repository][gh:template] ).
 
@@ -33,5 +33,6 @@ the [repository][gh:template] ).
 Privacy Notice: No personal data is collected and no source code is transmitted to any server
 
 [gh:template]: https://github.com/MorningZengJ/intellij-platform-plugin-toolset
+
 <!-- Plugin description end -->
 
