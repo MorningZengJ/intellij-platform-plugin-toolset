@@ -5,6 +5,7 @@ import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.dialog.SymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
+import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
 import com.github.morningzeng.toolset.proxy.InitializingBean;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
@@ -52,7 +53,11 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
 
     @Override
     RightPanel createRightItemPanel(final SymmetricCryptoProp prop) {
-        return InitializingBean.create(RightPanel.class, prop);
+        return InitializingBean.create(
+                RightPanel.class,
+                Pair.of(Project.class, this.project),
+                Pair.of(prop.getClass(), prop)
+        );
     }
 
     static final class RightPanel extends AbstractRightPanel<SymmetricCryptoProp> {
@@ -61,10 +66,11 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
         private final ComboBox<DataToBinaryTypeEnum> keyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
         private final LabelTextField ivTextField = new LabelTextField("IV");
         private final ComboBox<DataToBinaryTypeEnum> ivTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+        private final LabelTextArea descTextArea;
 
-        RightPanel(final SymmetricCryptoProp prop) {
+        RightPanel(final Project project, final SymmetricCryptoProp prop) {
             super(prop);
+            this.descTextArea = new LabelTextArea(project, "Desc");
         }
 
         @Override

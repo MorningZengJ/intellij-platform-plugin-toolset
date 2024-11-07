@@ -7,6 +7,7 @@ import com.github.morningzeng.toolset.dialog.JWTPropDialog.RightPanel;
 import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.JWTProp;
+import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.proxy.InitializingBean;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -56,7 +57,11 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
 
     @Override
     RightPanel createRightItemPanel(final JWTProp prop) {
-        return InitializingBean.create(RightPanel.class, prop);
+        return InitializingBean.create(
+                RightPanel.class,
+                Pair.of(Project.class, this.project),
+                Pair.of(prop.getClass(), prop)
+        );
     }
 
     static final class RightPanel extends AbstractRightPanel<JWTProp> {
@@ -67,13 +72,16 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
         );
         private final LabelTextField symmetricKeyTextField = new LabelTextField("Key");
         private final ComboBox<DataToBinaryTypeEnum> symmetricKeyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-        private final LabelTextArea privateKeyTextArea = new LabelTextArea("Private key");
-        private final LabelTextArea publicKeyTextArea = new LabelTextArea("Public key");
-        private final LabelTextArea descTextArea = new LabelTextArea("Description");
+        private final LabelTextArea privateKeyTextArea;
+        private final LabelTextArea publicKeyTextArea;
+        private final LabelTextArea descTextArea;
 
-        RightPanel(final JWTProp prop) {
+        RightPanel(final Project project, final JWTProp prop) {
             super(prop);
             this.initEvent();
+            this.privateKeyTextArea = new LabelTextArea(project, "Private key");
+            this.publicKeyTextArea = new LabelTextArea(project, "Public key");
+            this.descTextArea = new LabelTextArea(project, "Description");
         }
 
         @Override

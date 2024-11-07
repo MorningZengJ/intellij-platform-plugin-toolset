@@ -7,6 +7,7 @@ import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoub
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ComboBoxWithWidePopup;
 import com.intellij.ui.EditorTextField;
@@ -186,7 +187,7 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
     }
 
     public static sealed abstract class AbstractLabelTextComponent<T extends JTextComponent> extends LabelComponent<T>
-            permits LabelTextArea, LabelTextField {
+            permits LabelTextField {
 
         public AbstractLabelTextComponent(final String label, final T t) {
             super(label, t);
@@ -217,14 +218,25 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
 
     }
 
-    public final static class LabelTextArea extends AbstractLabelTextComponent<FocusColorTextArea> {
+    public final static class LabelTextArea extends LabelComponent<LanguageTextArea> {
 
-        public LabelTextArea(final String label) {
-            super(label, FocusColorTextArea.builder().row(5).column(50).focusListener());
+        public LabelTextArea(final Project project, final String label) {
+            super(label, new LanguageTextArea(project));
         }
 
-        public LabelTextArea(final String label, final String text) {
-            super(label, FocusColorTextArea.builder().row(5).column(50).text(text).focusListener());
+        public LabelTextArea(final Project project, final String label, final String text) {
+            super(label, new LanguageTextArea(project));
+        }
+
+        public String getText() {
+            return super.tFunction(LanguageTextArea::getText);
+        }
+
+        public void setText(final String text) {
+            super.tConsumer(t -> {
+                t.setText(text);
+                t.setToolTipText(super.labelFunction(JBLabel::getText));
+            });
         }
 
     }

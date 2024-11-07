@@ -5,6 +5,7 @@ import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.dialog.HashPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
+import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.proxy.InitializingBean;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -47,16 +48,21 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp, Rig
 
     @Override
     RightPanel createRightItemPanel(final HashCryptoProp prop) {
-        return InitializingBean.create(RightPanel.class, prop);
+        return InitializingBean.create(
+                RightPanel.class,
+                Pair.of(Project.class, this.project),
+                Pair.of(prop.getClass(), prop)
+        );
     }
 
     static final class RightPanel extends AbstractRightPanel<HashCryptoProp> {
 
         private final LabelTextField keyTextField = new LabelTextField("Key");
-        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+        private final LabelTextArea descTextArea;
 
-        RightPanel(final HashCryptoProp prop) {
+        RightPanel(final Project project, final HashCryptoProp prop) {
             super(prop);
+            this.descTextArea = new LabelTextArea(project, "Desc");
         }
 
         @Override

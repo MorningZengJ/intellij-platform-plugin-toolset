@@ -118,16 +118,22 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
 
     @Override
     RightPanel createRightItemPanel(final AsymmetricCryptoProp prop) {
-        return InitializingBean.create(RightPanel.class, prop);
+        return InitializingBean.create(
+                RightPanel.class,
+                Pair.of(Project.class, this.project),
+                Pair.of(prop.getClass(), prop)
+        );
     }
 
     static final class RightPanel extends AbstractRightPanel<AsymmetricCryptoProp> {
         private final ComboBox<KeyType> keyTypeCombo = new ComboBox<>(new KeyType[]{KeyType.PublicKey, KeyType.PrivateKey});
-        private final LabelTextArea keyTextArea = new LabelTextArea("Key");
-        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+        private final LabelTextArea keyTextArea;
+        private final LabelTextArea descTextArea;
 
-        RightPanel(final AsymmetricCryptoProp prop) {
+        RightPanel(final Project project, final AsymmetricCryptoProp prop) {
             super(prop);
+            this.keyTextArea = new LabelTextArea(project, "Key");
+            this.descTextArea = new LabelTextArea(project, "Desc");
         }
 
         @Override

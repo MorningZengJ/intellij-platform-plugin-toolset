@@ -2,7 +2,6 @@ package com.github.morningzeng.toolset.ui;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.dialog.JWTPropDialog;
 import com.github.morningzeng.toolset.model.JWTProp;
@@ -35,12 +34,15 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     private final JButton resolveBtn = new JButton("Resolve", IconC.DOUBLE_ANGLES_DOWN);
     private final JButton generateBtn = new JButton("Generate", IconC.DOUBLE_ANGLES_UP);
 
-    private final LabelTextArea headerTextArea = new LabelTextArea("Header");
-    private final LabelTextArea payloadTextArea = new LabelTextArea("Payload");
+    private final LanguageTextArea headerTextArea;
+    private final LanguageTextArea payloadTextArea;
 
     public JWTComponent(final Project project) {
         super(project);
         this.jwtTextArea = new LanguageTextArea(project);
+        this.headerTextArea = new LanguageTextArea(project);
+        this.payloadTextArea = new LanguageTextArea(project);
+
         this.project = project;
         this.initLayout();
         this.initAction();

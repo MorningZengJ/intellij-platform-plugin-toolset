@@ -16,7 +16,6 @@ import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
-import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -60,7 +59,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
     final Tree<T> tree = new Tree<>();
     private final Consumer<List<T>> okAfterConsumer;
     private final Map<T, P> rightPanelMap = Maps.newHashMap();
-    final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", General.Add, this.initGroupAction());
+    final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", IconC.ADD_DRAWER, this.initGroupAction());
     final ActionBar actionBar = new ActionBar(this.barActions());
 
     @SuppressWarnings("unused")
