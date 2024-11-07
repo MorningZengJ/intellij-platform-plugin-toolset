@@ -4,13 +4,17 @@ import com.beust.jcommander.internal.Maps;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
+import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.Tree;
 import com.github.morningzeng.toolset.dialog.AbstractPropDialog.AbstractRightPanel;
-import com.github.morningzeng.toolset.dialog.AsymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.Children;
+import com.github.morningzeng.toolset.proxy.InitializingBean;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.ScratchFileUtils;
 import com.intellij.icons.AllIcons.General;
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
@@ -22,6 +26,7 @@ import com.intellij.ui.JBSplitter;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,6 +50,7 @@ import java.util.stream.Stream;
  * @author Morning Zeng
  * @since 2024-05-27
  */
+@Slf4j
 public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends AbstractRightPanel<T>> extends DialogWrapper implements DialogSupport
         permits AsymmetricPropDialog, HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
@@ -117,7 +123,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
         this.createLeftPanel();
         this.defaultRightPanel();
         this.pane.setMinimumSize(new Dimension(700, 500));
-        this.pane.setDividerWidth(1);
+        this.pane.setDividerWidth(3);
         return pane;
     }
 
@@ -180,7 +186,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
 
     abstract void writeProp(final T prop, final P rightPanel);
 
-    abstract P createRightPanel(final T t);
+    abstract P createRightItemPanel(final T t);
 
     void defaultRightPanel() {
         final T t = this.tree.getSelectedValue();
@@ -188,7 +194,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
             this.pane.setSecondComponent(EMPTY_PANEL);
             return;
         }
-        final P rightPanel = this.rightPanelMap.computeIfAbsent(t, this::createRightPanel);
+        final P rightPanel = this.rightPanelMap.computeIfAbsent(t, this::createRightItemPanel);
         this.pane.setSecondComponent(rightPanel);
     }
 
@@ -204,11 +210,32 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
         this.pane.setFirstComponent(leftPanel);
     }
 
-    protected sealed static abstract class AbstractRightPanel<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits RightPanel, HashPropDialog.RightPanel, JWTPropDialog.RightPanel, SymmetricPropDialog.RightPanel {
-        protected T t;
+    protected sealed static abstract class AbstractRightPanel<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> implements InitializingBean
+            permits AsymmetricPropDialog.RightPanel, HashPropDialog.RightPanel, JWTPropDialog.RightPanel, SymmetricPropDialog.RightPanel {
+        private static final JBPanel<JBPanelWithEmptyText> EMPTY_PANEL = new JBPanelWithEmptyText();
 
-        protected AbstractRightPanel(final T t) {
-            this.t = t;
+        protected final LabelTextField titleTextField = new LabelTextField("Title");
+        protected T prop;
+
+        protected AbstractRightPanel(final T prop) {
+            this.prop = prop;
         }
+
+        @Override
+        public void afterPropertiesSet() {
+            this.titleTextField.setText(prop.name());
+            final GridBagBuilder<AbstractRightPanel<T>> builder = GridBagUtils.builder(this);
+            if (this.prop.isGroup()) {
+                builder.newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                                .newCell().weightX(1).add(this.titleTextField))
+                        .newRow(row -> row.fill(GridBagFill.BOTH)
+                                .newCell().weightX(1).weightY(1).add(EMPTY_PANEL));
+                return;
+            }
+            this.itemLayout().accept(builder);
+        }
+
+        protected abstract Consumer<GridBagBuilder<AbstractRightPanel<T>>> itemLayout();
     }
+
 }

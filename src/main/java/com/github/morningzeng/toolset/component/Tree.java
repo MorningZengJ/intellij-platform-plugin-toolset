@@ -7,11 +7,11 @@ import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
 import org.apache.commons.collections.CollectionUtils;
 
+import javax.swing.JComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.Component;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
@@ -163,7 +163,7 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (Objects.isNull(Tree.this.getPathForLocation(e.getX(), e.getY()))) {
+                if (Tree.this.getRowForLocation(50, e.getY()) == -1) {
                     Tree.this.clearSelection();
                 }
             }
@@ -174,14 +174,16 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         return this.ts;
     }
 
-    public void cellRenderer(final Function<T, Component> cellRenderer) {
+    public void cellRenderer(final Function<T, JComponent> cellRenderer) {
         this.setCellRenderer((tree, value, selected, expanded, leaf, row, hasFocus) -> {
             final DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
             final T t = this.getNodeValue(treeNode);
             if (Objects.isNull(t)) {
                 return null;
             }
-            return cellRenderer.apply(t);
+            final JComponent component = cellRenderer.apply(t);
+            component.setOpaque(selected);
+            return component;
         });
     }
 

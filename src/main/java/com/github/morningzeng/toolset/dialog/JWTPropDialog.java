@@ -7,7 +7,8 @@ import com.github.morningzeng.toolset.dialog.JWTPropDialog.RightPanel;
 import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.JWTProp;
-import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.proxy.InitializingBean;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
@@ -54,12 +55,11 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
     }
 
     @Override
-    RightPanel createRightPanel(final JWTProp prop) {
-        return new RightPanel(prop);
+    RightPanel createRightItemPanel(final JWTProp prop) {
+        return InitializingBean.create(RightPanel.class, prop);
     }
 
     static final class RightPanel extends AbstractRightPanel<JWTProp> {
-        private final LabelTextField titleTextField = new LabelTextField("Title");
         private final ComboBox<AlgorithmEnum> signAlgorithmCombo = new ComboBox<>(
                 Arrays.stream(AlgorithmEnum.values())
                         .filter(algorithm -> AlgorithmEnum.NONE != algorithm)
@@ -74,17 +74,28 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
         RightPanel(final JWTProp prop) {
             super(prop);
             this.initEvent();
+        }
 
-            GridBagUtils.builder(this)
-                    .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                            .newCell().weightX(1).add(this.titleTextField)
-                            .newCell().weightX(0).add(this.signAlgorithmCombo))
-                    .newRow(row -> row.newCell().weightX(1).add(this.symmetricKeyTextField)
-                            .newCell().weightX(0).add(this.symmetricKeyTypeCombo))
-                    .newRow(row -> row.fill(GridBagFill.BOTH)
-                            .newCell().weightY(.5).gridWidth(2).add(this.privateKeyTextArea))
-                    .newRow(row -> row.newCell().weightY(.5).gridWidth(2).add(this.publicKeyTextArea))
-                    .newRow(row -> row.newCell().weightY(1).gridWidth(2).add(this.descTextArea));
+        @Override
+        protected Consumer<GridBagBuilder<AbstractRightPanel<JWTProp>>> itemLayout() {
+            return builder -> {
+                this.signAlgorithmCombo.setSelectedItem(prop.getSignAlgorithm());
+                this.symmetricKeyTextField.setText(prop.getSymmetricKey());
+                this.symmetricKeyTypeCombo.setSelectedItem(prop.getSymmetricKeyType());
+                this.privateKeyTextArea.setText(prop.getPrivateKey());
+                this.publicKeyTextArea.setText(prop.getPublicKey());
+                this.descTextArea.setText(prop.getDescription());
+
+                builder.newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                                .newCell().weightX(1).add(this.titleTextField)
+                                .newCell().weightX(0).add(this.signAlgorithmCombo))
+                        .newRow(row -> row.newCell().weightX(1).add(this.symmetricKeyTextField)
+                                .newCell().weightX(0).add(this.symmetricKeyTypeCombo))
+                        .newRow(row -> row.fill(GridBagFill.BOTH)
+                                .newCell().weightY(.5).gridWidth(2).add(this.privateKeyTextArea))
+                        .newRow(row -> row.newCell().weightY(.5).gridWidth(2).add(this.publicKeyTextArea))
+                        .newRow(row -> row.newCell().weightY(1).gridWidth(2).add(this.descTextArea));
+            };
         }
 
 
