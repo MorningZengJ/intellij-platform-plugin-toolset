@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>com.github.MorningZengJ.Toolset</id>
     <name>Toolset</name>
-    <version>1.5.3</version>
+    <version>1.5.5</version>
     <vendor url="https://github.com/MorningZengJ" email="zengchennihon@gmail.com">Morning Zeng</vendor>
     <idea-version since-build="223.1"/>
 

@@ -8,6 +8,18 @@
 
 ### Changed
 
+- The selection of tree nodes has been optimized. The clickable area is now wider, and tree nodes can also be selected
+  by clicking beyond the content of the node.
+- Change the group name in the crypto dialog configuration.
+
+### Fixed
+
+- Fixed some known bugs.
+
+## [1.5.3]
+
+### Changed
+
 - Refactored some components.
 
 ### Fixed
