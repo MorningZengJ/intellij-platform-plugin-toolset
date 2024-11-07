@@ -33,7 +33,6 @@ public final class Remind extends Children<Remind> {
     private String name;
     private LocalDateTime date;
     private String content;
-    private boolean directory;
     private boolean cycle;
     private ChronoUnit cycleUnit;
     private int intervalTime;
@@ -42,11 +41,6 @@ public final class Remind extends Children<Remind> {
     @Override
     public String name() {
         return this.name;
-    }
-
-    @Override
-    public boolean isGroup() {
-        return this.directory;
     }
 
     public String content() {

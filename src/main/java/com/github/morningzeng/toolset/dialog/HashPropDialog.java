@@ -3,18 +3,14 @@ package com.github.morningzeng.toolset.dialog;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
+import com.github.morningzeng.toolset.dialog.HashPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.HashCryptoProp;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
-import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.BoxLayout;
-import javax.swing.tree.TreeNode;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -22,16 +18,10 @@ import java.util.function.Consumer;
  * @since 2024-05-13
  */
 @Slf4j
-public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
-
-    private final LabelTextField titleTextField = new LabelTextField("Title");
-    private final LabelTextField keyTextField = new LabelTextField("Key");
-    private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp, RightPanel> {
 
     public HashPropDialog(final Project project, final Consumer<List<HashCryptoProp>> callback) {
         super(project, callback);
-        this.actionBar.setLayout(new BoxLayout(this.actionBar, BoxLayout.LINE_AXIS));
-
         init();
         setTitle("Hash Properties");
     }
@@ -48,35 +38,35 @@ public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp> {
     }
 
     @Override
-    void writeProp() {
-        final HashCryptoProp prop = this.tree.getSelectedValue();
-        if (Objects.isNull(prop) || prop.isDirectory()) {
-            return;
-        }
-        prop.setTitle(this.titleTextField.getText())
-                .setKey(this.keyTextField.getText())
-                .setDescription(this.descTextArea.getText());
-        this.tree.reloadTree((TreeNode) this.tree.getLastSelectedPathComponent());
+    void writeProp(final HashCryptoProp prop, final RightPanel rightPanel) {
+        prop.setTitle(rightPanel.titleTextField.getText())
+                .setKey(rightPanel.keyTextField.getText())
+                .setDescription(rightPanel.descTextArea.getText());
     }
 
     @Override
-    void createRightPanel(final HashCryptoProp prop) {
-        final JBPanel<JBPanelWithEmptyText> panel = this.defaultRightPanel();
-        if (Objects.isNull(prop)) {
-            return;
-        }
-        this.itemRightPanel(panel, prop);
+    RightPanel createRightPanel(final HashCryptoProp prop) {
+        return new RightPanel(prop);
     }
 
-    void itemRightPanel(final JBPanel<JBPanelWithEmptyText> panel, final HashCryptoProp cryptoProp) {
-        this.titleTextField.setText(cryptoProp.getTitle());
-        this.keyTextField.setText(cryptoProp.getKey());
-        this.descTextArea.setText(cryptoProp.getDescription());
+    static final class RightPanel extends AbstractRightPanel<HashCryptoProp> {
 
-        GridLayoutUtils.builder()
-                .container(panel).fill(GridBag.HORIZONTAL).weightX(1).add(this.titleTextField)
-                .newRow().weightX(1).add(this.keyTextField)
-                .newRow().fill(GridBag.BOTH).weightY(1).add(this.descTextArea);
+        private final LabelTextField titleTextField = new LabelTextField("Title");
+        private final LabelTextField keyTextField = new LabelTextField("Key");
+        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+
+        RightPanel(final HashCryptoProp prop) {
+            super(prop);
+            this.titleTextField.setText(prop.getTitle());
+            this.keyTextField.setText(prop.getKey());
+            this.descTextArea.setText(prop.getDescription());
+
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightX(1).add(this.titleTextField))
+                    .newRow(row -> row.newCell().weightX(1).add(this.keyTextField))
+                    .newRow(row -> row.fill(GridBagFill.BOTH).newCell().weightY(1).add(this.descTextArea));
+        }
     }
 
 }

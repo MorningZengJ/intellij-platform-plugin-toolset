@@ -4,7 +4,6 @@ import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -27,15 +26,13 @@ import java.util.Optional;
 @ScratchConfig(value = "jwt-crypto-prop", directory = "Crypto")
 public class JWTProp extends Children<JWTProp> {
 
-    @Builder.Default
-    private final boolean directory = false;
     private String title;
     private AlgorithmEnum signAlgorithm;
     private String symmetricKey;
     private DataToBinaryTypeEnum symmetricKeyType;
     private String privateKey;
     private String publicKey;
-    private String desc;
+    private String description;
     private int sorted;
 
     public AlgorithmEnum signAlgorithm() {
@@ -58,10 +55,5 @@ public class JWTProp extends Children<JWTProp> {
     @Override
     public String name() {
         return this.title;
-    }
-
-    @Override
-    public boolean isGroup() {
-        return this.directory;
     }
 }

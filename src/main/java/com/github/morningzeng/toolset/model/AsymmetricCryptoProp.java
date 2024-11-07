@@ -6,7 +6,6 @@ import com.github.morningzeng.toolset.utils.AsymmetricCrypto.AsymmetricCryptoSup
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -27,8 +26,6 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = true)
 @ScratchConfig(value = "asymmetric-crypto-prop", directory = "Crypto")
 public class AsymmetricCryptoProp extends Children<AsymmetricCryptoProp> {
-    @Builder.Default
-    private final boolean directory = false;
     private String title;
     private String key;
     private AsymmetricCrypto crypto;
@@ -39,11 +36,6 @@ public class AsymmetricCryptoProp extends Children<AsymmetricCryptoProp> {
     @Override
     public String name() {
         return this.title;
-    }
-
-    @Override
-    public boolean isGroup() {
-        return this.directory;
     }
 
     public AsymmetricCryptoSupport crypto(final Project project, final AsymmetricCrypto crypto) {

@@ -1,10 +1,13 @@
 package com.github.morningzeng.toolset.dialog;
 
+import com.beust.jcommander.internal.Maps;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.action.SingleTextFieldDialogAction;
 import com.github.morningzeng.toolset.component.ActionBar;
 import com.github.morningzeng.toolset.component.Tree;
+import com.github.morningzeng.toolset.dialog.AbstractPropDialog.AbstractRightPanel;
+import com.github.morningzeng.toolset.dialog.AsymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.Children;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
@@ -27,10 +30,11 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -41,16 +45,19 @@ import java.util.stream.Stream;
  * @author Morning Zeng
  * @since 2024-05-27
  */
-public abstract sealed class AbstractPropDialog<T extends Children<T>> extends DialogWrapper implements DialogSupport
+public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends AbstractRightPanel<T>> extends DialogWrapper implements DialogSupport
         permits AsymmetricPropDialog, HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
+    static final JBPanel<JBPanelWithEmptyText> EMPTY_PANEL = new JBPanelWithEmptyText();
     final Project project;
     final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
     final Tree<T> tree = new Tree<>();
+    private final Consumer<List<T>> okAfterConsumer;
+    private final Map<T, P> rightPanelMap = Maps.newHashMap();
     final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", General.Add, this.initGroupAction());
     final ActionBar actionBar = new ActionBar(this.barActions());
-    private final Consumer<List<T>> okAfterConsumer;
 
+    @SuppressWarnings("unused")
     protected AbstractPropDialog(@Nullable final Project project) {
         this(project, symmetricCryptoProps -> {
         });
@@ -63,23 +70,17 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
 
         this.tree.clearSelectionIfClickedOutside();
         this.tree.setNodes(ScratchFileUtils.read(this.typeReference()), Children::isGroup);
-        final JBPanel<JBPanelWithEmptyText> emptyPanel = new JBPanelWithEmptyText();
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
             if (Objects.nonNull(selectNode)) {
                 final T value = tree.getNodeValue(selectNode);
                 if (!this.enabledNode().test(value)) {
                     this.tree.clearSelection();
-                    this.pane.setSecondComponent(emptyPanel);
+                    this.pane.setSecondComponent(EMPTY_PANEL);
                     return;
                 }
             }
-            Optional.ofNullable(selectNode)
-                    .filter(Predicate.not(DefaultMutableTreeNode::getAllowsChildren))
-                    .ifPresentOrElse(userObject -> {
-                        final T t = this.tree.getSelectedValue();
-                        this.createRightPanel(t);
-                    }, () -> this.pane.setSecondComponent(emptyPanel));
+            this.defaultRightPanel();
         });
         this.tree.cellRenderer(prop -> {
             final JBLabel label = new JBLabel(prop.name(), prop.icon(), SwingConstants.LEFT);
@@ -108,13 +109,13 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
 
     @Override
     public void delete() {
-        this.tree.delete(treePaths -> this.createRightPanel(null));
+        this.tree.delete(treePaths -> this.defaultRightPanel());
     }
 
     @Override
     protected JComponent createCenterPanel() {
         this.createLeftPanel();
-        this.createRightPanel(null);
+        this.defaultRightPanel();
         this.pane.setMinimumSize(new Dimension(700, 500));
         this.pane.setDividerWidth(1);
         return pane;
@@ -122,9 +123,6 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
 
     @Override
     protected void doOKAction() {
-        this.writeProp();
-        ScratchFileUtils.write(this.tree.data(), this.typeReference());
-        this.okAfterConsumer.accept(this.tree.data());
         super.doOKAction();
     }
 
@@ -134,11 +132,18 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                 Stream.of(new DialogWrapperAction("Apply") {
                     @Override
                     protected void doAction(final ActionEvent e) {
-                        okAfterConsumer.accept(tree.data());
+                        applyProp();
                     }
                 }),
                 Stream.of(super.createActions())
         ).toArray(Action[]::new);
+    }
+
+    private void applyProp() {
+        this.rightPanelMap.forEach(this::writeProp);
+        this.tree.reloadTree((TreeNode) this.tree.getLastSelectedPathComponent());
+        ScratchFileUtils.write(this.tree.data(), this.typeReference());
+        this.okAfterConsumer.accept(this.tree.data());
     }
 
     AnAction[] initGroupAction() {
@@ -163,7 +168,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
                     public void actionPerformed(@NotNull final AnActionEvent e) {
                         final T cryptoProp = generateBean("", false);
                         tree.create(cryptoProp, true);
-                        createRightPanel(cryptoProp);
+                        defaultRightPanel();
                     }
                 }
         };
@@ -173,15 +178,18 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
 
     abstract T generateBean(final String name, final boolean isGroup);
 
-    abstract void writeProp();
+    abstract void writeProp(final T prop, final P rightPanel);
 
-    abstract void createRightPanel(final T t);
+    abstract P createRightPanel(final T t);
 
-    JBPanel<JBPanelWithEmptyText> defaultRightPanel() {
-        final JBPanel<JBPanelWithEmptyText> panel = new JBPanel<>();
-        panel.setLayout(new GridBagLayout());
-        this.pane.setSecondComponent(panel);
-        return panel;
+    void defaultRightPanel() {
+        final T t = this.tree.getSelectedValue();
+        if (Objects.isNull(t)) {
+            this.pane.setSecondComponent(EMPTY_PANEL);
+            return;
+        }
+        final P rightPanel = this.rightPanelMap.computeIfAbsent(t, this::createRightPanel);
+        this.pane.setSecondComponent(rightPanel);
     }
 
     void createLeftPanel() {
@@ -194,5 +202,13 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>> extends D
         leftPanel.add(ScrollSupport.getInstance(this.tree).verticalAsNeededScrollPane());
 
         this.pane.setFirstComponent(leftPanel);
+    }
+
+    protected sealed static abstract class AbstractRightPanel<T extends Children<T>> extends JBPanel<JBPanelWithEmptyText> permits RightPanel, HashPropDialog.RightPanel, JWTPropDialog.RightPanel, SymmetricPropDialog.RightPanel {
+        protected T t;
+
+        protected AbstractRightPanel(final T t) {
+            this.t = t;
+        }
     }
 }

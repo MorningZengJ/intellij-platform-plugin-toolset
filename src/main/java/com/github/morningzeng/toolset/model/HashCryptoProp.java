@@ -3,7 +3,6 @@ package com.github.morningzeng.toolset.model;
 import com.github.morningzeng.toolset.annotations.ScratchConfig;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -24,8 +23,6 @@ import java.util.Optional;
 @EqualsAndHashCode(callSuper = true)
 @ScratchConfig(value = "hash-crypto-prop", directory = "Crypto")
 public class HashCryptoProp extends Children<HashCryptoProp> {
-    @Builder.Default
-    private final boolean directory = false;
     private String title;
     private String key;
     private DataToBinaryTypeEnum keyType;
@@ -39,10 +36,5 @@ public class HashCryptoProp extends Children<HashCryptoProp> {
     @Override
     public String name() {
         return this.title;
-    }
-
-    @Override
-    public boolean isGroup() {
-        return this.directory;
     }
 }

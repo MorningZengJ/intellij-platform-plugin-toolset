@@ -62,9 +62,9 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
         return switch (prop.signAlgorithm()) {
             case NONE -> "";
             case HS256, HS384, HS512 -> "%s - %s [ %s / %s ]".formatted(
-                    prop.getTitle(), prop.getDesc(), StringUtils.maskSensitive(prop.getSymmetricKey()), prop.symmetricKeyType()
+                    prop.getTitle(), prop.getDescription(), StringUtils.maskSensitive(prop.getSymmetricKey()), prop.symmetricKeyType()
             );
-            default -> "%s - %s [ Asymmetric Crypto ]".formatted(prop.getTitle(), prop.getDesc());
+            default -> "%s - %s [ Asymmetric Crypto ]".formatted(prop.getTitle(), prop.getDescription());
         };
     }
 

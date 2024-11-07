@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,8 @@ import java.util.Objects;
 @FieldNameConstants(innerTypeName = "Children_")
 public abstract class Children<T> {
 
+    @Builder.Default
+    private final boolean directory = false;
     /**
      * children
      */
@@ -48,6 +51,8 @@ public abstract class Children<T> {
 
     public abstract String name();
 
-    public abstract boolean isGroup();
+    public boolean isGroup() {
+        return this.directory;
+    }
 
 }

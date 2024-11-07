@@ -22,7 +22,6 @@ import org.apache.commons.compress.utils.Lists;
 
 import javax.swing.Icon;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,12 +50,6 @@ public final class HttpBean extends Children<HttpBean> {
     public String name() {
         return this.name;
     }
-
-    @Override
-    public boolean isGroup() {
-        return Objects.isNull(this.request);
-    }
-
 
     @Data
     @Builder

@@ -3,19 +3,16 @@ package com.github.morningzeng.toolset.dialog;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
+import com.github.morningzeng.toolset.dialog.SymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.SymmetricCryptoProp;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
-import com.intellij.util.ui.GridBag;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.tree.TreeNode;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -23,14 +20,7 @@ import java.util.function.Consumer;
  * @since 2024-05-13
  */
 @Slf4j
-public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCryptoProp> {
-
-    private final LabelTextField titleTextField = new LabelTextField("Title");
-    private final LabelTextField keyTextField = new LabelTextField("Key");
-    private final ComboBox<DataToBinaryTypeEnum> keyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-    private final LabelTextField ivTextField = new LabelTextField("IV");
-    private final ComboBox<DataToBinaryTypeEnum> ivTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
-    private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCryptoProp, RightPanel> {
 
     public SymmetricPropDialog(final Project project, final Consumer<List<SymmetricCryptoProp>> okAfterConsumer) {
         super(project, okAfterConsumer);
@@ -50,44 +40,48 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
     }
 
     @Override
-    void writeProp() {
-        final SymmetricCryptoProp prop = this.tree.getSelectedValue();
-        if (Objects.isNull(prop) || prop.isDirectory()) {
-            return;
-        }
-        prop.setTitle(this.titleTextField.getText())
-                .setKey(this.keyTextField.getText())
-                .setKeyType(this.keyTypeCombo.getItem())
-                .setIv(this.ivTextField.getText())
-                .setIvType(this.ivTypeCombo.getItem())
-                .setDescription(this.descTextArea.getText());
-        this.tree.reloadTree((TreeNode) this.tree.getLastSelectedPathComponent());
+    void writeProp(final SymmetricCryptoProp prop, final RightPanel rightPanel) {
+        prop.setTitle(rightPanel.titleTextField.getText())
+                .setKey(rightPanel.keyTextField.getText())
+                .setKeyType(rightPanel.keyTypeCombo.getItem())
+                .setIv(rightPanel.ivTextField.getText())
+                .setIvType(rightPanel.ivTypeCombo.getItem())
+                .setDescription(rightPanel.descTextArea.getText());
     }
 
     @Override
-    void createRightPanel(final SymmetricCryptoProp prop) {
-        final JBPanel<JBPanelWithEmptyText> panel = this.defaultRightPanel();
-        if (Objects.isNull(prop)) {
-            return;
-        }
-        this.itemRightPanel(panel, prop);
+    RightPanel createRightPanel(final SymmetricCryptoProp prop) {
+        return new RightPanel(prop);
     }
 
-    void itemRightPanel(final JBPanel<JBPanelWithEmptyText> panel, final SymmetricCryptoProp cryptoProp) {
-        this.titleTextField.setText(cryptoProp.getTitle());
-        this.keyTextField.setText(cryptoProp.getKey());
-        this.keyTypeCombo.setSelectedItem(cryptoProp.keyType());
-        this.ivTextField.setText(cryptoProp.getIv());
-        this.ivTypeCombo.setSelectedItem(cryptoProp.ivType());
-        this.descTextArea.setText(cryptoProp.getDescription());
+    static final class RightPanel extends AbstractRightPanel<SymmetricCryptoProp> {
 
-        GridLayoutUtils.builder()
-                .container(panel).fill(GridBag.HORIZONTAL).weightX(1).gridWidth(2).add(this.titleTextField)
-                .newRow().weightX(1).add(this.keyTextField)
-                .newCell().weightX(0).add(this.keyTypeCombo)
-                .newRow().weightX(1).add(this.ivTextField)
-                .newCell().weightX(0).add(this.ivTypeCombo)
-                .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.descTextArea);
+        private final LabelTextField titleTextField = new LabelTextField("Title");
+        private final LabelTextField keyTextField = new LabelTextField("Key");
+        private final ComboBox<DataToBinaryTypeEnum> keyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
+        private final LabelTextField ivTextField = new LabelTextField("IV");
+        private final ComboBox<DataToBinaryTypeEnum> ivTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
+        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+
+        RightPanel(final SymmetricCryptoProp prop) {
+            super(prop);
+            this.titleTextField.setText(prop.getTitle());
+            this.keyTextField.setText(prop.getKey());
+            this.keyTypeCombo.setSelectedItem(prop.keyType());
+            this.ivTextField.setText(prop.getIv());
+            this.ivTypeCombo.setSelectedItem(prop.ivType());
+            this.descTextArea.setText(prop.getDescription());
+
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightX(1).gridWidth(2).add(this.titleTextField))
+                    .newRow(row -> row.newCell().add(this.keyTextField)
+                            .newCell().weightX(0).add(this.keyTypeCombo))
+                    .newRow(row -> row.newCell().weightX(1).add(this.ivTextField)
+                            .newCell().weightX(0).add(this.ivTypeCombo))
+                    .newRow(row -> row.fill(GridBagFill.BOTH)
+                            .newCell().weightY(1).gridWidth(2).add(this.descTextArea));
+        }
     }
 
 }

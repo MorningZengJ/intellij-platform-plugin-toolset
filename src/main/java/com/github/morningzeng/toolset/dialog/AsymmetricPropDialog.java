@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
+import com.github.morningzeng.toolset.dialog.AsymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.AsymmetricCryptoProp;
 import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.utils.AsymmetricCrypto;
@@ -15,8 +16,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,13 +35,9 @@ import java.util.stream.Stream;
  * @author Morning Zeng
  * @since 2024-11-01
  */
-public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCryptoProp> {
+public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCryptoProp, RightPanel> {
 
     private final AsymmetricCrypto crypto;
-    private final LabelTextField titleTextField = new LabelTextField("Title");
-    private final ComboBox<KeyType> keyTypeCombo = new ComboBox<>(new KeyType[]{KeyType.PublicKey, KeyType.PrivateKey});
-    private final LabelTextArea keyTextArea = new LabelTextArea("Key");
-    private final LabelTextArea descTextArea = new LabelTextArea("Desc");
 
     public AsymmetricPropDialog(final AsymmetricCrypto crypto, final @Nullable Project project, final Consumer<List<AsymmetricCryptoProp>> okAfterConsumer) {
         super(project, okAfterConsumer);
@@ -112,36 +107,38 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
     }
 
     @Override
-    void writeProp() {
-        final AsymmetricCryptoProp prop = this.tree.getSelectedValue();
-        if (Objects.isNull(prop) || prop.isDirectory()) {
-            return;
-        }
-        prop.setTitle(this.titleTextField.getText())
-                .setKey(this.keyTextArea.getText())
-                .setIsPublicKey(this.keyTypeCombo.getSelectedItem() == KeyType.PublicKey)
-                .setDescription(this.descTextArea.getText());
-        this.tree.reloadTree((TreeNode) this.tree.getLastSelectedPathComponent());
-
+    void writeProp(final AsymmetricCryptoProp prop, final RightPanel rightPanel) {
+        prop.setTitle(rightPanel.titleTextField.getText())
+                .setKey(rightPanel.keyTextArea.getText())
+                .setIsPublicKey(rightPanel.keyTypeCombo.getSelectedItem() == KeyType.PublicKey)
+                .setDescription(rightPanel.descTextArea.getText());
     }
 
     @Override
-    void createRightPanel(final AsymmetricCryptoProp prop) {
-        final JBPanel<JBPanelWithEmptyText> panel = this.defaultRightPanel();
-        if (Objects.isNull(prop)) {
-            return;
-        }
-        this.titleTextField.setText(prop.getTitle());
-        this.keyTextArea.setText(prop.getKey());
-        this.keyTypeCombo.setSelectedItem(Objects.isNull(prop.getIsPublicKey()) || prop.getIsPublicKey() ? KeyType.PublicKey : KeyType.PrivateKey);
-        this.descTextArea.setText(prop.getDescription());
+    RightPanel createRightPanel(final AsymmetricCryptoProp prop) {
+        return new RightPanel(prop);
+    }
 
-        GridBagUtils.builder(panel)
-                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                        .newCell().weightX(1).add(this.titleTextField)
-                        .newCell().weightX(0).add(this.keyTypeCombo))
-                .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightX(1).weightY(1).gridWidth(2).add(this.keyTextArea))
-                .newRow(row -> row.newCell().gridWidth(2).add(this.descTextArea));
+    static final class RightPanel extends AbstractRightPanel<AsymmetricCryptoProp> {
+        private final LabelTextField titleTextField = new LabelTextField("Title");
+        private final ComboBox<KeyType> keyTypeCombo = new ComboBox<>(new KeyType[]{KeyType.PublicKey, KeyType.PrivateKey});
+        private final LabelTextArea keyTextArea = new LabelTextArea("Key");
+        private final LabelTextArea descTextArea = new LabelTextArea("Desc");
+
+        RightPanel(final AsymmetricCryptoProp prop) {
+            super(prop);
+            this.titleTextField.setText(prop.getTitle());
+            this.keyTextArea.setText(prop.getKey());
+            this.keyTypeCombo.setSelectedItem(Objects.isNull(prop.getIsPublicKey()) || prop.getIsPublicKey() ? KeyType.PublicKey : KeyType.PrivateKey);
+            this.descTextArea.setText(prop.getDescription());
+
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().weightX(1).add(this.titleTextField)
+                            .newCell().weightX(0).add(this.keyTypeCombo))
+                    .newRow(row -> row.fill(GridBagFill.BOTH)
+                            .newCell().weightX(1).weightY(1).gridWidth(2).add(this.keyTextArea))
+                    .newRow(row -> row.newCell().gridWidth(2).add(this.descTextArea));
+        }
     }
 }
