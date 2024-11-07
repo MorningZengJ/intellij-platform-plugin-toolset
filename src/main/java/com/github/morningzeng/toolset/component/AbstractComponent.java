@@ -225,7 +225,7 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
         }
 
         public LabelTextArea(final Project project, final String label, final String text) {
-            super(label, new LanguageTextArea(project));
+            super(label, new LanguageTextArea(project, text));
         }
 
         public String getText() {
