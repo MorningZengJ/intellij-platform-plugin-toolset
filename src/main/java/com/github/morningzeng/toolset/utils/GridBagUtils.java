@@ -42,12 +42,29 @@ public class GridBagUtils {
         private final int fill;
     }
 
-    @Accessors(fluent = true)
-    public static class GridBagBuilder<T extends Container> {
+    static sealed abstract class AbstractGrid<T extends Container> {
+        final GridBag bag;
 
-        private final GridBag bag = new GridBag();
+        AbstractGrid(final GridBag bag) {
+            this.bag = bag;
+        }
+
+        @SuppressWarnings("UnusedReturnValue")
+        AbstractGrid<T> fill(GridBagFill fill) {
+            this.bag.fill = fill.fill;
+            return this;
+        }
+    }
+
+    @Accessors(fluent = true)
+    public static final class GridBagBuilder<T extends Container> extends AbstractGrid<T> {
+
         @Setter(AccessLevel.PRIVATE)
         private T container;
+
+        GridBagBuilder() {
+            super(new GridBag());
+        }
 
         public GridBagBuilder<T> newRow(final Consumer<Row<T>> rowConsumer) {
             this.bag.gridx = 0;
@@ -59,24 +76,30 @@ public class GridBagUtils {
             return this;
         }
 
+        @Override
+        GridBagBuilder<T> fill(final GridBagFill fill) {
+            super.fill(fill);
+            return this;
+        }
+
         public T build() {
             return this.container;
         }
 
     }
 
-    public static class Row<T extends Container> {
+    public static final class Row<T extends Container> extends AbstractGrid<T> {
 
         private final GridBagBuilder<T> builder;
-        private final GridBag bag;
 
         Row(final GridBagBuilder<T> builder, final GridBag bag) {
+            super(bag);
             this.builder = builder;
-            this.bag = bag;
         }
 
-        public Row<T> fill(GridBagFill fill) {
-            this.bag.fill = fill.fill;
+        @Override
+        public Row<T> fill(final GridBagFill fill) {
+            super.fill(fill);
             return this;
         }
 
@@ -98,13 +121,18 @@ public class GridBagUtils {
 
     }
 
-    public static class Cell<T extends Container> {
+    public static final class Cell<T extends Container> extends AbstractGrid<T> {
         private final Row<T> row;
-        private final GridBag bag;
 
         Cell(final Row<T> row, final GridBag bag) {
+            super(bag);
             this.row = row;
-            this.bag = bag;
+        }
+
+        @Override
+        public Cell<T> fill(final GridBagFill fill) {
+            super.fill(fill);
+            return this;
         }
 
         public Cell<T> weightX(final double weightX) {

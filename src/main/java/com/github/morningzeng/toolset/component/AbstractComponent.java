@@ -6,7 +6,8 @@ import com.github.morningzeng.toolset.component.AbstractComponent.EditorTextFiel
 import com.github.morningzeng.toolset.component.AbstractComponent.HorizontalDoubleButton;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelComponent;
 import com.github.morningzeng.toolset.support.ScrollSupport;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ComboBoxWithWidePopup;
@@ -15,7 +16,6 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTextField;
-import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI.Borders;
 
 import javax.swing.BoxLayout;
@@ -74,15 +74,16 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
             final Dimension labelDimension = new Dimension(125, this.f.getHeight());
             this.f.setPreferredSize(labelDimension);
 
-            GridLayoutUtils.builder()
-                    .container(this).fill(GridBag.BOTH).weightX(0).weightY(1).add(this.f)
-                    .newCell().weightX(1).weightY(1).add(
-                            Optional.of(this.s)
-                                    .filter(ScrollSupport.class::isInstance)
-                                    .map(ScrollSupport.class::cast)
-                                    .<JComponent>map(ScrollSupport::verticalAsNeededScrollPane)
-                                    .orElse(this.s)
-                    );
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.BOTH)
+                            .newCell().weightX(0).weightY(1).add(this.f)
+                            .newCell().weightX(1).weightY(1).add(
+                                    Optional.of(this.s)
+                                            .filter(ScrollSupport.class::isInstance)
+                                            .map(ScrollSupport.class::cast)
+                                            .<JComponent>map(ScrollSupport::verticalAsNeededScrollPane)
+                                            .orElse(this.s)
+                            ));
         }
 
         public void setLabel(final String label) {
@@ -118,9 +119,10 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
         @SafeVarargs
         public ComboBoxButton(final JButton button, final int gap, final T... ts) {
             super(new ComboBox<>(ts), button, gap);
-            GridLayoutUtils.builder()
-                    .container(this).fill(GridBag.BOTH).weightX(1).weightY(1).add(super.f)
-                    .newCell().weightX(0).weightY(1).add(super.s);
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.BOTH)
+                            .newCell().weightX(1).weightY(1).add(super.f)
+                            .newCell().weightX(0).weightY(1).add(super.s));
         }
 
         public ComboBoxButton(final JButton button, final Stream<T> stream, final IntFunction<T[]> generator) {
@@ -143,10 +145,11 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
         @SafeVarargs
         public ComboBoxEditorTextField(final String placeholder, final JButton button, final int gap, final T... ts) {
             super(new ComboBox<>(ts), textField(placeholder), gap);
-            GridLayoutUtils.builder()
-                    .container(this).fill(GridBag.HORIZONTAL).add(super.f)
-                    .newCell().weightX(1).add(super.s)
-                    .newCell().weightX(0).add(button);
+            GridBagUtils.builder(this)
+                    .newRow(row -> row.fill(GridBagFill.BOTH)
+                            .newCell().add(super.f)
+                            .newCell().weightX(1).add(super.s)
+                            .newCell().weightX(0).add(button));
         }
 
         private static EditorTextField textField(String placeholder) {
@@ -221,11 +224,12 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
     public final static class LabelTextArea extends LabelComponent<LanguageTextArea> {
 
         public LabelTextArea(final Project project, final String label) {
-            super(label, new LanguageTextArea(project));
+            this(project, label, "");
         }
 
         public LabelTextArea(final Project project, final String label, final String text) {
             super(label, new LanguageTextArea(project, text));
+            this.f.setPreferredSize(new Dimension(125, this.f.getHeight()));
         }
 
         public String getText() {
@@ -275,7 +279,6 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
             textField.setPlaceholder(placeholder);
             return textField;
         }
-
 
     }
 
