@@ -16,8 +16,8 @@ import com.intellij.openapi.ui.ComboBox;
 import lombok.extern.slf4j.Slf4j;
 
 import java.awt.event.ItemEvent;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -65,11 +65,7 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
     }
 
     static final class RightPanel extends AbstractRightPanel<JWTProp> {
-        private final ComboBox<AlgorithmEnum> signAlgorithmCombo = new ComboBox<>(
-                Arrays.stream(AlgorithmEnum.values())
-                        .filter(algorithm -> AlgorithmEnum.NONE != algorithm)
-                        .toArray(AlgorithmEnum[]::new)
-        );
+        private final ComboBox<AlgorithmEnum> signAlgorithmCombo = new ComboBox<>(AlgorithmEnum.values());
         private final LabelTextField symmetricKeyTextField = new LabelTextField("Key");
         private final ComboBox<DataToBinaryTypeEnum> symmetricKeyTypeCombo = new ComboBox<>(DataToBinaryTypeEnum.values());
         private final LabelTextArea privateKeyTextArea;
@@ -78,7 +74,6 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
 
         RightPanel(final Project project, final JWTProp prop) {
             super(prop);
-            this.initEvent();
             this.privateKeyTextArea = new LabelTextArea(project, "Private key");
             this.publicKeyTextArea = new LabelTextArea(project, "Public key");
             this.descTextArea = new LabelTextArea(project, "Description");
@@ -86,10 +81,11 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
 
         @Override
         protected Consumer<GridBagBuilder<AbstractRightPanel<JWTProp>>> itemLayout() {
+            this.initEvent();
             return builder -> {
-                this.signAlgorithmCombo.setSelectedItem(prop.getSignAlgorithm());
+                Optional.ofNullable(prop.getSignAlgorithm()).ifPresent(this.signAlgorithmCombo::setSelectedItem);
                 this.symmetricKeyTextField.setText(prop.getSymmetricKey());
-                this.symmetricKeyTypeCombo.setSelectedItem(prop.getSymmetricKeyType());
+                Optional.ofNullable(prop.getSymmetricKeyType()).ifPresent(this.symmetricKeyTypeCombo::setSelectedItem);
                 this.privateKeyTextArea.setText(prop.getPrivateKey());
                 this.publicKeyTextArea.setText(prop.getPublicKey());
                 this.descTextArea.setText(prop.getDescription());
@@ -120,12 +116,6 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
 
         private void handleSignAlgorithmChange(final AlgorithmEnum algorithm) {
             switch (algorithm) {
-                case NONE -> {
-                    this.symmetricKeyTextField.setVisible(false);
-                    this.symmetricKeyTypeCombo.setVisible(false);
-                    this.privateKeyTextArea.setVisible(false);
-                    this.publicKeyTextArea.setVisible(false);
-                }
                 case HS256, HS384, HS512 -> {
                     this.symmetricKeyTextField.setVisible(true);
                     this.symmetricKeyTypeCombo.setVisible(true);
