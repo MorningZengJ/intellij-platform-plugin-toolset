@@ -128,6 +128,7 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
 
     @Override
     protected void doOKAction() {
+        this.applyProp();
         super.doOKAction();
     }
 

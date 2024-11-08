@@ -1,5 +1,52 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import java.io.ByteArrayOutputStream
+import java.util.*
+
+fun executeCommand(command: String, workingDir: File = File(".")): String {
+    val output = ByteArrayOutputStream()
+    val process = ProcessBuilder(*command.split(" ").toTypedArray())
+        .directory(workingDir)
+        .redirectErrorStream(true)
+        .start()
+    process.inputStream.copyTo(output)
+    return output.toString().trim()
+}
+
+tasks.register("setPluginVersion") {
+    doLast {
+        // 获取当前分支名
+        val branchName = executeCommand("git rev-parse --abbrev-ref HEAD")
+
+        // 检查分支名是否符合 `feature-版本号` 规则
+        val versionPattern = "feature-(\\d+(\\.\\d+)*)".toRegex()
+        val matchResult = versionPattern.find(branchName)
+
+        if (matchResult != null) {
+            val version = matchResult.groupValues[1]
+
+            // 读取 gradle.properties 文件
+            val propertiesFile = file("gradle.properties")
+            val properties = Properties()
+            propertiesFile.inputStream().use { properties.load(it) }
+
+            // 更新 pluginVersion 属性
+            properties.setProperty("pluginVersion", version)
+
+            // 保存到 gradle.properties 文件
+            propertiesFile.outputStream().use { properties.store(it, null) }
+
+            println("Plugin version updated to $version")
+        } else {
+            throw GradleException("Branch name does not match pattern 'feature-版本号'")
+        }
+    }
+}
+
+// 执行 setPluginVersion 任务
+tasks.named("prepareKotlinBuildScriptModel") {
+    dependsOn("setPluginVersion")
+}
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)

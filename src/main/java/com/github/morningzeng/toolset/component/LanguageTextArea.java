@@ -1,17 +1,26 @@
 package com.github.morningzeng.toolset.component;
 
+import com.github.morningzeng.toolset.utils.ArrayUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.LanguageUtils;
 import com.intellij.codeInsight.AutoPopupController;
+import com.intellij.icons.AllIcons.Actions;
+import com.intellij.icons.AllIcons.RunConfigurations;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.lang.Language;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.ShortcutSet;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.EditorSettings;
+import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.SpellCheckingEditorCustomizationProvider;
+import com.intellij.openapi.editor.ex.DocumentEx;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.editor.impl.EditorImpl;
 import com.intellij.openapi.fileTypes.LanguageFileType;
@@ -27,6 +36,8 @@ import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.ui.LanguageTextField;
 import com.intellij.ui.TextFieldWithAutoCompletion.StringsCompletionProvider;
 import com.intellij.ui.TextFieldWithAutoCompletionListProvider;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.util.ReflectionUtil;
 import com.intellij.util.textCompletion.TextCompletionProvider;
 import com.intellij.util.textCompletion.TextCompletionUtil;
@@ -36,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.Collection;
@@ -226,6 +238,49 @@ public final class LanguageTextArea extends LanguageTextField {
 
     public void autoReformat(final boolean autoReformat) {
         this.autoReformat = autoReformat;
+    }
+
+    public JBPanel<JBPanelWithEmptyText> withRightBar(final AnAction... actions) {
+        return GridBagUtils.builder()
+                .fill(GridBagFill.BOTH)
+                .newRow(row -> {
+                    final AnAction[] extraActions = ArrayUtils.merge(AnAction[]::new, this.defaultRightBarActions(), actions);
+                    final ActionBar actionBar = new ActionBar(false, extraActions);
+                    final Dimension dimension = new Dimension(30, actionBar.getPreferredSize().height);
+                    actionBar.setPreferredSize(dimension);
+                    actionBar.setMinimumSize(dimension);
+                    row.newCell().weightX(1).weightY(1).add(this)
+                            .newCell().weightX(0).add(actionBar);
+                })
+                .build();
+    }
+
+    public AnAction[] defaultRightBarActions() {
+        return new AnAction[]{
+                new AnAction(Actions.ToggleSoftWrap) {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        final EditorSettings settings = editor.getSettings();
+                        settings.setUseSoftWraps(!settings.isUseSoftWraps());
+                    }
+                },
+                new AnAction(RunConfigurations.Scroll_down) {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        final DocumentEx document = editor.getDocument();
+                        final int lastLine = document.getLineCount() - 1;
+                        final int lastLineStartOffset = document.getLineStartOffset(lastLine);
+                        editor.getCaretModel().moveToOffset(lastLineStartOffset);
+                        editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+                    }
+                },
+                new AnAction(Actions.GC) {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        setText("");
+                    }
+                }
+        };
     }
 
     private void initEvent() {

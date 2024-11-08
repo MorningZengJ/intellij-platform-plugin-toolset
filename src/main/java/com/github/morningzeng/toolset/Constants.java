@@ -68,29 +68,26 @@ public interface Constants {
     }
 
     interface IconC {
-
         ClassLoader CLASS_LOADER = IconC.class.getClassLoader();
+
+        Icon ADD = IconLoader.getIcon("/images/svg/add.svg", CLASS_LOADER);
+        Icon ADD_DRAWER = IconLoader.getIcon("/images/svg/add_drawer.svg", CLASS_LOADER);
+        @SuppressWarnings("SpellCheckingInspection")
+        Icon AUTORENEW = IconLoader.getIcon("/images/svg/autorenew.svg", CLASS_LOADER);
+        Icon BOX = IconLoader.getIcon("/images/svg/box.svg", CLASS_LOADER);
+        Icon CLOCK_COLOR = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
         Icon DOUBLE_ANGLES_DOWN = IconLoader.getIcon("/images/svg/double_angles_down.svg", CLASS_LOADER);
         Icon DOUBLE_ANGLES_UP = IconLoader.getIcon("/images/svg/double_angles_up.svg", CLASS_LOADER);
         Icon DOUBLE_ANGLES_RIGHT = IconLoader.getIcon("/images/svg/double_angles_right.svg", CLASS_LOADER);
         Icon DOUBLE_ANGLES_LEFT = IconLoader.getIcon("/images/svg/double_angles_left.svg", CLASS_LOADER);
-
-        Icon ADD_DRAWER = IconLoader.getIcon("/images/svg/add_drawer.svg", CLASS_LOADER);
-        Icon ADD = IconLoader.getIcon("/images/svg/add.svg", CLASS_LOADER);
+        Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
+        Icon GENERATE = IconLoader.getIcon("/images/svg/generate.svg", CLASS_LOADER);
         Icon REMOVE_RED = IconLoader.getIcon("/images/svg/remove.svg", CLASS_LOADER);
-
-        Icon BOX = IconLoader.getIcon("/images/svg/box.svg", CLASS_LOADER);
-        Icon CLOCK_COLOR = IconLoader.getIcon("/images/svg/clock_color.svg", CLASS_LOADER);
-
         Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
         Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
-
-        Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
-        Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
-        @SuppressWarnings("SpellCheckingInspection")
-        Icon AUTORENEW = IconLoader.getIcon("/images/svg/autorenew.svg", CLASS_LOADER);
-        Icon SIGNATURE = IconLoader.getIcon("/images/svg/signature.svg", CLASS_LOADER);
         Icon SECURITY = IconLoader.getIcon("/images/svg/security.svg", CLASS_LOADER);
+        Icon SIGNATURE = IconLoader.getIcon("/images/svg/signature.svg", CLASS_LOADER);
+        Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
 
         interface HttpMethod {
             Icon GET = IconLoader.getIcon("/images/svg/http_method/get.svg", CLASS_LOADER);

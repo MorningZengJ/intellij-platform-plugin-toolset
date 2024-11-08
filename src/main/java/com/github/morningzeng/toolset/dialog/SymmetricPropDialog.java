@@ -15,6 +15,7 @@ import com.intellij.openapi.ui.ComboBox;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -77,9 +78,9 @@ public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCrypt
         protected Consumer<GridBagBuilder<AbstractRightPanel<SymmetricCryptoProp>>> itemLayout() {
             return builder -> {
                 this.keyTextField.setText(prop.getKey());
-                this.keyTypeCombo.setSelectedItem(prop.keyType());
+                Optional.ofNullable(prop.keyType()).ifPresent(this.keyTypeCombo::setSelectedItem);
                 this.ivTextField.setText(prop.getIv());
-                this.ivTypeCombo.setSelectedItem(prop.ivType());
+                Optional.ofNullable(prop.ivType()).ifPresent(this.ivTypeCombo::setSelectedItem);
                 this.descTextArea.setText(prop.getDescription());
 
                 builder.newRow(row -> row.fill(GridBagFill.HORIZONTAL)

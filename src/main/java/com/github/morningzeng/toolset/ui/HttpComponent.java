@@ -15,7 +15,8 @@ import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.support.ScrollSupport;
 import com.github.morningzeng.toolset.utils.ActionUtils;
 import com.github.morningzeng.toolset.utils.CURLUtils;
-import com.github.morningzeng.toolset.utils.GridLayoutUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils;
+import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.JacksonUtils;
 import com.intellij.icons.AllIcons.Actions;
 import com.intellij.icons.AllIcons.ToolbarDecorator;
@@ -37,7 +38,6 @@ import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.JBTabbedPane;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.net.HTTPMethod;
-import com.intellij.util.ui.GridBag;
 import com.intellij.util.ui.JBUI.Borders;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
@@ -54,7 +54,6 @@ import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.io.IOException;
@@ -286,9 +285,9 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
             bodySplitter.setDividerWidth(3);
             bodySplitter.setFirstComponent(ScrollSupport.getInstance(this.bodyLists).verticalAsNeededScrollPane());
             this.bodyTextArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
-            bodySplitter.setSecondComponent(this.bodyTextArea);
+            bodySplitter.setSecondComponent(this.bodyTextArea.withRightBar());
 
-            this.requestParamTabPane.addTab("Headers", this.headersPanel);
+            this.requestParamTabPane.addTab("Headers", this.headersPanel.withRightBar());
             this.requestParamTabPane.addTab("Body", bodySplitter);
             this.requestParamTabPane.setPreferredSize(new Dimension(this.headersPanel.getWidth(), 70));
             this.requestParamSeparator.addExpandedListener(this.requestParamTabPane::setVisible);
@@ -367,13 +366,13 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
         }
 
         private void initializeLayout() {
-            this.setLayout(new GridBagLayout());
-
-            GridLayoutUtils.builder()
-                    .container(this).fill(GridBag.HORIZONTAL).weightX(1).add(this.urlBar)
-                    .newRow().add(this.requestParamSeparator)
-                    .newRow().fill(GridBag.BOTH).weightY(.5).add(this.requestParamTabPane)
-                    .newRow().weightY(1).add(this.responseArea);
+            GridBagUtils.builder(this)
+                    .fill(GridBagFill.HORIZONTAL)
+                    .newRow(row -> row.newCell().weightX(1).add(this.urlBar))
+                    .newRow(row -> row.newCell().add(this.requestParamSeparator))
+                    .fill(GridBagFill.BOTH)
+                    .newRow(row -> row.newCell().weightY(.5).add(this.requestParamTabPane))
+                    .newRow(row -> row.newCell().weightY(1).add(this.responseArea.withRightBar()));
         }
 
         private void initEvent() {

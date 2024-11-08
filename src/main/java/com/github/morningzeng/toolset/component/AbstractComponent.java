@@ -21,6 +21,7 @@ import com.intellij.util.ui.JBUI.Borders;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.SwingConstants;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
@@ -71,8 +72,10 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
             super(new JBLabel(label), t);
             this.setBorder(Borders.empty(1, gap));
 
-            final Dimension labelDimension = new Dimension(125, this.f.getHeight());
-            this.f.setPreferredSize(labelDimension);
+            final Dimension dimension = new Dimension(125, this.f.getHeight());
+            this.f.setMinimumSize(dimension);
+            this.f.setPreferredSize(dimension);
+            this.f.setHorizontalAlignment(SwingConstants.CENTER);
 
             GridBagUtils.builder(this)
                     .newRow(row -> row.fill(GridBagFill.BOTH)
@@ -229,7 +232,6 @@ public sealed abstract class AbstractComponent<F extends JComponent, S extends J
 
         public LabelTextArea(final Project project, final String label, final String text) {
             super(label, new LanguageTextArea(project, text));
-            this.f.setPreferredSize(new Dimension(125, this.f.getHeight()));
         }
 
         public String getText() {

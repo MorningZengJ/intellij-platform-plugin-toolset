@@ -77,7 +77,7 @@ public class GridBagUtils {
         }
 
         @Override
-        GridBagBuilder<T> fill(final GridBagFill fill) {
+        public GridBagBuilder<T> fill(final GridBagFill fill) {
             super.fill(fill);
             return this;
         }

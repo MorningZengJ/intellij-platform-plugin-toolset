@@ -76,7 +76,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                         .newCell().weightX(0).add(this.cryptoManageBtn)
                         .newCell().add(this.cryptoComboBox))
                 .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightY(1).gridWidth(3).add(this.decryptArea))
+                        .newCell().weightY(1).gridWidth(3).add(this.decryptArea.withRightBar()))
                 .newRow(row -> {
                     final JBPanel<JBPanelWithEmptyText> btnPanel = GridBagUtils.builder()
                             .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
@@ -89,7 +89,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                             .newCell().weightY(0).gridWidth(3).add(btnPanel);
                 })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightY(1).gridWidth(3).add(this.encryptArea));
+                        .newCell().weightY(1).gridWidth(3).add(this.encryptArea.withRightBar()));
     }
 
     @Override

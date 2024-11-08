@@ -16,19 +16,6 @@ import java.security.Key;
 @AllArgsConstructor
 public enum AlgorithmEnum {
     /**
-     * The "none" signature algorithm as defined by
-     * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.6">RFC 7518, Section 3.6</a>.  This algorithm
-     * is used only when creating unsecured (not integrity protected) JWSs and is not usable in any other scenario.
-     * Any attempt to call its methods will result in an exception being thrown.
-     */
-    NONE("", "The \"none\" signature algorithm as defined by RFC 7518, Section 3.6.  This algorithm is used only when creating unsecured (not integrity protected) JWSs and is not usable in any other scenario. Any attempt to call its methods will result in an exception being thrown.") {
-        @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.NONE;
-        }
-    },
-
-    /**
      * {@code HMAC using SHA-256} message authentication algorithm as defined by
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 256-bit (32 byte) key.

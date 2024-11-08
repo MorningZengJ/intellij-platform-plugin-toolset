@@ -73,7 +73,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
                     this.cryptoRow(row);
                 })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightY(1).gridWidth(3).add(this.decryptArea))
+                        .newCell().weightY(1).gridWidth(3).add(this.decryptArea.withRightBar()))
                 .newRow(row -> {
                     final JBPanel<JBPanelWithEmptyText> btnPanel = GridBagUtils.builder()
                             .newRow(_row -> _row.fill(GridBagFill.HORIZONTAL)
@@ -84,7 +84,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
                             .newCell().weightY(0).gridWidth(3).add(btnPanel);
                 })
                 .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightY(1).gridWidth(3).add(this.encryptArea));
+                        .newCell().weightY(1).gridWidth(3).add(this.encryptArea.withRightBar()));
     }
 
     /**
