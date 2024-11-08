@@ -4,7 +4,20 @@
 
 ## [Unreleased]
 
-## [1.5.3]
+## [1.5.6]
+
+### Changed
+
+- A button group has been added to the side of the text field, making it easy to perform soft line breaks, scroll to the
+  bottom, and clear operations.
+- Optimized the crypto key configuration Dialog, and now the left label will not be squeezed when there is too much
+  content.
+
+### Fixed
+
+- Fixed some known bugs.
+
+## [1.5.5]
 
 ### Changed
 
