@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.util.Optional;
 
 /**
@@ -43,10 +42,6 @@ public class JWTProp extends Children<JWTProp> {
         return Optional.ofNullable(this.symmetricKeyType).orElse(DataToBinaryTypeEnum.TEXT);
     }
 
-    public SecretKeySpec secretKeySpec() {
-        return new SecretKeySpec(this.symmetricKeyType().bytes(this.getSymmetricKey()), this.signAlgorithm().getJcaName());
-    }
-
     @Override
     public String toString() {
         return this.title;
@@ -55,5 +50,19 @@ public class JWTProp extends Children<JWTProp> {
     @Override
     public String name() {
         return this.title;
+    }
+
+    public JWTProp withKeyPair(final Pair<String, String> keyPair) {
+        switch (this.signAlgorithm) {
+            case HS256, HS384, HS512 -> {
+                this.symmetricKey = keyPair.key();
+                this.symmetricKeyType = DataToBinaryTypeEnum.TEXT;
+            }
+            default -> {
+                this.publicKey = keyPair.key();
+                this.privateKey = keyPair.value();
+            }
+        }
+        return this;
     }
 }

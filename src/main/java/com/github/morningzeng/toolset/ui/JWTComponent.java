@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.github.morningzeng.toolset.utils.JacksonUtils.IGNORE_TRANSIENT_AND_NULL;
@@ -116,7 +117,10 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     @Override
     protected Stream<JWTProp> flatProps(final List<JWTProp> props) {
         return props.stream()
-                .mapMulti((prop, consumer) -> consumer.accept(prop));
+                .mapMulti((prop, consumer) -> {
+                    consumer.accept(prop);
+                    Optional.ofNullable(prop.getChildren()).ifPresent(children -> children.forEach(consumer));
+                });
     }
 
     AnAction resolveBtn() {
@@ -133,7 +137,7 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
                     return;
                 }
                 final JwtParserBuilder builder = Jwts.parser();
-                builder.verifyWith(item.secretKeySpec());
+                item.getSignAlgorithm().withKey(builder, item);
                 final JwtParser build = builder.build();
                 final Jwt<?, ?> parse = build.parse(jwtTextArea.getText());
                 final Jwe<Claims> claimsJws = parse.accept(Jwe.CLAIMS);

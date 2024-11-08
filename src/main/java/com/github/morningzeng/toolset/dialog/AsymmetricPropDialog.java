@@ -8,6 +8,7 @@ import com.github.morningzeng.toolset.dialog.AsymmetricPropDialog.RightPanel;
 import com.github.morningzeng.toolset.model.AsymmetricCryptoProp;
 import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.proxy.InitializingBean;
+import com.github.morningzeng.toolset.utils.ArrayUtils;
 import com.github.morningzeng.toolset.utils.AsymmetricCrypto;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -24,13 +25,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * @author Morning Zeng
@@ -50,46 +49,7 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
 
     @Override
     AnAction[] barActions() {
-        return Stream.concat(
-                Arrays.stream(super.barActions()),
-                Stream.of(
-                        new AnAction("Generate", "Generate key pair", IconC.AUTORENEW) {
-                            @Override
-                            public void actionPerformed(@NotNull final AnActionEvent e) {
-                                final Pair<String, String> cryptoKeyPair = crypto.genKey();
-                                final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
-                                final String group = "%s (Generate)".formatted(crypto.name());
-                                final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
-                                        .filter(node -> node instanceof DefaultMutableTreeNode)
-                                        .map(node -> (DefaultMutableTreeNode) node)
-                                        .filter(node -> {
-                                            final AsymmetricCryptoProp prop = tree.getNodeValue(node);
-                                            return group.equals(prop.getTitle());
-                                        })
-                                        .findFirst();
-                                final DefaultMutableTreeNode generate = dirOpt.orElseGet(() -> {
-                                    tree.clearSelection();
-                                    return tree.create(generateBean(group, true), true);
-                                });
-                                TreeUtil.selectNode(tree, generate);
-                                final String description = "Plugin generates %s".formatted(crypto.name());
-                                final AsymmetricCryptoProp publicKey = generateBean("PublicKey", false)
-                                        .setIsPublicKey(true)
-                                        .setKey(cryptoKeyPair.key())
-                                        .setCrypto(crypto)
-                                        .setDescription(description);
-                                tree.create(publicKey, false);
-                                tree.setSelectionPath(new TreePath(generate));
-                                final AsymmetricCryptoProp privateKey = generateBean("PrivateKey", false)
-                                        .setIsPublicKey(false)
-                                        .setKey(cryptoKeyPair.value())
-                                        .setCrypto(crypto)
-                                        .setDescription(description);
-                                tree.create(privateKey, false);
-                            }
-                        }
-                )
-        ).toArray(AnAction[]::new);
+        return ArrayUtils.merge(AnAction[]::new, super.barActions(), this.generateBtn());
     }
 
     @Override
@@ -123,6 +83,44 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
                 Pair.of(Project.class, this.project),
                 Pair.of(prop.getClass(), prop)
         );
+    }
+
+    AnAction generateBtn() {
+        return new AnAction("Generate", "Generate key pair", IconC.GENERATE) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                final Pair<String, String> cryptoKeyPair = crypto.genKey();
+                final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
+                final String group = "%s (Generate)".formatted(crypto.name());
+                final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
+                        .filter(node -> node instanceof DefaultMutableTreeNode)
+                        .map(node -> (DefaultMutableTreeNode) node)
+                        .filter(node -> {
+                            final AsymmetricCryptoProp prop = tree.getNodeValue(node);
+                            return group.equals(prop.getTitle());
+                        })
+                        .findFirst();
+                final DefaultMutableTreeNode generate = dirOpt.orElseGet(() -> {
+                    tree.clearSelection();
+                    return tree.create(generateBean(group, true), true);
+                });
+                TreeUtil.selectNode(tree, generate);
+                final String description = "Plugin generates %s".formatted(crypto.name());
+                final AsymmetricCryptoProp publicKey = generateBean("PublicKey", false)
+                        .setIsPublicKey(true)
+                        .setKey(cryptoKeyPair.key())
+                        .setCrypto(crypto)
+                        .setDescription(description);
+                tree.create(publicKey, false);
+                tree.setSelectionPath(new TreePath(generate));
+                final AsymmetricCryptoProp privateKey = generateBean("PrivateKey", false)
+                        .setIsPublicKey(false)
+                        .setKey(cryptoKeyPair.value())
+                        .setCrypto(crypto)
+                        .setDescription(description);
+                tree.create(privateKey, false);
+            }
+        };
     }
 
     static final class RightPanel extends AbstractRightPanel<AsymmetricCryptoProp> {

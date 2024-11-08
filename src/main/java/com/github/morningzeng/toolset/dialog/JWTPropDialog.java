@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.dialog;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextArea;
 import com.github.morningzeng.toolset.component.AbstractComponent.LabelTextField;
 import com.github.morningzeng.toolset.dialog.JWTPropDialog.RightPanel;
@@ -9,13 +10,22 @@ import com.github.morningzeng.toolset.enums.DataToBinaryTypeEnum;
 import com.github.morningzeng.toolset.model.JWTProp;
 import com.github.morningzeng.toolset.model.Pair;
 import com.github.morningzeng.toolset.proxy.InitializingBean;
+import com.github.morningzeng.toolset.utils.ActionUtils;
+import com.github.morningzeng.toolset.utils.ArrayUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagBuilder;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 import java.awt.event.ItemEvent;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -31,6 +41,11 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
         super(project, okAfterConsumer);
         init();
         setTitle("JWT Properties");
+    }
+
+    @Override
+    AnAction[] barActions() {
+        return ArrayUtils.merge(AnAction[]::new, super.barActions(), this.generateBtn());
     }
 
     @Override
@@ -62,6 +77,40 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
                 Pair.of(Project.class, this.project),
                 Pair.of(prop.getClass(), prop)
         );
+    }
+
+    AnAction generateBtn() {
+        return ActionUtils.drawerActions("Generate Key", "Generate key for JWT", IconC.GENERATE, this.generateActionGroup());
+    }
+
+    AnAction[] generateActionGroup() {
+        return Arrays.stream(AlgorithmEnum.values())
+                .map(algorithm -> new AnAction(algorithm.name()) {
+                    @Override
+                    public void actionPerformed(@NotNull final AnActionEvent e) {
+                        final Pair<String, String> keyPair = algorithm.genKey();
+                        final String group = "Generate";
+                        final List<TreeNode> nodes = Lists.newArrayList(tree.getRoot().children().asIterator());
+                        final Optional<DefaultMutableTreeNode> dirOpt = nodes.stream()
+                                .filter(node -> node instanceof DefaultMutableTreeNode)
+                                .map(node -> (DefaultMutableTreeNode) node)
+                                .filter(node -> {
+                                    final JWTProp prop = tree.getNodeValue(node);
+                                    return group.equals(prop.getTitle());
+                                })
+                                .findFirst();
+                        dirOpt.orElseGet(() -> {
+                            tree.clearSelection();
+                            return tree.create(generateBean(group, true), true);
+                        });
+                        final JWTProp prop = generateBean("%s [ Generate ] ".formatted(algorithm.name()), false)
+                                .setSignAlgorithm(algorithm)
+                                .setDescription("Plugin generates %s".formatted(algorithm.name()))
+                                .withKeyPair(keyPair);
+                        tree.create(prop, false);
+                    }
+                })
+                .toArray(AnAction[]::new);
     }
 
     static final class RightPanel extends AbstractRightPanel<JWTProp> {

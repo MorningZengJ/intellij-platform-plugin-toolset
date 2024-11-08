@@ -1,12 +1,29 @@
 package com.github.morningzeng.toolset.enums;
 
+import com.github.morningzeng.toolset.model.JWTProp;
+import com.github.morningzeng.toolset.model.Pair;
+import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts.SIG;
+import io.jsonwebtoken.security.KeyBuilderSupplier;
 import io.jsonwebtoken.security.KeyPairBuilderSupplier;
+import io.jsonwebtoken.security.SecretKeyBuilder;
 import io.jsonwebtoken.security.SecureDigestAlgorithm;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.SneakyThrows;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
+import java.util.function.Consumer;
 
 /**
  * @author Morning Zeng
@@ -25,6 +42,20 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS256;
         }
+
+        @Override
+        public Pair<String, String> genKey() {
+            //noinspection unchecked
+            final KeyBuilderSupplier<SecretKey, SecretKeyBuilder> algorithm = (KeyBuilderSupplier<SecretKey, SecretKeyBuilder>) this.algorithm();
+            final String key = Base64.getEncoder().encodeToString(algorithm.key().build().getEncoded());
+            return Pair.of(key, key);
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            final SecretKey key = this.withSymmetric(prop);
+            builder.decryptWith(key).verifyWith(key);
+        }
     },
 
     /**
@@ -36,6 +67,20 @@ public enum AlgorithmEnum {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS384;
+        }
+
+        @Override
+        public Pair<String, String> genKey() {
+            //noinspection unchecked
+            final KeyBuilderSupplier<SecretKey, SecretKeyBuilder> algorithm = (KeyBuilderSupplier<SecretKey, SecretKeyBuilder>) this.algorithm();
+            final String key = Base64.getEncoder().encodeToString(algorithm.key().build().getEncoded());
+            return Pair.of(key, key);
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            final SecretKey key = this.withSymmetric(prop);
+            builder.decryptWith(key).verifyWith(key);
         }
     },
 
@@ -49,6 +94,20 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS512;
         }
+
+        @Override
+        public Pair<String, String> genKey() {
+            //noinspection unchecked
+            final KeyBuilderSupplier<SecretKey, SecretKeyBuilder> algorithm = (KeyBuilderSupplier<SecretKey, SecretKeyBuilder>) this.algorithm();
+            final String key = Base64.getEncoder().encodeToString(algorithm.key().build().getEncoded());
+            return Pair.of(key, key);
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            final SecretKey key = this.withSymmetric(prop);
+            builder.decryptWith(key).verifyWith(key);
+        }
     },
 
     /**
@@ -61,6 +120,12 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS256;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
+
     },
 
     /**
@@ -73,6 +138,11 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS384;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
     },
 
     /**
@@ -84,6 +154,11 @@ public enum AlgorithmEnum {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS512;
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -101,6 +176,11 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS256;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
     },
 
     /**
@@ -116,6 +196,11 @@ public enum AlgorithmEnum {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS384;
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -133,6 +218,11 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS512;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
     },
 
     /**
@@ -144,6 +234,11 @@ public enum AlgorithmEnum {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES256;
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -157,6 +252,11 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES384;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
     },
 
     /**
@@ -168,6 +268,11 @@ public enum AlgorithmEnum {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.ES512;
+        }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -195,6 +300,11 @@ public enum AlgorithmEnum {
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.EdDSA;
         }
+
+        @Override
+        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        }
     },
 
     ;
@@ -203,5 +313,43 @@ public enum AlgorithmEnum {
     private final String desc;
 
     public abstract SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm();
+
+    public abstract void withKey(final JwtParserBuilder builder, final JWTProp prop);
+
+    Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+        return keyGen -> keyGen.initialize(2048);
+    }
+
+    @SneakyThrows
+    public Pair<String, String> genKey() {
+        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(this.jcaName);
+        this.keyPairGeneratorConsumer().accept(keyGen);
+        final KeyPair keyPair = keyGen.genKeyPair();
+        return Pair.of(
+                Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()),
+                Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded())
+        );
+    }
+
+    SecretKey withSymmetric(final JWTProp prop) {
+        final byte[] bytes = prop.symmetricKeyType().bytes(prop.getSymmetricKey());
+        return new SecretKeySpec(bytes, this.jcaName);
+    }
+
+    @SneakyThrows
+    PublicKey withPublic(final JWTProp prop) {
+        final byte[] bytes = Base64.getDecoder().decode(prop.getPublicKey());
+        final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
+        final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
+        return keyFactory.generatePublic(spec);
+    }
+
+    @SneakyThrows
+    PrivateKey withPrivate(final JWTProp prop) {
+        final byte[] bytes = Base64.getDecoder().decode(prop.getPrivateKey());
+        final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
+        final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
+        return keyFactory.generatePrivate(spec);
+    }
 
 }
