@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.dialog.JWTPropDialog;
-import com.github.morningzeng.toolset.enums.AlgorithmEnum;
 import com.github.morningzeng.toolset.model.JWTProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -74,7 +73,6 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     @Override
     protected String cryptoPropText(final JWTProp prop) {
         return switch (prop.signAlgorithm()) {
-            case NONE -> prop.getTitle();
             case HS256, HS384, HS512 -> "%s - %s [ %s / %s ]".formatted(
                     prop.getTitle(), prop.getDescription(), StringUtils.maskSensitive(prop.getSymmetricKey()), prop.symmetricKeyType()
             );
@@ -135,9 +133,7 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
                     return;
                 }
                 final JwtParserBuilder builder = Jwts.parser();
-                if (AlgorithmEnum.NONE != item.getSignAlgorithm()) {
-                    builder.verifyWith(item.secretKeySpec());
-                }
+                builder.verifyWith(item.secretKeySpec());
                 final JwtParser build = builder.build();
                 final Jwt<?, ?> parse = build.parse(jwtTextArea.getText());
                 final Jwe<Claims> claimsJws = parse.accept(Jwe.CLAIMS);
