@@ -15,17 +15,14 @@ fun executeCommand(command: String, workingDir: File = File(".")): String {
 
 tasks.register("setPluginVersion") {
     doLast {
-        // 获取当前分支名
         val branchName = executeCommand("git rev-parse --abbrev-ref HEAD")
 
-        // 检查分支名是否符合 `feature-版本号` 规则
         val versionPattern = "feature-(\\d+(\\.\\d+)*)".toRegex()
         val matchResult = versionPattern.find(branchName)
 
         if (matchResult != null) {
             val version = matchResult.groupValues[1]
 
-            // 读取 gradle.properties 文件
             val propertiesFile = file("gradle.properties")
             val contents = propertiesFile.readLines().stream()
                 .map {
@@ -44,7 +41,7 @@ tasks.register("setPluginVersion") {
     }
 }
 
-// 执行 setPluginVersion 任务
+// execute setPluginVersion task
 tasks.named("prepareKotlinBuildScriptModel") {
     dependsOn("setPluginVersion")
 }
@@ -67,6 +64,9 @@ version = properties("pluginVersion").get()
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven { url = uri("https://www.jetbrains.com/intellij-repository/releases") }
+    maven { url = uri("https://www.jetbrains.com/intellij-repository/snapshots") }
+    maven { url = uri("https://www.jetbrains.com/intellij-repository/eap") }
 }
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
