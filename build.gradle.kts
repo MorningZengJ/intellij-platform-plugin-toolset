@@ -1,7 +1,7 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import java.io.ByteArrayOutputStream
-import java.util.*
+import java.util.stream.Collectors
 
 fun executeCommand(command: String, workingDir: File = File(".")): String {
     val output = ByteArrayOutputStream()
@@ -27,15 +27,16 @@ tasks.register("setPluginVersion") {
 
             // 读取 gradle.properties 文件
             val propertiesFile = file("gradle.properties")
-            val properties = Properties()
-            propertiesFile.inputStream().use { properties.load(it) }
-
-            // 更新 pluginVersion 属性
-            properties.setProperty("pluginVersion", version)
-
-            // 保存到 gradle.properties 文件
-            propertiesFile.outputStream().use { properties.store(it, null) }
-
+            val contents = propertiesFile.readLines().stream()
+                .map {
+                    if (it.startsWith("pluginVersion=")) {
+                        "pluginVersion=$version"
+                    } else {
+                        it
+                    }
+                }
+                .collect(Collectors.joining("\r\n"))
+            propertiesFile.writeText(contents)
             println("Plugin version updated to $version")
         } else {
             throw GradleException("Branch name does not match pattern 'feature-版本号'")
