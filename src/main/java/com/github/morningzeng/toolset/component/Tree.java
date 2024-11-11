@@ -193,11 +193,14 @@ public final class Tree<T extends Children<T>> extends SimpleTree {
         }
         final T pt = this.getNodeValue(parent);
         for (final T t : ts) {
-            final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(t, allowsChildren.apply(t));
+            final boolean isAllowedChildren = allowsChildren.apply(t);
+            final DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(t, isAllowedChildren);
             parent.add(treeNode);
             Optional.ofNullable(pt).ifPresent(t::setParent);
-            final List<T> children = t.getChildren();
-            this.builderNode(children, treeNode, allowsChildren);
+            if (isAllowedChildren) {
+                final List<T> children = t.getChildren();
+                this.builderNode(children, treeNode, allowsChildren);
+            }
         }
     }
 
