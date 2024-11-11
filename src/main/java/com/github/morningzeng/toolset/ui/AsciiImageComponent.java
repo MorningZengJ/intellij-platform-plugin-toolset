@@ -92,7 +92,7 @@ public final class AsciiImageComponent extends JBPanel<JBPanelWithEmptyText> {
 
     private void initEvent() {
         this.paramSeparator.addExpandedListener(this.parametersPanel::setVisible);
-        this.imageComponent.getComponent().addBrowseFolderListener("Select Image", "Select image", this.project, FileChooserDescriptorFactory.createSingleFileDescriptor());
+        this.imageComponent.getComponent().addBrowseFolderListener(this.project, FileChooserDescriptorFactory.createSingleFileDescriptor());
         this.imageComponent.getComponent().getTextField().getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(final DocumentEvent e) {

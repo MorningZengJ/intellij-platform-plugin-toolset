@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [1.5.6]
+## [2431.5.6]
 
 ### Changed
 
@@ -12,6 +12,7 @@
   bottom, and clear operations.
 - Optimized the crypto key configuration Dialog, and now the left label will not be squeezed when there is too much
   content.
+- `243.x.x.x` starts to support `243`.
 
 ### Fixed
 

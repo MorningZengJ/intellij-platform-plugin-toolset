@@ -213,7 +213,7 @@ public final class HttpComponent extends AbstractTreePanelComponent<HttpBean> {
                 {
                     this.browseButton.setPreferredSize(new Dimension(750, this.browseButton.getHeight()));
                     this.browseButton.addBrowseFolderListener(
-                            "Select Postman Collection File", "Select postman collection file", project,
+                            project,
                             FileChooserDescriptorFactory.createSingleFileDescriptor()
                     );
                     init();

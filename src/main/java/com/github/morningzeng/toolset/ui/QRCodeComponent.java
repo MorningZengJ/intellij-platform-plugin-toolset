@@ -112,9 +112,8 @@ public final class QRCodeComponent extends JBSplitter {
 
     private void initEvent() {
         this.bindChooseColor(this.onColorButton.getComponent(), this.offColorButton.getComponent(), this.logoStrokeColorButton.getComponent());
-        this.logoTextField.getComponent().addBrowseFolderListener(
-                "Select Logo File", "Select logo file", this.project, FileChooserDescriptorFactory.createSingleFileDescriptor()
-        );
+        this.logoTextField.getComponent().addBrowseFolderListener(this.project, FileChooserDescriptorFactory.createSingleFileDescriptor());
+
         this.generateQRCodeButton.addActionListener(e -> this.generateQRCodeImage());
         this.copyBase64Button.addActionListener(e -> this.generateQRCodeImage(image -> {
             final String base64 = this.buildQRCode().toBase64(image);
