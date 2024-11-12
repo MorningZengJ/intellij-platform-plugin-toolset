@@ -13,7 +13,7 @@ import java.util.Arrays;
  * @author Morning Zeng
  * @since 2024-10-29
  */
-public sealed abstract class AbstractInternationalSymmetricCryptoComponent extends AbstractSymmetricCryptoComponent permits AESComponent, BlowfishComponent, DESComponent {
+sealed abstract class AbstractInternationalSymmetricCryptoComponent extends AbstractSymmetricCryptoComponent permits AESComponent, BlowfishComponent, DESComponent {
 
     final SymmetricCrypto[] cryptos = Arrays.stream(SymmetricCrypto.values())
             .filter(crypto -> getType().equals(crypto.getType()))
@@ -34,7 +34,7 @@ public sealed abstract class AbstractInternationalSymmetricCryptoComponent exten
      */
     private final ComboBox<SymmetricCrypto> cryptoComboBox = new ComboBox<>(this.cryptos);
 
-    public AbstractInternationalSymmetricCryptoComponent(final Project project) {
+    AbstractInternationalSymmetricCryptoComponent(final Project project) {
         super(project);
         this.cryptoComboBox.setSelectedItem(SymmetricCrypto.AES_CBC_PKCS5);
         this.initLayout();

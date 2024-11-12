@@ -16,11 +16,11 @@ import java.util.stream.Stream;
  * @since 2024-07-09
  */
 @Slf4j
-public sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends AbstractCryptoPropComponent<T> permits AbstractSymmetricCryptoComponent, AsymmetricComponent, HashComponent {
+sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends AbstractCryptoPropComponent<T> permits AbstractSymmetricCryptoComponent, AsymmetricComponent, HashComponent {
     protected final LanguageTextArea encryptArea;
     protected final LanguageTextArea decryptArea;
 
-    public AbstractCryptoComponent(final Project project) {
+    AbstractCryptoComponent(final Project project) {
         super(project);
         this.encryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
         this.decryptArea = new LanguageTextArea(PlainTextLanguage.INSTANCE, project, "");
