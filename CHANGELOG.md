@@ -4,6 +4,18 @@
 
 ## [Unreleased]
 
+## [1.5.7]
+
+### Changed
+
+- Optimized the layout and changed the buttons in `QRCode`.
+- Optimized the buttons in `Asymmetric`, and now the buttons will be loaded selectively according to the selected
+  encryption method and key type.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.5.6]
 
 ### Changed
