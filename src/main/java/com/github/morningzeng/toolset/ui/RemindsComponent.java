@@ -239,7 +239,7 @@ public final class RemindsComponent extends AbstractTreePanelComponent<Remind> {
                         }}, BorderLayout.BEFORE_LINE_BEGINS);
                         this.add(dayOfWeekCheckBoxBar, BorderLayout.AFTER_LAST_LINE);
                     }})
-                    .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.contentTextArea);
+                    .newRow().fill(GridBag.BOTH).weightY(1).gridWidth(2).add(this.contentTextArea.withRightBar());
         }
 
         private void initEvent() {

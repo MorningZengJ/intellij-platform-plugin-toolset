@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolset.ui;
 
+import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.ImageLabel;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
@@ -10,6 +11,10 @@ import com.google.common.collect.Lists;
 import com.google.zxing.datamatrix.encoder.SymbolShapeHint;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.intellij.icons.AllIcons.Actions;
+import com.intellij.icons.AllIcons.General;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory;
 import com.intellij.openapi.project.Project;
@@ -26,8 +31,8 @@ import com.intellij.ui.colorpicker.ColorButton;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.components.fields.ExtendableTextField;
+import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -48,7 +53,6 @@ import java.util.function.Consumer;
  */
 public final class QRCodeComponent extends JBSplitter {
     private final Project project;
-
     private final LabeledComponent<JBIntSpinner> widthSpinner = LabeledComponent.create(
             new JBIntSpinner(500, 1, 9999), "Width", BorderLayout.WEST
     );
@@ -95,8 +99,7 @@ public final class QRCodeComponent extends JBSplitter {
     );
     private final LanguageTextArea contentTextArea;
     private final ImageLabel qrCodeLabel = new ImageLabel(500, 500);
-    private final JButton generateQRCodeButton = new JButton("Generate QR Code");
-    private final JButton copyBase64Button = new JButton("Covert to Base64 and Copy");
+    private boolean enabledBtn = true;
 
     public QRCodeComponent(final Project project) {
         super(false, "qr-code-splitter", .5f, .95f);
@@ -113,17 +116,6 @@ public final class QRCodeComponent extends JBSplitter {
     private void initEvent() {
         this.bindChooseColor(this.onColorButton.getComponent(), this.offColorButton.getComponent(), this.logoStrokeColorButton.getComponent());
         this.logoTextField.getComponent().addBrowseFolderListener(this.project, FileChooserDescriptorFactory.createSingleFileDescriptor());
-
-        this.generateQRCodeButton.addActionListener(e -> this.generateQRCodeImage());
-        this.copyBase64Button.addActionListener(e -> this.generateQRCodeImage(image -> {
-            final String base64 = this.buildQRCode().toBase64(image);
-            try {
-                final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(new StringSelection(base64), null);
-            } catch (Exception ex) {
-                Messages.showMessageDialog(base64, "Convert QR Code to Base64 and Copy", Actions.DiffWithClipboard);
-            }
-        }));
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent e) {
@@ -140,17 +132,18 @@ public final class QRCodeComponent extends JBSplitter {
 
     private void initLayout() {
         final JBPanel<JBPanelWithEmptyText> propPanel = GridBagUtils.builder()
-                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                        .newCell().add(
-                                GridBagUtils.builder()
-                                        .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
-                                                .newCell().add(this.onColorButton)
-                                                .newCell().add(this.offColorButton)
-                                                .newCell().weightX(.3).add(this.widthSpinner)
-                                                .newCell().add(this.heightSpinner)
-                                                .newCell().add(this.marginSpinner))
-                                        .build()
-                        ))
+                .newRow(row -> {
+                    final JBPanel<JBPanelWithEmptyText> qrCodeOptionsPanel = GridBagUtils.builder()
+                            .newRow(innerRow -> innerRow.fill(GridBagFill.HORIZONTAL)
+                                    .newCell().add(this.onColorButton)
+                                    .newCell().add(this.offColorButton)
+                                    .newCell().weightX(.3).add(this.widthSpinner)
+                                    .newCell().add(this.heightSpinner)
+                                    .newCell().add(this.marginSpinner))
+                            .build();
+                    row.fill(GridBagFill.HORIZONTAL)
+                            .newCell().add(qrCodeOptionsPanel);
+                })
                 .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
                         .newCell().add(
                                 GridBagUtils.builder()
@@ -171,20 +164,68 @@ public final class QRCodeComponent extends JBSplitter {
                                                 .newCell().weightX(1).add(this.logoTextField))
                                         .build()
                         ))
-                .newRow(row -> row.fill(GridBagFill.BOTH)
-                        .newCell().weightX(1).weightY(1).add(this.contentTextArea))
+                .newRow(row -> {
+                    final JBPanel<JBPanelWithEmptyText> btnPanel = this.contentTextArea.withRightBar(this.generateQrCodeAction(), this.copyBase64Action());
+                    row.fill(GridBagFill.BOTH)
+                            .newCell().weightX(1).weightY(1).add(btnPanel);
+                })
                 .build();
         this.setFirstComponent(propPanel);
 
         final JBPanel<JBPanelWithEmptyText> panel = GridBagUtils.builder()
                 .newRow(row -> row.fill(GridBagFill.BOTH).newCell().weightX(1).weightY(1).add(this.qrCodeLabel))
-                .newRow(row -> row.fill(GridBagFill.HORIZONTAL)
-                        .newCell().add(GridBagUtils.builder()
-                                .newRow(crow -> crow.fill(GridBagFill.HORIZONTAL).newCell().add(this.generateQRCodeButton).newCell().add(this.copyBase64Button))
-                                .build())
-                )
                 .build();
         this.setSecondComponent(panel);
+    }
+
+    AnAction generateQrCodeAction() {
+        return new AnAction("Generate QR Code", "Generate QR Code", IconC.GENERATE) {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return Optional.of(super.getActionUpdateThread())
+                        .filter(ActionUpdateThread.BGT::equals)
+                        .orElse(ActionUpdateThread.EDT);
+            }
+
+            @Override
+            public void update(@NotNull final AnActionEvent e) {
+                e.getPresentation().setEnabled(enabledBtn);
+            }
+
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                generateQRCodeImage();
+            }
+        };
+    }
+
+    AnAction copyBase64Action() {
+        return new AnAction("Covert to Base64 and Copy", "Covert to Base64 and Copy", General.CopyHovered) {
+            @Override
+            public @NotNull ActionUpdateThread getActionUpdateThread() {
+                return Optional.of(super.getActionUpdateThread())
+                        .filter(ActionUpdateThread.BGT::equals)
+                        .orElse(ActionUpdateThread.EDT);
+            }
+
+            @Override
+            public void update(@NotNull final AnActionEvent e) {
+                e.getPresentation().setEnabled(enabledBtn);
+            }
+
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                generateQRCodeImage(image -> {
+                    final String base64 = buildQRCode().toBase64(image);
+                    try {
+                        final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(new StringSelection(base64), null);
+                    } catch (Exception ex) {
+                        Messages.showMessageDialog(base64, "Convert QR Code to Base64 and Copy", Actions.DiffWithClipboard);
+                    }
+                });
+            }
+        };
     }
 
     private void bindChooseColor(final ColorButton... colorButtons) {
@@ -210,7 +251,7 @@ public final class QRCodeComponent extends JBSplitter {
                 if (StringUtil.isEmpty(content)) {
                     throw new IllegalArgumentException("The content of the QR code cannot be empty");
                 }
-                this.generateQRCodeButton.setEnabled(false);
+                this.enabledBtn = false;
                 final AbstractQRCode built = this.buildQRCode();
                 final String logoPath = this.logoTextField.getComponent().getText();
                 final BufferedImage bufferedImage = StringUtil.isEmpty(logoPath) ? built.toBufferedImage(content) : built.toBufferedImage(content, logoPath);
@@ -219,7 +260,7 @@ public final class QRCodeComponent extends JBSplitter {
             } catch (Exception ex) {
                 ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(ex.getMessage(), "Generate QR Code Error"));
             } finally {
-                this.generateQRCodeButton.setEnabled(true);
+                this.enabledBtn = true;
             }
         });
     }

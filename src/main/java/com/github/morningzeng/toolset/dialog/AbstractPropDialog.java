@@ -50,7 +50,7 @@ import java.util.stream.Stream;
  * @since 2024-05-27
  */
 @Slf4j
-public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends AbstractRightPanel<T>> extends DialogWrapper implements DialogSupport
+abstract sealed class AbstractPropDialog<T extends Children<T>, P extends AbstractRightPanel<T>> extends DialogWrapper implements DialogSupport
         permits AsymmetricPropDialog, HashPropDialog, JWTPropDialog, SymmetricPropDialog {
 
     static final JBPanel<JBPanelWithEmptyText> EMPTY_PANEL = new JBPanelWithEmptyText();
@@ -58,20 +58,16 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
     final JBSplitter pane = new JBSplitter(false, "prop-dialog-splitter", .3f);
     final Tree<T> tree = new Tree<>();
     private final Consumer<List<T>> okAfterConsumer;
+    private final Consumer<T> selectedConsumer;
     private final Map<T, P> rightPanelMap = Maps.newHashMap();
     final AnAction addActions = ActionUtils.drawerActions("Add Item", "New create crypto prop item", IconC.ADD_DRAWER, this.initGroupAction());
     final ActionBar actionBar = new ActionBar(this.barActions());
 
-    @SuppressWarnings("unused")
-    protected AbstractPropDialog(@Nullable final Project project) {
-        this(project, symmetricCryptoProps -> {
-        });
-    }
-
-    protected AbstractPropDialog(@Nullable final Project project, final Consumer<List<T>> okAfterConsumer) {
+    protected AbstractPropDialog(@Nullable final Project project, final Consumer<List<T>> okAfterConsumer, final Consumer<T> selectedConsumer) {
         super(project);
         this.project = project;
         this.okAfterConsumer = okAfterConsumer;
+        this.selectedConsumer = selectedConsumer;
 
         this.tree.clearSelectionIfClickedOutside();
         this.tree.setNodes(ScratchFileUtils.read(this.typeReference()), Children::isGroup);
@@ -150,6 +146,8 @@ public abstract sealed class AbstractPropDialog<T extends Children<T>, P extends
         this.tree.reloadTree((TreeNode) this.tree.getLastSelectedPathComponent());
         ScratchFileUtils.write(this.tree.data(), this.typeReference());
         this.okAfterConsumer.accept(this.tree.data());
+        Optional.ofNullable(this.tree.getSelectedValue())
+                .ifPresent(this.selectedConsumer);
     }
 
     AnAction[] initGroupAction() {

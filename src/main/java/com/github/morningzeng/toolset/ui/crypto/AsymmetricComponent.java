@@ -18,6 +18,7 @@ import java.awt.GridBagLayout;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -94,6 +95,7 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
 
     @Override
     protected void initAction() {
+        this.setButtonsVisible();
         this.encryptBtn.addActionListener(e -> {
             try {
                 final AsymmetricCryptoProp prop = this.cryptoPropComboBox.getItem();
@@ -156,9 +158,16 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
                 Messages.showMessageDialog(this.project, ex.getMessage(), "Encrypt Error", Messages.getErrorIcon());
             }
         });
-        this.cryptoComboBox.addItemListener(e -> super.reloadCryptoProps());
+        this.cryptoComboBox.addItemListener(e -> {
+            super.reloadCryptoProps();
+            this.setButtonsVisible();
+        });
+        this.cryptoPropComboBox.addItemListener(e -> this.setButtonsVisible());
         this.cryptoManageBtn.addActionListener(e -> {
-            final AsymmetricPropDialog dialog = new AsymmetricPropDialog(this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps);
+            final AsymmetricPropDialog dialog = new AsymmetricPropDialog(
+                    this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps,
+                    this.cryptoPropComboBox::setSelectedItem
+            );
             dialog.showAndGet();
         });
     }
@@ -172,5 +181,33 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
             final AsymmetricCrypto crypto = this.cryptoComboBox.getItem();
             return crypto.equals(prop.getCrypto());
         };
+    }
+
+    void setButtonsVisible() {
+        final AsymmetricCrypto activeCrypto = this.cryptoComboBox.getItem();
+        final AsymmetricCryptoProp cryptoProp = this.cryptoPropComboBox.getItem();
+        Optional.ofNullable(cryptoProp)
+                .filter(Predicate.not(AsymmetricCryptoProp::isDirectory))
+                .ifPresentOrElse(prop -> {
+                    this.encryptBtn.setEnabled(true);
+                    this.decryptBtn.setEnabled(true);
+                    this.signBtn.setEnabled(true);
+                    this.verifyBtn.setEnabled(true);
+                    final boolean isPublicKey = Optional.ofNullable(prop.getIsPublicKey()).orElse(false);
+                    if (isPublicKey) {
+                        this.encryptBtn.setVisible(activeCrypto.isPublicEncPrivateDec());
+                        this.decryptBtn.setVisible(activeCrypto.isPrivateEncPublicDec());
+                    } else {
+                        this.encryptBtn.setVisible(activeCrypto.isPrivateEncPublicDec());
+                        this.decryptBtn.setVisible(activeCrypto.isPublicEncPrivateDec());
+                    }
+                    this.signBtn.setVisible(!isPublicKey);
+                    this.verifyBtn.setVisible(isPublicKey);
+                }, () -> {
+                    this.encryptBtn.setEnabled(false);
+                    this.decryptBtn.setEnabled(false);
+                    this.signBtn.setEnabled(false);
+                    this.verifyBtn.setEnabled(false);
+                });
     }
 }

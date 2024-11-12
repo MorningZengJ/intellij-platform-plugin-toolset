@@ -1,7 +1,7 @@
 package com.github.morningzeng.toolset.ui.enums;
 
-import com.github.morningzeng.toolset.ui.Base64Component;
-import com.github.morningzeng.toolset.ui.URLComponent;
+import com.github.morningzeng.toolset.ui.coding.Base64Component;
+import com.github.morningzeng.toolset.ui.coding.URLComponent;
 import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

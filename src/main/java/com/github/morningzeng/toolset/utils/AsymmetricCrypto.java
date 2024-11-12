@@ -36,7 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @Getter
 @AllArgsConstructor
 public enum AsymmetricCrypto {
-    DSA("DSA", "DSA") {
+    DSA("DSA", "DSA", false, false) {
         @Override
         String publicEnc(final String key, final String data) {
             throw new UnsupportedOperationException();
@@ -63,7 +63,7 @@ public enum AsymmetricCrypto {
         }
     },
 
-    ECDSA("ECDSA", "EC") {
+    ECDSA("ECDSA", "EC", false, false) {
         @Override
         String publicEnc(final String key, final String data) {
             throw new UnsupportedOperationException();
@@ -103,7 +103,7 @@ public enum AsymmetricCrypto {
     },
 
     @SuppressWarnings("SpellCheckingInspection")
-    ECIES("ECIES", "EC") {
+    ECIES("ECIES", "EC", true, false) {
         @SneakyThrows
         @Override
         String publicEnc(final String key, final String data) {
@@ -143,7 +143,7 @@ public enum AsymmetricCrypto {
         }
     },
 
-    ELGAMAL("ElGamal/ECB/PKCS1Padding", "EIGamal") {
+    ELGAMAL("ElGamal/ECB/PKCS1Padding", "EIGamal", true, false) {
         @SneakyThrows
         @Override
         String publicEnc(final String key, final String data) {
@@ -176,7 +176,7 @@ public enum AsymmetricCrypto {
         }
     },
 
-    RSA("RSA", "RSA") {
+    RSA("RSA", "RSA", true, true) {
         @SneakyThrows
         @Override
         String publicEnc(final String key, final String data) {
@@ -216,7 +216,7 @@ public enum AsymmetricCrypto {
 
     },
 
-    SM2("SM", "SM2") {
+    SM2("SM", "SM2", true, true) {
         static final Map<String, cn.hutool.crypto.asymmetric.SM2> CRYPTO_MAP = Maps.newHashMap();
 
         @Override
@@ -279,6 +279,8 @@ public enum AsymmetricCrypto {
 
     private final String transformation;
     private final String algorithm;
+    private final boolean publicEncPrivateDec;
+    private final boolean privateEncPublicDec;
 
     @SneakyThrows
     PublicKey getPublicKey(final String key) {

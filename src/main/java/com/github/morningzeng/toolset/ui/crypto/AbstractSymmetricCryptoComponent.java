@@ -21,12 +21,12 @@ import java.util.Objects;
  * @author Morning Zeng
  * @since 2024-10-29
  */
-public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCryptoComponent<SymmetricCryptoProp> permits AbstractInternationalSymmetricCryptoComponent, SM4Component {
+sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCryptoComponent<SymmetricCryptoProp> permits AbstractInternationalSymmetricCryptoComponent, SM4Component {
 
     private final JButton encryptBtn = new JButton("Encrypt", IconC.DOUBLE_ANGLES_DOWN);
     private final JButton decryptBtn = new JButton("Decrypt", IconC.DOUBLE_ANGLES_UP);
 
-    public AbstractSymmetricCryptoComponent(final Project project) {
+    AbstractSymmetricCryptoComponent(final Project project) {
         super(project);
     }
 
@@ -129,7 +129,7 @@ public sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCr
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
-            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, this::reloadCryptoProps);
+            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, this::reloadCryptoProps, this.cryptoPropComboBox::setSelectedItem);
             dialog.showAndGet();
         });
     }
