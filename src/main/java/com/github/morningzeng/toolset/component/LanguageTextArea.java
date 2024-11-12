@@ -252,30 +252,38 @@ public final class LanguageTextArea extends LanguageTextField {
     }
 
     public AnAction[] defaultRightBarActions() {
-        return new AnAction[]{
-                new AnAction(Actions.ToggleSoftWrap) {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        final EditorSettings settings = editor.getSettings();
-                        settings.setUseSoftWraps(!settings.isUseSoftWraps());
-                    }
-                },
-                new AnAction(RunConfigurations.Scroll_down) {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        final DocumentEx document = editor.getDocument();
-                        final int lastLine = document.getLineCount() - 1;
-                        final int lastLineStartOffset = document.getLineStartOffset(lastLine);
-                        editor.getCaretModel().moveToOffset(lastLineStartOffset);
-                        editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
-                    }
-                },
-                new AnAction(Actions.GC) {
-                    @Override
-                    public void actionPerformed(@NotNull final AnActionEvent e) {
-                        setText("");
-                    }
-                }
+        return new AnAction[]{this.softWrapAction(), this.scrollToEndAction(), this.clearAllAction()};
+    }
+
+    private @NotNull AnAction softWrapAction() {
+        return new AnAction("Soft-Wrap", "Soft-Wrap", Actions.ToggleSoftWrap) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                final EditorSettings settings = editor.getSettings();
+                settings.setUseSoftWraps(!settings.isUseSoftWraps());
+            }
+        };
+    }
+
+    private @NotNull AnAction scrollToEndAction() {
+        return new AnAction("Scroll to End", "Scroll to End", RunConfigurations.Scroll_down) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                final DocumentEx document = editor.getDocument();
+                final int lastLine = document.getLineCount() - 1;
+                final int lastLineStartOffset = document.getLineStartOffset(lastLine);
+                editor.getCaretModel().moveToOffset(lastLineStartOffset);
+                editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+            }
+        };
+    }
+
+    private @NotNull AnAction clearAllAction() {
+        return new AnAction("Clear All", "Clear all", Actions.GC) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                setText("");
+            }
         };
     }
 
