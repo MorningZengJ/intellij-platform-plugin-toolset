@@ -158,7 +158,10 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
         });
         this.cryptoComboBox.addItemListener(e -> super.reloadCryptoProps());
         this.cryptoManageBtn.addActionListener(e -> {
-            final AsymmetricPropDialog dialog = new AsymmetricPropDialog(this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps);
+            final AsymmetricPropDialog dialog = new AsymmetricPropDialog(
+                    this.cryptoComboBox.getItem(), this.project, this::reloadCryptoProps,
+                    this.cryptoPropComboBox::setSelectedItem
+            );
             dialog.showAndGet();
         });
     }

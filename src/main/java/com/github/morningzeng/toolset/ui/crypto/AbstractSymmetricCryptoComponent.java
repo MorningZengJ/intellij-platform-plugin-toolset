@@ -129,7 +129,7 @@ sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCryptoCom
             }
         });
         this.cryptoManageBtn.addActionListener(e -> {
-            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, this::reloadCryptoProps);
+            final SymmetricPropDialog dialog = new SymmetricPropDialog(this.project, this::reloadCryptoProps, this.cryptoPropComboBox::setSelectedItem);
             dialog.showAndGet();
         });
     }

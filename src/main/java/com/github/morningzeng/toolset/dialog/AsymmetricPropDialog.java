@@ -40,8 +40,8 @@ public final class AsymmetricPropDialog extends AbstractPropDialog<AsymmetricCry
 
     private final AsymmetricCrypto crypto;
 
-    public AsymmetricPropDialog(final AsymmetricCrypto crypto, final @Nullable Project project, final Consumer<List<AsymmetricCryptoProp>> okAfterConsumer) {
-        super(project, okAfterConsumer);
+    public AsymmetricPropDialog(final AsymmetricCrypto crypto, final @Nullable Project project, final Consumer<List<AsymmetricCryptoProp>> okAfterConsumer, final Consumer<AsymmetricCryptoProp> selectedConsumer) {
+        super(project, okAfterConsumer, selectedConsumer);
         init();
         setTitle("Asymmetric Properties");
         this.crypto = crypto;

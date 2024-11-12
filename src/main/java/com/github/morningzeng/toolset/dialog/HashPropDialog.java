@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 @Slf4j
 public final class HashPropDialog extends AbstractPropDialog<HashCryptoProp, RightPanel> {
 
-    public HashPropDialog(final Project project, final Consumer<List<HashCryptoProp>> callback) {
-        super(project, callback);
+    public HashPropDialog(final Project project, final Consumer<List<HashCryptoProp>> callback, final Consumer<HashCryptoProp> selectedConsumer) {
+        super(project, callback, selectedConsumer);
         init();
         setTitle("Hash Properties");
     }

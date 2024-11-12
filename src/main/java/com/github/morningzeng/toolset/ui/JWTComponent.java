@@ -106,7 +106,7 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     @Override
     protected void initAction() {
         this.cryptoManageBtn.addActionListener(e -> {
-            final JWTPropDialog dialog = new JWTPropDialog(this.project, this::reloadCryptoProps);
+            final JWTPropDialog dialog = new JWTPropDialog(this.project, this::reloadCryptoProps, this.cryptoPropComboBox::setSelectedItem);
             dialog.showAndGet();
         });
         this.generateBtn.addActionListener(e -> {

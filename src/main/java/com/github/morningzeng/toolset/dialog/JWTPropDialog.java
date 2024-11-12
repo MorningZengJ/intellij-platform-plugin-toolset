@@ -37,8 +37,8 @@ import java.util.function.Consumer;
 @Slf4j
 public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel> {
 
-    public JWTPropDialog(final Project project, final Consumer<List<JWTProp>> okAfterConsumer) {
-        super(project, okAfterConsumer);
+    public JWTPropDialog(final Project project, final Consumer<List<JWTProp>> okAfterConsumer, final Consumer<JWTProp> selectedConsumer) {
+        super(project, okAfterConsumer, selectedConsumer);
         init();
         setTitle("JWT Properties");
     }

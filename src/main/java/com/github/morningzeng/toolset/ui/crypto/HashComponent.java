@@ -92,7 +92,7 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
     @Override
     protected void initAction() {
         this.cryptoManageBtn.addActionListener(e -> {
-            final HashPropDialog dialog = new HashPropDialog(this.project, this::refresh);
+            final HashPropDialog dialog = new HashPropDialog(this.project, this::refresh, this.cryptoPropComboBox::setSelectedItem);
             dialog.showAndGet();
         });
         this.calculation.addActionListener(e -> {

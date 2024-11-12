@@ -25,8 +25,8 @@ import java.util.function.Consumer;
 @Slf4j
 public final class SymmetricPropDialog extends AbstractPropDialog<SymmetricCryptoProp, RightPanel> {
 
-    public SymmetricPropDialog(final Project project, final Consumer<List<SymmetricCryptoProp>> okAfterConsumer) {
-        super(project, okAfterConsumer);
+    public SymmetricPropDialog(final Project project, final Consumer<List<SymmetricCryptoProp>> okAfterConsumer, final Consumer<SymmetricCryptoProp> selectedConsumer) {
+        super(project, okAfterConsumer, selectedConsumer);
         init();
         setTitle("Symmetric Properties");
     }
