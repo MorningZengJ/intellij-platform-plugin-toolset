@@ -47,7 +47,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.util.Collection;
@@ -246,9 +245,6 @@ public final class LanguageTextArea extends LanguageTextField {
                 .newRow(row -> {
                     final AnAction[] extraActions = ArrayUtils.merge(AnAction[]::new, this.defaultRightBarActions(), actions);
                     final ActionBar actionBar = new ActionBar(false, extraActions);
-                    final Dimension dimension = new Dimension(30, actionBar.getPreferredSize().height);
-                    actionBar.setPreferredSize(dimension);
-                    actionBar.setMinimumSize(dimension);
                     row.newCell().weightX(1).weightY(1).add(this)
                             .newCell().weightX(0).add(actionBar);
                 })

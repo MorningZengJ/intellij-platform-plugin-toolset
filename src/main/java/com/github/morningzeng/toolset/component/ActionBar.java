@@ -28,8 +28,14 @@ public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
     }
 
     public ActionBar(final boolean horizontal, final AnAction... actions) {
-        this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
-        this.setBorder(Borders.customLineBottom(JBColor.GRAY));
+        if (horizontal) {
+            this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+            this.setBorder(Borders.customLineBottom(JBColor.GRAY));
+        } else {
+            final Dimension dimension = new Dimension(30, this.getPreferredSize().height);
+            this.setPreferredSize(dimension);
+            this.setMinimumSize(dimension);
+        }
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
         this.actions = actions;
