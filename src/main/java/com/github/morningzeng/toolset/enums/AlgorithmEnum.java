@@ -54,7 +54,7 @@ public enum AlgorithmEnum {
         @Override
         public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
             final SecretKey key = this.withSymmetric(prop);
-            builder.decryptWith(key).verifyWith(key);
+            builder.verifyWith(key);
         }
     },
 
@@ -80,7 +80,7 @@ public enum AlgorithmEnum {
         @Override
         public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
             final SecretKey key = this.withSymmetric(prop);
-            builder.decryptWith(key).verifyWith(key);
+            builder.verifyWith(key);
         }
     },
 
@@ -106,7 +106,7 @@ public enum AlgorithmEnum {
         @Override
         public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
             final SecretKey key = this.withSymmetric(prop);
-            builder.decryptWith(key).verifyWith(key);
+            builder.verifyWith(key);
         }
     },
 
@@ -331,13 +331,13 @@ public enum AlgorithmEnum {
         );
     }
 
-    SecretKey withSymmetric(final JWTProp prop) {
+    public SecretKey withSymmetric(final JWTProp prop) {
         final byte[] bytes = prop.symmetricKeyType().bytes(prop.getSymmetricKey());
         return new SecretKeySpec(bytes, this.jcaName);
     }
 
     @SneakyThrows
-    PublicKey withPublic(final JWTProp prop) {
+    public PublicKey withPublic(final JWTProp prop) {
         final byte[] bytes = Base64.getDecoder().decode(prop.getPublicKey());
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
         final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
@@ -345,11 +345,10 @@ public enum AlgorithmEnum {
     }
 
     @SneakyThrows
-    PrivateKey withPrivate(final JWTProp prop) {
+    public PrivateKey withPrivate(final JWTProp prop) {
         final byte[] bytes = Base64.getDecoder().decode(prop.getPrivateKey());
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
         return keyFactory.generatePrivate(spec);
     }
-
 }
