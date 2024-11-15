@@ -72,6 +72,7 @@ public final class LanguageTextArea extends LanguageTextField {
     private Language language;
     private TextCompletionProvider provider;
     private boolean autoReformat = true;
+    private boolean autoAdaptationLanguage = true;
 
     public LanguageTextArea(final Project project) {
         this(project, "");
@@ -121,8 +122,16 @@ public final class LanguageTextArea extends LanguageTextField {
         return create(project, language, items, null, value);
     }
 
+    public static LanguageTextArea create(final Project project, final Language language, TextCompletionProvider provider, final String value) {
+        final LanguageTextArea area = new LanguageTextArea(language, project, provider, value, false, true, false, true, false);
+        area.autoAdaptationLanguage = false;
+        return area;
+    }
+
     public static LanguageTextArea create(final Project project, final Language language, Collection<String> items, final Icon icon, final String value) {
-        return new LanguageTextArea(language, project, new StringsCompletionProvider(items, icon), value, false, true, false, true, false);
+        final LanguageTextArea area = new LanguageTextArea(language, project, new StringsCompletionProvider(items, icon), value, false, true, false, true, false);
+        area.autoAdaptationLanguage = false;
+        return area;
     }
 
     @Override
@@ -213,15 +222,10 @@ public final class LanguageTextArea extends LanguageTextField {
 
     @Override
     public void setText(@Nullable final String text) {
-        final Language language = LanguageUtils.tryResolve(text);
         super.setText(text);
-        if (Objects.equals(this.language, language)) {
-            if (this.autoReformat) {
-                this.reformatCode();
-            }
-            return;
+        if (this.autoAdaptationLanguage) {
+            this.setLanguage(language);
         }
-        this.setLanguage(language);
     }
 
     public void releaseEditor() {
@@ -237,6 +241,10 @@ public final class LanguageTextArea extends LanguageTextField {
 
     public void autoReformat(final boolean autoReformat) {
         this.autoReformat = autoReformat;
+    }
+
+    public void autoAdaptationLanguage(final boolean autoAdaptationLanguage) {
+        this.autoAdaptationLanguage = autoAdaptationLanguage;
     }
 
     public JBPanel<JBPanelWithEmptyText> withRightBar(final AnAction... actions) {
@@ -296,13 +304,15 @@ public final class LanguageTextArea extends LanguageTextField {
                     reformatCode();
                     return;
                 }
-                setLanguage(lan);
+                if (autoAdaptationLanguage) {
+                    setLanguage(lan);
+                }
             }
         });
 
-        final ShortcutSet shortcutSet = ActionManager.getInstance().getAction("ReformatCode").getShortcutSet();
+        final ShortcutSet reformatCode = ActionManager.getInstance().getAction("ReformatCode").getShortcutSet();
         DumbAwareAction.create(e -> this.reformatCode())
-                .registerCustomShortcutSet(shortcutSet, this);
+                .registerCustomShortcutSet(reformatCode, this);
     }
 
 }

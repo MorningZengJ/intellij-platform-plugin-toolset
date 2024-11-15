@@ -8,23 +8,23 @@ import com.github.morningzeng.toolset.model.JWTProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.github.morningzeng.toolset.utils.StringUtils;
+import com.intellij.json.json5.Json5Language;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.components.JBTabbedPane;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwe;
 import io.jsonwebtoken.Jwt;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JButton;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -39,8 +39,6 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
 
     private final Project project;
     private final LanguageTextArea jwtTextArea;
-    private final JButton resolveBtn = new JButton("Resolve", IconC.DOUBLE_ANGLES_DOWN);
-    private final JButton generateBtn = new JButton("Generate", IconC.DOUBLE_ANGLES_UP);
 
     private final JBTabbedPane infoTabPane;
     private final LanguageTextArea headerTextArea;
@@ -50,8 +48,11 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
         super(project);
         this.jwtTextArea = new LanguageTextArea(project);
         this.infoTabPane = new JBTabbedPane(JBTabbedPane.TOP);
-        this.headerTextArea = new LanguageTextArea(project);
-        this.payloadTextArea = new LanguageTextArea(project);
+        this.headerTextArea = new LanguageTextArea(Json5Language.INSTANCE, project, "{\r\n}");
+        this.payloadTextArea = new LanguageTextArea(Json5Language.INSTANCE, project, "{\r\n}");
+        this.jwtTextArea.autoAdaptationLanguage(false);
+        this.headerTextArea.autoAdaptationLanguage(false);
+        this.payloadTextArea.autoAdaptationLanguage(false);
 
         this.jwtTextArea.setPlaceholder("Here is the generated JWT or enter JWT");
 
@@ -97,8 +98,9 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
                         this.jwtTextArea.withRightBar(this.resolveBtn())
                 ))
                 .newRow(row -> {
-                    this.infoTabPane.addTab("Header", this.headerTextArea.withRightBar());
-                    this.infoTabPane.addTab("Payload", this.payloadTextArea.withRightBar());
+                    final AnAction generatedBtn = this.generateBtn();
+                    this.infoTabPane.addTab("Header", this.headerTextArea.withRightBar(generatedBtn));
+                    this.infoTabPane.addTab("Payload", this.payloadTextArea.withRightBar(generatedBtn));
                     row.newCell().weightY(0.5).gridWidth(2).add(this.infoTabPane);
                 });
     }
@@ -108,9 +110,6 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
         this.cryptoManageBtn.addActionListener(e -> {
             final JWTPropDialog dialog = new JWTPropDialog(this.project, this::reloadCryptoProps, this.cryptoPropComboBox::setSelectedItem);
             dialog.showAndGet();
-        });
-        this.generateBtn.addActionListener(e -> {
-            // generate
         });
     }
 
@@ -140,10 +139,37 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
                 item.getSignAlgorithm().withKey(builder, item);
                 final JwtParser build = builder.build();
                 final Jwt<?, ?> parse = build.parse(jwtTextArea.getText());
-                final Jwe<Claims> claimsJws = parse.accept(Jwe.CLAIMS);
-//            final Jws<Claims> claimsJws = build.parseSignedClaims(jwtTextArea.getText());
-                headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getHeader()));
-                payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(claimsJws.getPayload()));
+                headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getHeader()));
+                payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getPayload()));
+            }
+        };
+    }
+
+    AnAction generateBtn() {
+        return new AnAction("Generate", "Generate JWT", IconC.GENERATE) {
+            @Override
+            public void actionPerformed(@NotNull final AnActionEvent e) {
+                final JWTProp item = cryptoPropComboBox.getItem();
+                if (Objects.isNull(item)) {
+                    Messages.showWarningDialog("Please select the signing key configuration item", "Resolve Failed");
+                    return;
+                }
+                if (StringUtil.isEmpty(payloadTextArea.getText())) {
+                    Messages.showWarningDialog("Please enter payload", "Resolve Failed");
+                    return;
+                }
+
+                final JwtBuilder builder = Jwts.builder()
+                        .signWith(item.getSignAlgorithm().withSymmetric(item));
+                final Map<String, Object> headerMap = IGNORE_TRANSIENT_AND_NULL.fromJson(headerTextArea.getText(), new TypeReference<>() {
+                });
+                headerMap.forEach((key, val) -> builder.header().add(key, val));
+
+                final Map<String, Object> payloadMap = IGNORE_TRANSIENT_AND_NULL.fromJson(payloadTextArea.getText(), new TypeReference<>() {
+                });
+                builder.claims(payloadMap);
+                final String compact = builder.compact();
+                jwtTextArea.setText(compact);
             }
         };
     }
