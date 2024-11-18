@@ -13,7 +13,6 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 
 import javax.swing.JButton;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,11 +33,6 @@ sealed abstract class AbstractSymmetricCryptoComponent extends AbstractCryptoCom
     protected TypeReference<List<SymmetricCryptoProp>> typeReference() {
         return new TypeReference<>() {
         };
-    }
-
-    @Override
-    protected Comparator<? super SymmetricCryptoProp> comparator() {
-        return Comparator.comparing(SymmetricCryptoProp::getSorted);
     }
 
     @Override

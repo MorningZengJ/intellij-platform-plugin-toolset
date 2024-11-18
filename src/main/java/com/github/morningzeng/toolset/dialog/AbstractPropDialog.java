@@ -70,7 +70,11 @@ abstract sealed class AbstractPropDialog<T extends Children<T>, P extends Abstra
         this.selectedConsumer = selectedConsumer;
 
         this.tree.clearSelectionIfClickedOutside();
-        this.tree.setNodes(ScratchFileUtils.read(this.typeReference()), Children::isGroup);
+        final List<T> data = ScratchFileUtils.read(this.typeReference()).stream()
+                .sorted(Children.comparable())
+                .peek(t -> t.getChildren().sort(Children.comparable()))
+                .toList();
+        this.tree.setNodes(data, Children::isGroup);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
             if (Objects.nonNull(selectNode)) {

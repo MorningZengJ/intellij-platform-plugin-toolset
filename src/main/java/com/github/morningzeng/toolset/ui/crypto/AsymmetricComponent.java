@@ -15,7 +15,6 @@ import com.intellij.ui.components.JBPanelWithEmptyText;
 
 import javax.swing.JButton;
 import java.awt.GridBagLayout;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -44,11 +43,6 @@ public final class AsymmetricComponent extends AbstractCryptoComponent<Asymmetri
     protected TypeReference<List<AsymmetricCryptoProp>> typeReference() {
         return new TypeReference<>() {
         };
-    }
-
-    @Override
-    protected Comparator<? super AsymmetricCryptoProp> comparator() {
-        return Comparator.comparing(AsymmetricCryptoProp::getSorted);
     }
 
     @Override

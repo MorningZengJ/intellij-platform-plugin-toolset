@@ -61,7 +61,7 @@ public enum TabEnum implements TabSupport {
             return new HttpComponent(project);
         }
     },
-    JWT("JWT", null, "Generate and Resolve JWT", false) {
+    JWT("JWT", null, "Generate and Resolve JWT", true) {
         @Override
         public JComponent component(final Project project) {
             return new JWTComponent(project);

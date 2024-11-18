@@ -21,7 +21,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.SwingConstants;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,8 +45,6 @@ public abstract class AbstractCryptoPropComponent<T> extends JBPanel<JBPanelWith
     }
 
     protected abstract TypeReference<List<T>> typeReference();
-
-    protected abstract Comparator<? super T> comparator();
 
     protected abstract String cryptoPropText(final T t);
 
@@ -101,10 +98,7 @@ public abstract class AbstractCryptoPropComponent<T> extends JBPanel<JBPanelWith
 
     protected void reloadCryptoProps(final List<T> cryptoProps) {
         this.cryptoPropComboBox.removeAllItems();
-        this.flatProps(cryptoProps)
-                .filter(this.filterProp())
-                .sorted(this.comparator())
-                .forEach(this.cryptoPropComboBox::addItem);
+        this.flatProps(cryptoProps).forEach(this.cryptoPropComboBox::addItem);
     }
 
 

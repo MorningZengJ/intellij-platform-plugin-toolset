@@ -18,6 +18,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
+import com.intellij.util.ui.tree.TreeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
@@ -99,10 +100,11 @@ public final class JWTPropDialog extends AbstractPropDialog<JWTProp, RightPanel>
                                     return group.equals(prop.getTitle());
                                 })
                                 .findFirst();
-                        dirOpt.orElseGet(() -> {
+                        final DefaultMutableTreeNode generate = dirOpt.orElseGet(() -> {
                             tree.clearSelection();
                             return tree.create(generateBean(group, true), true);
                         });
+                        TreeUtil.selectNode(tree, generate);
                         final JWTProp prop = generateBean("%s [ Generate ] ".formatted(algorithm.name()), false)
                                 .setSignAlgorithm(algorithm)
                                 .setDescription("Plugin generates %s".formatted(algorithm.name()))
