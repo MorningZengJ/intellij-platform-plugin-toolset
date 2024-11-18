@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.morningzeng.toolset.Constants.IconC;
 import com.github.morningzeng.toolset.component.LanguageTextArea;
 import com.github.morningzeng.toolset.dialog.JWTPropDialog;
+import com.github.morningzeng.toolset.model.Children;
 import com.github.morningzeng.toolset.model.JWTProp;
 import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
@@ -22,7 +23,6 @@ import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,12 +68,10 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     }
 
     @Override
-    protected Comparator<? super JWTProp> comparator() {
-        return Comparator.comparing(JWTProp::getSorted);
-    }
-
-    @Override
     protected String cryptoPropText(final JWTProp prop) {
+        if (prop.isDirectory()) {
+            return prop.getTitle();
+        }
         return switch (prop.signAlgorithm()) {
             case HS256, HS384, HS512 -> "%s - %s [ %s / %s ]".formatted(
                     prop.getTitle(), prop.getDescription(), StringUtils.maskSensitive(prop.getSymmetricKey()), prop.symmetricKeyType()
@@ -84,7 +82,7 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
 
     @Override
     protected boolean isDirectory(final JWTProp jwtProp) {
-        return false;
+        return jwtProp.isDirectory();
     }
 
     @Override
@@ -116,9 +114,16 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
     @Override
     protected Stream<JWTProp> flatProps(final List<JWTProp> props) {
         return props.stream()
+                .filter(this.filterProp())
+                .sorted(Children.comparable())
                 .mapMulti((prop, consumer) -> {
                     consumer.accept(prop);
-                    Optional.ofNullable(prop.getChildren()).ifPresent(children -> children.forEach(consumer));
+                    Optional.ofNullable(prop.getChildren()).ifPresent(
+                            children -> children.stream()
+                                    .filter(this.filterProp())
+                                    .sorted(Children.comparable())
+                                    .forEach(consumer)
+                    );
                 });
     }
 
@@ -126,21 +131,25 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
         return new AnAction("Resolve", "Resolve JWT", IconC.GENERATE) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                final JWTProp item = cryptoPropComboBox.getItem();
-                if (Objects.isNull(item)) {
-                    Messages.showWarningDialog("Please select the signing key configuration item", "Resolve Failed");
-                    return;
+                try {
+                    final JWTProp item = cryptoPropComboBox.getItem();
+                    if (Objects.isNull(item)) {
+                        Messages.showWarningDialog("Please select the signing key configuration item", "Resolve Failed");
+                        return;
+                    }
+                    if (StringUtil.isEmpty(jwtTextArea.getText())) {
+                        Messages.showWarningDialog("Please enter JWT", "Resolve Failed");
+                        return;
+                    }
+                    final JwtParserBuilder builder = Jwts.parser();
+                    item.getSignAlgorithm().withKey(builder, item);
+                    final JwtParser build = builder.build();
+                    final Jwt<?, ?> parse = build.parse(jwtTextArea.getText());
+                    headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getHeader()));
+                    payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getPayload()));
+                } catch (Exception ex) {
+                    Messages.showErrorDialog(ex.getMessage(), "Resolve Failed");
                 }
-                if (StringUtil.isEmpty(jwtTextArea.getText())) {
-                    Messages.showWarningDialog("Please enter JWT", "Resolve Failed");
-                    return;
-                }
-                final JwtParserBuilder builder = Jwts.parser();
-                item.getSignAlgorithm().withKey(builder, item);
-                final JwtParser build = builder.build();
-                final Jwt<?, ?> parse = build.parse(jwtTextArea.getText());
-                headerTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getHeader()));
-                payloadTextArea.setText(IGNORE_TRANSIENT_AND_NULL.toPrettyJson(parse.getPayload()));
             }
         };
     }
@@ -149,27 +158,31 @@ public final class JWTComponent extends AbstractCryptoPropComponent<JWTProp> {
         return new AnAction("Generate", "Generate JWT", IconC.GENERATE) {
             @Override
             public void actionPerformed(@NotNull final AnActionEvent e) {
-                final JWTProp item = cryptoPropComboBox.getItem();
-                if (Objects.isNull(item)) {
-                    Messages.showWarningDialog("Please select the signing key configuration item", "Resolve Failed");
-                    return;
-                }
-                if (StringUtil.isEmpty(payloadTextArea.getText())) {
-                    Messages.showWarningDialog("Please enter payload", "Resolve Failed");
-                    return;
-                }
+                try {
+                    final JWTProp item = cryptoPropComboBox.getItem();
+                    if (Objects.isNull(item)) {
+                        Messages.showWarningDialog("Please select the signing key configuration item", "Resolve Failed");
+                        return;
+                    }
+                    if (StringUtil.isEmpty(payloadTextArea.getText())) {
+                        Messages.showWarningDialog("Please enter payload", "Resolve Failed");
+                        return;
+                    }
 
-                final JwtBuilder builder = Jwts.builder()
-                        .signWith(item.getSignAlgorithm().withSymmetric(item));
-                final Map<String, Object> headerMap = IGNORE_TRANSIENT_AND_NULL.fromJson(headerTextArea.getText(), new TypeReference<>() {
-                });
-                headerMap.forEach((key, val) -> builder.header().add(key, val));
+                    final JwtBuilder builder = Jwts.builder();
+                    item.getSignAlgorithm().withKey(builder, item);
+                    final Map<String, Object> headerMap = IGNORE_TRANSIENT_AND_NULL.fromJson(headerTextArea.getText(), new TypeReference<>() {
+                    });
+                    headerMap.forEach((key, val) -> builder.header().add(key, val));
 
-                final Map<String, Object> payloadMap = IGNORE_TRANSIENT_AND_NULL.fromJson(payloadTextArea.getText(), new TypeReference<>() {
-                });
-                builder.claims(payloadMap);
-                final String compact = builder.compact();
-                jwtTextArea.setText(compact);
+                    final Map<String, Object> payloadMap = IGNORE_TRANSIENT_AND_NULL.fromJson(payloadTextArea.getText(), new TypeReference<>() {
+                    });
+                    builder.claims(payloadMap);
+                    final String compact = builder.compact();
+                    jwtTextArea.setText(compact);
+                } catch (Exception ex) {
+                    Messages.showErrorDialog(ex.getMessage(), "Generate Failed");
+                }
             }
         };
     }

@@ -27,7 +27,6 @@ public class HashCryptoProp extends Children<HashCryptoProp> {
     private String key;
     private DataToBinaryTypeEnum keyType;
     private String description;
-    private int sorted;
 
     public DataToBinaryTypeEnum keyType() {
         return Optional.ofNullable(this.keyType).orElse(DataToBinaryTypeEnum.TEXT);

@@ -46,11 +46,6 @@ public final class HashComponent extends AbstractCryptoComponent<HashCryptoProp>
     }
 
     @Override
-    protected Comparator<? super HashCryptoProp> comparator() {
-        return Comparator.comparing(HashCryptoProp::getSorted);
-    }
-
-    @Override
     protected String cryptoPropText(final HashCryptoProp prop) {
         if (prop.isDirectory()) {
             return prop.getTitle();

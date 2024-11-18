@@ -31,7 +31,6 @@ public class AsymmetricCryptoProp extends Children<AsymmetricCryptoProp> {
     private AsymmetricCrypto crypto;
     private Boolean isPublicKey;
     private String description;
-    private int sorted;
 
     @Override
     public String name() {

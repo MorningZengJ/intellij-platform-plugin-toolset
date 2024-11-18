@@ -32,7 +32,6 @@ public class JWTProp extends Children<JWTProp> {
     private String privateKey;
     private String publicKey;
     private String description;
-    private int sorted;
 
     public AlgorithmEnum signAlgorithm() {
         return Optional.ofNullable(this.signAlgorithm).orElse(AlgorithmEnum.HS512);

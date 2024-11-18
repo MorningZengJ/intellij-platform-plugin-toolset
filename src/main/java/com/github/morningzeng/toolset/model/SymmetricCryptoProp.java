@@ -29,7 +29,6 @@ public class SymmetricCryptoProp extends Children<SymmetricCryptoProp> {
     private String iv;
     private DataToBinaryTypeEnum ivType;
     private String description;
-    private int sorted;
 
     public DataToBinaryTypeEnum keyType() {
         return Optional.ofNullable(this.keyType).orElse(DataToBinaryTypeEnum.TEXT);

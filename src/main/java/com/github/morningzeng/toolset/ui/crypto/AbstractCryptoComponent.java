@@ -31,12 +31,14 @@ sealed abstract class AbstractCryptoComponent<T extends Children<T>> extends Abs
     @Override
     protected Stream<T> flatProps(final List<T> props) {
         return props.stream()
+                .filter(this.filterProp())
+                .sorted(Children.comparable())
                 .mapMulti((prop, consumer) -> {
                     consumer.accept(prop);
                     Optional.ofNullable(prop.getChildren()).ifPresent(
                             ts -> ts.stream()
                                     .filter(this.filterProp())
-                                    .sorted(this.comparator())
+                                    .sorted(Children.comparable())
                                     .forEach(consumer)
                     );
                 });

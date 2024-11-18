@@ -13,6 +13,7 @@ import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 
 import javax.swing.Icon;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,7 +27,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants(innerTypeName = "Children_")
-public abstract class Children<T> {
+public abstract class Children<T extends Children<T>> {
 
     @Builder.Default
     private final boolean directory = false;
@@ -37,6 +38,12 @@ public abstract class Children<T> {
     private List<T> children;
     @JsonIgnore
     private T parent;
+    private int sorted;
+
+    public static <T extends Children<T>> Comparator<T> comparable() {
+        return Comparator.<T, Integer>comparing(Children::getSorted)
+                .thenComparing(Children::name);
+    }
 
     public void addChild(T child) {
         if (Objects.isNull(this.children)) {

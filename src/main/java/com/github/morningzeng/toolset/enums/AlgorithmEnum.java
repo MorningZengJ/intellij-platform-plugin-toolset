@@ -2,6 +2,7 @@ package com.github.morningzeng.toolset.enums;
 
 import com.github.morningzeng.toolset.model.JWTProp;
 import com.github.morningzeng.toolset.model.Pair;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts.SIG;
 import io.jsonwebtoken.security.KeyBuilderSupplier;
@@ -37,7 +38,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 256-bit (32 byte) key.
      */
-    HS256("HmacSHA256", "HMAC using SHA-256 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 256-bit (32 byte) key.") {
+    HS256("HmacSHA256", "HmacSHA256", "HMAC using SHA-256 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 256-bit (32 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS256;
@@ -56,6 +57,11 @@ public enum AlgorithmEnum {
             final SecretKey key = this.withSymmetric(prop);
             builder.verifyWith(key);
         }
+
+        @Override
+        public void withKey(final JwtBuilder builder, final JWTProp item) {
+            builder.signWith(this.withSymmetric(item));
+        }
     },
 
     /**
@@ -63,7 +69,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 384-bit (48 byte) key.
      */
-    HS384("HmacSHA384", "HMAC using SHA-384 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 384-bit (48 byte) key.") {
+    HS384("HmacSHA384", "HmacSHA384", "HMAC using SHA-384 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 384-bit (48 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS384;
@@ -82,6 +88,11 @@ public enum AlgorithmEnum {
             final SecretKey key = this.withSymmetric(prop);
             builder.verifyWith(key);
         }
+
+        @Override
+        public void withKey(final JwtBuilder builder, final JWTProp item) {
+            builder.signWith(this.withSymmetric(item));
+        }
     },
 
     /**
@@ -89,7 +100,7 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.2">RFC 7518, Section 3.2</a>.  This algorithm
      * requires a 512-bit (64 byte) key.
      */
-    HS512("HmacSHA512", "HMAC using SHA-512 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 512-bit (64 byte) key.") {
+    HS512("HmacSHA512", "HmacSHA512", "HMAC using SHA-512 message authentication algorithm as defined by RFC 7518, Section 3.2.  This algorithm requires a 512-bit (64 byte) key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.HS512;
@@ -108,6 +119,11 @@ public enum AlgorithmEnum {
             final SecretKey key = this.withSymmetric(prop);
             builder.verifyWith(key);
         }
+
+        @Override
+        public void withKey(final JwtBuilder builder, final JWTProp item) {
+            builder.signWith(this.withSymmetric(item));
+        }
     },
 
     /**
@@ -115,17 +131,11 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key.
      */
-    RS256("SHA256withRSA", "RSASSA-PKCS1-v1_5 using SHA-256 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key.") {
+    RS256("RSA", "SHA256withRSA", "RSASSA-PKCS1-v1_5 using SHA-256 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS256;
         }
-
-        @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
-        }
-
     },
 
     /**
@@ -133,15 +143,10 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.
      */
-    RS384("SHA384withRSA", "RSASSA-PKCS1-v1_5 using SHA-384 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.") {
+    RS384("RSA", "SHA384withRSA", "RSASSA-PKCS1-v1_5 using SHA-384 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS384;
-        }
-
-        @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -150,15 +155,10 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.3">RFC 7518, Section 3.3</a>.  This algorithm
      * requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.
      */
-    RS512("SHA512withRSA", "RSASSA-PKCS1-v1_5 using SHA-512 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.") {
+    RS512("RSA", "SHA512withRSA", "RSASSA-PKCS1-v1_5 using SHA-512 signature algorithm as defined by RFC 7518, Section 3.3.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key.") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.RS512;
-        }
-
-        @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -171,15 +171,10 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS256("SHA256withRSAandMGF1", "RSASSA-PSS using SHA-256 and MGF1 with SHA-256 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key. ") {
+    PS256("RSA", "SHA256withRSAandMGF1", "RSASSA-PSS using SHA-256 and MGF1 with SHA-256 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key. ") {
         @Override
         public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
             return SIG.PS256;
-        }
-
-        @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
         }
     },
 
@@ -192,15 +187,15 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS384("SHA384withRSAandMGF1", "RSASSA-PSS using SHA-384 and MGF1 with SHA-384 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key. ") {
+    PS384("RSA", "SHA384withRSAandMGF1", "RSASSA-PSS using SHA-384 and MGF1 with SHA-384 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 3072-bit key. ") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.PS384;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyGen -> keyGen.initialize(3072);
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.PS384;
         }
     },
 
@@ -213,15 +208,15 @@ public enum AlgorithmEnum {
      * classpath. If on Java 10 or earlier, BouncyCastle will be used automatically if found in the runtime
      * classpath.</p>
      */
-    PS512("SHA512withRSAandMGF1", "RSASSA-PSS using SHA-512 and MGF1 with SHA-512 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key. ") {
+    PS512("RSA", "SHA512withRSAandMGF1", "RSASSA-PSS using SHA-512 and MGF1 with SHA-512 signature algorithm as defined by RFC 7518, Section 3.5.  This algorithm requires a 2048-bit key, but the JJWT team recommends a 4096-bit key. ") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.PS512;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyGen -> keyGen.initialize(4096);
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.PS512;
         }
     },
 
@@ -230,15 +225,15 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 256-bit key.
      */
-    ES256("SHA256withECDSA", "ECDSA using P-256 and SHA-256 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 256-bit key.") {
+    ES256("EC", "SHA256withECDSA", "ECDSA using P-256 and SHA-256 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 256-bit key.") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.ES256;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyGen -> keyGen.initialize(256);
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.ES256;
         }
     },
 
@@ -247,15 +242,15 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 384-bit key.
      */
-    ES384("SHA384withECDSA", "ECDSA using P-384 and SHA-384 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 384-bit key.") {
+    ES384("EC", "SHA384withECDSA", "ECDSA using P-384 and SHA-384 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 384-bit key.") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.ES384;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyGen -> keyGen.initialize(384);
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.ES384;
         }
     },
 
@@ -264,15 +259,15 @@ public enum AlgorithmEnum {
      * <a href="https://www.rfc-editor.org/rfc/rfc7518.html#section-3.4">RFC 7518, Section 3.4</a>.  This algorithm
      * requires a 521-bit key.
      */
-    ES512("SHA512withECDSA", "ECDSA using P-521 and SHA-512 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 521-bit key.") {
+    ES512("EC", "SHA512withECDSA", "ECDSA using P-521 and SHA-512 signature algorithm as defined by RFC 7518, Section 3.4.  This algorithm requires a 521-bit key.") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.ES512;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyGen -> keyGen.initialize(521);
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.ES512;
         }
     },
 
@@ -295,26 +290,34 @@ public enum AlgorithmEnum {
      * <p><b><sup>1</sup>This algorithm requires at least JDK 15 or a compatible JCA Provider (like BouncyCastle) in the runtime
      * classpath.</b></p>
      */
-    EdDSA("Ed448", "EdDSA signature algorithm defined by RFC 8037, Section 3.1 that requires either Ed25519 or Ed448 Edwards Elliptic Curve keys") {
+    EdDSA("Ed448", "Ed448", "EdDSA signature algorithm defined by RFC 8037, Section 3.1 that requires either Ed25519 or Ed448 Edwards Elliptic Curve keys") {
         @Override
-        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
-            return SIG.EdDSA;
+        Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
+            return keyPairGenerator -> {
+            };
         }
 
         @Override
-        public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
-            builder.decryptWith(this.withPrivate(prop)).verifyWith(this.withPublic(prop));
+        public SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm() {
+            return SIG.EdDSA;
         }
     },
 
     ;
 
+    private final String algorithm;
     private final String jcaName;
     private final String desc;
 
     public abstract SecureDigestAlgorithm<? extends Key, ? extends Key> algorithm();
 
-    public abstract void withKey(final JwtParserBuilder builder, final JWTProp prop);
+    public void withKey(final JwtParserBuilder builder, final JWTProp prop) {
+        builder.verifyWith(this.withPublic(prop));
+    }
+
+    public void withKey(final JwtBuilder builder, final JWTProp item) {
+        builder.signWith(this.withPrivate(item));
+    }
 
     Consumer<KeyPairGenerator> keyPairGeneratorConsumer() {
         return keyGen -> keyGen.initialize(2048);
@@ -322,7 +325,7 @@ public enum AlgorithmEnum {
 
     @SneakyThrows
     public Pair<String, String> genKey() {
-        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(this.jcaName);
+        final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(this.algorithm);
         this.keyPairGeneratorConsumer().accept(keyGen);
         final KeyPair keyPair = keyGen.genKeyPair();
         return Pair.of(
@@ -340,7 +343,7 @@ public enum AlgorithmEnum {
     public PublicKey withPublic(final JWTProp prop) {
         final byte[] bytes = Base64.getDecoder().decode(prop.getPublicKey());
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(bytes);
-        final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
+        final KeyFactory keyFactory = KeyFactory.getInstance(this.algorithm);
         return keyFactory.generatePublic(spec);
     }
 
@@ -348,7 +351,7 @@ public enum AlgorithmEnum {
     public PrivateKey withPrivate(final JWTProp prop) {
         final byte[] bytes = Base64.getDecoder().decode(prop.getPrivateKey());
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
-        final KeyFactory keyFactory = KeyFactory.getInstance(this.jcaName);
+        final KeyFactory keyFactory = KeyFactory.getInstance(this.algorithm);
         return keyFactory.generatePrivate(spec);
     }
 }
