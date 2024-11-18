@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [2431.5.8]
+
+### Changed
+
+- Added generation and parsing of `JWT`.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [2431.5.7]
 
 ### Changed
