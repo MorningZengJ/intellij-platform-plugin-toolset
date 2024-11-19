@@ -37,6 +37,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -70,10 +71,12 @@ abstract sealed class AbstractPropDialog<T extends Children<T>, P extends Abstra
         this.selectedConsumer = selectedConsumer;
 
         this.tree.clearSelectionIfClickedOutside();
-        final List<T> data = ScratchFileUtils.read(this.typeReference()).stream()
-                .sorted(Children.comparable())
-                .peek(t -> t.getChildren().sort(Children.comparable()))
-                .toList();
+        final List<T> data = Optional.ofNullable(ScratchFileUtils.read(this.typeReference()))
+                .map(ts -> ts.stream()
+                        .sorted(Children.comparable())
+                        .peek(t -> t.getChildren().sort(Children.comparable()))
+                        .toList())
+                .orElse(Collections.emptyList());
         this.tree.setNodes(data, Children::isGroup);
         this.tree.addTreeSelectionListener(e -> {
             final DefaultMutableTreeNode selectNode = (DefaultMutableTreeNode) this.tree.getLastSelectedPathComponent();
