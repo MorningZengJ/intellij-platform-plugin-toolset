@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [2431.5.9]
+
+### Fixed
+
+- Fixed a bug that caused an error when opening the dialog due to missing configuration files.
+
 ## [2431.5.8]
 
 ### Changed
