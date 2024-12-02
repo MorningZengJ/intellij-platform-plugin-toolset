@@ -9,6 +9,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
 import com.intellij.ui.table.JBTable;
+import com.intellij.util.ui.JBFont;
 import com.intellij.util.ui.JBUI.Borders;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -18,7 +19,6 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
@@ -32,12 +32,6 @@ import java.util.Enumeration;
 @Slf4j
 public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
     final int[][] sudoku = new SudokuUtils().generate();
-    private final TableModel model = new DefaultTableModel(9, 9) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
 
     private final JBTable table = new SudokuTable();
 
@@ -51,24 +45,6 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
     private void initEvent() {
         this.renderSudoku();
         this.setBorders();
-        this.table.setModel(this.model);
-        this.table.getColumnModel().setColumnSelectionAllowed(true);
-        this.table.setDragEnabled(false);
-        this.table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.table.getSelectionModel().addListSelectionListener(e -> {
-            for (int i = 0; i < 9; i++) {
-                for (int j = 0; j < 9; j++) {
-                    final javax.swing.table.TableCellRenderer cellRenderer = table.getCellRenderer(i, j);
-                    cellRenderer.getTableCellRendererComponent(table, table.getValueAt(i, j), false, false, i, j);
-                    table.prepareRenderer(cellRenderer, i, j);
-                    if (cellRenderer instanceof TableCellRenderer tcr) {
-                        tcr.updateUI();
-                        tcr.repaint();
-                    }
-                }
-            }
-            this.table.repaint();
-        });
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(final ComponentEvent e) {
@@ -92,7 +68,7 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
     void renderSudoku() {
         for (int i = 0; i < this.sudoku.length; i++) {
             for (int j = 0; j < this.sudoku[i].length; j++) {
-                this.model.setValueAt(this.sudoku[i][j], i, j);
+                this.table.getModel().setValueAt(this.sudoku[i][j], i, j);
             }
         }
     }
@@ -127,24 +103,6 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
             }
             this.setBorder(row, column);
             this.setFont(table.getFont());
-
-            final int selectedRow = table.getSelectedRow();
-            final int selectedColumn = table.getSelectedColumn();
-            if (selectedRow == row && selectedColumn == column) {
-                super.setForeground(ColorUtils.invert(new JBColor(0x3D644F, 0x3D644F)));
-                super.setBackground(new JBColor(0x3D644F, 0x3D644F));
-            } else if (selectedRow == row || selectedColumn == column) {
-                super.setForeground(ColorUtils.invert(new JBColor(0x365157, 0x365157)));
-                super.setBackground(new JBColor(0x365157, 0x365157));
-            } else {
-                if (isSelected) {
-                    super.setForeground(table.getSelectionForeground());
-                    super.setBackground(table.getSelectionBackground());
-                } else {
-                    super.setForeground(JBColor.BLACK);
-                    super.setBackground(JBColor.WHITE);
-                }
-            }
             this.setValue(value);
 
             return this;
@@ -174,7 +132,14 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
     private static class SudokuTable extends JBTable {
 
         public SudokuTable() {
-            super();
+            super(new DefaultTableModel(9, 9) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false;
+                }
+            });
+            this.setDragEnabled(false);
+            this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         }
 
         @NotNull
@@ -185,14 +150,13 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
                 final int selectedRow = this.getSelectedRow();
                 final int selectedColumn = this.getSelectedColumn();
                 if (selectedRow == row && selectedColumn == column) {
-                    super.setForeground(ColorUtils.invert(new JBColor(0x3D644F, 0x3D644F)));
-                    label.setBackground(new JBColor(0x3D644F, 0x3D644F));
-                } else if (selectedRow == row || selectedColumn == column) {
-                    super.setForeground(ColorUtils.invert(new JBColor(0x365157, 0x365157)));
-                    label.setBackground(new JBColor(0x365157, 0x365157));
+                    final JBColor color = new JBColor(0x3D644F, 0x3D644F);
+                    this.setColor(label, ColorUtils.invert(color), color);
+                } else if (selectedRow == row || selectedColumn == column || this.sameGroup(row, column)) {
+                    final JBColor color = new JBColor(0x365157, 0x365157);
+                    this.setColor(label, ColorUtils.invert(color), color);
                 } else {
-                    super.setForeground(JBColor.BLACK);
-                    label.setBackground(JBColor.WHITE);
+                    this.setColor(label, JBColor.BLACK, JBColor.WHITE);
                 }
             }
             return result;
@@ -201,7 +165,29 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
         boolean sameGroup(final int row, final int column) {
             final int selectedRow = this.getSelectedRow();
             final int selectedColumn = this.getSelectedColumn();
+            if (selectedRow < 0 || selectedColumn < 0) {
+                return false;
+            }
             return selectedRow / 3 == row / 3 && selectedColumn / 3 == column / 3;
+        }
+
+        void setColor(final JBLabel label, JBColor foreground, final JBColor background) {
+            if (label.getText().equals(this.getSelectedValue())) {
+                foreground = JBColor.RED;
+                label.setFont(label.getFont().deriveFont(JBFont.BOLD));
+            }
+            super.setForeground(foreground);
+            label.setForeground(foreground);
+            label.setBackground(background);
+        }
+
+        String getSelectedValue() {
+            final int selectedRow = this.getSelectedRow();
+            final int selectedColumn = this.getSelectedColumn();
+            if (selectedRow < 0 || selectedColumn < 0) {
+                return null;
+            }
+            return this.getValueAt(selectedRow, selectedColumn).toString();
         }
     }
 
