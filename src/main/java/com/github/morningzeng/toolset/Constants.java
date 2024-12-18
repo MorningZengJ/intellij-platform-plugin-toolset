@@ -82,11 +82,13 @@ public interface Constants {
         Icon DOUBLE_ANGLES_LEFT = IconLoader.getIcon("/images/svg/double_angles_left.svg", CLASS_LOADER);
         Icon FOLDER_COLOR = IconLoader.getIcon("/images/svg/folder_color.svg", CLASS_LOADER);
         Icon GENERATE = IconLoader.getIcon("/images/svg/generate.svg", CLASS_LOADER);
+        Icon INK_ERASER = IconLoader.getIcon("/images/svg/ink_eraser.svg", CLASS_LOADER);
         Icon REMOVE_RED = IconLoader.getIcon("/images/svg/remove.svg", CLASS_LOADER);
         Icon SAVE = IconLoader.getIcon("/images/svg/save.svg", CLASS_LOADER);
         Icon SAVE_ALL = IconLoader.getIcon("/images/svg/save_all.svg", CLASS_LOADER);
         Icon SECURITY = IconLoader.getIcon("/images/svg/security.svg", CLASS_LOADER);
         Icon SIGNATURE = IconLoader.getIcon("/images/svg/signature.svg", CLASS_LOADER);
+        Icon STYLUS_NOTE = IconLoader.getIcon("/images/svg/stylus_note.svg", CLASS_LOADER);
         Icon TREE_NODE = IconLoader.getIcon("/images/svg/tree_node.svg", CLASS_LOADER);
 
         interface HttpMethod {

@@ -46,4 +46,11 @@ public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
         });
     }
 
+    public void setSize(final int width, final int height) {
+        final Dimension dimension = new Dimension(width, height);
+        this.setMaximumSize(dimension);
+        this.setMinimumSize(dimension);
+        this.setPreferredSize(dimension);
+    }
+
 }

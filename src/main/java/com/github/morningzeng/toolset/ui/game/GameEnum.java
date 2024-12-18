@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolset.ui.game;
 
 import com.github.morningzeng.toolset.ui.TabSupport;
+import com.github.morningzeng.toolset.ui.game.sudoku.SudokuComponent;
 import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
