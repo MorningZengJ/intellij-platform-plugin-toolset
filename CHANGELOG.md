@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [1.6.1]
+
+### Added
+
+- Added Sudoku mini-game.
+
+### Fixed
+
+- Fixed some known bugs.
+
 ## [1.5.9]
 
 ### Fixed
