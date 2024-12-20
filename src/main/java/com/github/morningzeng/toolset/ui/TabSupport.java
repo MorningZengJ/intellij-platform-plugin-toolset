@@ -1,4 +1,4 @@
-package com.github.morningzeng.toolset.ui.enums;
+package com.github.morningzeng.toolset.ui;
 
 import com.intellij.openapi.project.Project;
 
@@ -10,7 +10,7 @@ import javax.swing.JTabbedPane;
  * @author Morning Zeng
  * @since 2024-05-09
  */
-public sealed interface TabSupport permits CodingEnum, CryptoTabEnum, GadgetTabEnum, TabEnum {
+public interface TabSupport {
 
     String title();
 

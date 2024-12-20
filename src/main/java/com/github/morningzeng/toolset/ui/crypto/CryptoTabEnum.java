@@ -1,11 +1,6 @@
-package com.github.morningzeng.toolset.ui.enums;
+package com.github.morningzeng.toolset.ui.crypto;
 
-import com.github.morningzeng.toolset.ui.crypto.AESComponent;
-import com.github.morningzeng.toolset.ui.crypto.AsymmetricComponent;
-import com.github.morningzeng.toolset.ui.crypto.BlowfishComponent;
-import com.github.morningzeng.toolset.ui.crypto.DESComponent;
-import com.github.morningzeng.toolset.ui.crypto.HashComponent;
-import com.github.morningzeng.toolset.ui.crypto.SM4Component;
+import com.github.morningzeng.toolset.ui.TabSupport;
 import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

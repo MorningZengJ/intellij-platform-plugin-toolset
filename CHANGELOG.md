@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [2431.6.1]
+
+### Added
+
+- Added Sudoku mini-game.
+
+### Fixed
+
+- Fixed some known bugs.
+
+
 ## [2431.5.9]
 
 ### Fixed

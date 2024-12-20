@@ -1,10 +1,9 @@
-package com.github.morningzeng.toolset.ui.enums;
+package com.github.morningzeng.toolset.ui;
 
-import com.github.morningzeng.toolset.ui.AsciiImageComponent;
-import com.github.morningzeng.toolset.ui.HttpComponent;
-import com.github.morningzeng.toolset.ui.JWTComponent;
-import com.github.morningzeng.toolset.ui.QRCodeComponent;
-import com.github.morningzeng.toolset.ui.RemindsComponent;
+import com.github.morningzeng.toolset.ui.coding.CodingEnum;
+import com.github.morningzeng.toolset.ui.crypto.CryptoTabEnum;
+import com.github.morningzeng.toolset.ui.gadget.GadgetTabEnum;
+import com.github.morningzeng.toolset.ui.game.GameEnum;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.AllArgsConstructor;
@@ -51,6 +50,16 @@ public enum TabEnum implements TabSupport {
             final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
             for (final GadgetTabEnum tab : GadgetTabEnum.values()) {
                 tab.putTab(project, tabbedPane);
+            }
+            return tabbedPane;
+        }
+    },
+    GAME("Game", null, "Game", true) {
+        @Override
+        public JComponent component(final Project project) {
+            final JBTabbedPane tabbedPane = new JBTabbedPane(JBTabbedPane.LEFT);
+            for (final GameEnum e : GameEnum.values()) {
+                e.putTab(project, tabbedPane);
             }
             return tabbedPane;
         }

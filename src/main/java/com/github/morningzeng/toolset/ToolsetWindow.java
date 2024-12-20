@@ -1,6 +1,6 @@
 package com.github.morningzeng.toolset;
 
-import com.github.morningzeng.toolset.ui.enums.TabEnum;
+import com.github.morningzeng.toolset.ui.TabEnum;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.project.Project;

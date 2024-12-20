@@ -21,8 +21,6 @@ import java.awt.Dimension;
  */
 public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
 
-    private final AnAction[] actions;
-
     public ActionBar(final AnAction... actions) {
         this(true, actions);
     }
@@ -38,12 +36,18 @@ public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
         }
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-        this.actions = actions;
         ApplicationManager.getApplication().invokeAndWait(() -> {
             final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.POPUP, new DefaultActionGroup(actions), horizontal);
             toolbar.setTargetComponent(this);
             SwingUtilities.invokeLater(() -> this.add(toolbar.getComponent()));
         });
+    }
+
+    public void setSize(final int width, final int height) {
+        final Dimension dimension = new Dimension(width, height);
+        this.setMaximumSize(dimension);
+        this.setMinimumSize(dimension);
+        this.setPreferredSize(dimension);
     }
 
 }

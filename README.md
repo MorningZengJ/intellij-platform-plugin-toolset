@@ -27,6 +27,7 @@ the [repository][gh:template] ).
 - HTTP. Import the CURL command and invoke the http/https request.
 - To-do reminders.
 - QR code generation
+- Game. eg: Sudoku.
 
 ## Privacy Notice
 

@@ -1,8 +1,7 @@
-package com.github.morningzeng.toolset.ui.enums;
+package com.github.morningzeng.toolset.ui.gadget;
 
 import com.github.morningzeng.toolset.Constants.IconC;
-import com.github.morningzeng.toolset.ui.gadget.DateTimestampComponent;
-import com.github.morningzeng.toolset.ui.gadget.UUIDComponent;
+import com.github.morningzeng.toolset.ui.TabSupport;
 import com.intellij.openapi.project.Project;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

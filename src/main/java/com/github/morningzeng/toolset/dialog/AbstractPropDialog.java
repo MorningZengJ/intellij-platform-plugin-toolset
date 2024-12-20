@@ -74,7 +74,7 @@ abstract sealed class AbstractPropDialog<T extends Children<T>, P extends Abstra
         final List<T> data = Optional.ofNullable(ScratchFileUtils.read(this.typeReference()))
                 .map(ts -> ts.stream()
                         .sorted(Children.comparable())
-                        .peek(t -> t.getChildren().sort(Children.comparable()))
+                        .peek(t -> Optional.ofNullable(t.getChildren()).ifPresent(children -> children.sort(Children.comparable())))
                         .toList())
                 .orElse(Collections.emptyList());
         this.tree.setNodes(data, Children::isGroup);
