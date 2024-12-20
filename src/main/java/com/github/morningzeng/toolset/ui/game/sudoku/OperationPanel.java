@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.BoxLayout;
 import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.Optional;
 
 class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
@@ -22,6 +23,7 @@ class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
     private final NumberPanel[] numberPanels = new NumberPanel[9];
     private final Runnable eraseRunnable;
     private final Runnable replayRunnable;
+    private final Runnable noteRunnable;
     private final Runnable newRunnable;
 
     private final AnAction clearAction = new AnAction("Erase", "Erase selected column", IconC.INK_ERASER) {
@@ -33,7 +35,7 @@ class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
     private final AnAction noteAction = new AnAction("Notes", "Take notes", IconC.STYLUS_NOTE) {
         @Override
         public void actionPerformed(@NotNull final AnActionEvent e) {
-
+            noteRunnable.run();
         }
     };
     private final AnAction replayAction = new AnAction("Replay", "Replay this sudoku", IconC.AUTORENEW) {
@@ -51,10 +53,11 @@ class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
 
     private int[] numberCount = new int[9];
 
-    public OperationPanel(final Project project, final Runnable eraseRunnable, final Runnable replayRunnable, final Runnable newRunnable) {
+    public OperationPanel(final Project project, final Runnable eraseRunnable, final Runnable replayRunnable, final Runnable noteRunnable, final Runnable newRunnable) {
         super();
         this.eraseRunnable = eraseRunnable;
         this.replayRunnable = replayRunnable;
+        this.noteRunnable = noteRunnable;
         this.newRunnable = newRunnable;
         this.initLayout();
     }
@@ -93,10 +96,29 @@ class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
         }
     }
 
-    Optional<NumberPanel> getNumberPanel(final int number) {
-        return Optional.of(number)
+    void minus(final int number) {
+        Optional.of(number)
                 .filter(val -> val > 0 && val < this.numberPanels.length + 1)
-                .map(idx -> this.numberPanels[idx - 1]);
+                .ifPresent(idx -> {
+                    this.numberPanels[idx - 1].minus();
+                    this.numberCount[idx - 1]--;
+                });
+    }
+
+    void plus(final int number) {
+        Optional.of(number)
+                .filter(val -> val > 0 && val < this.numberPanels.length + 1)
+                .ifPresent(idx -> {
+                    this.numberPanels[idx - 1].plus();
+                    this.numberCount[idx - 1]++;
+                });
+    }
+
+    boolean complete() {
+        return Arrays.stream(this.numberCount)
+                .filter(val -> val > 0)
+                .findAny()
+                .isEmpty();
     }
 
 }

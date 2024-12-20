@@ -21,8 +21,6 @@ import java.awt.Dimension;
  */
 public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
 
-    private final AnAction[] actions;
-
     public ActionBar(final AnAction... actions) {
         this(true, actions);
     }
@@ -38,7 +36,6 @@ public class ActionBar extends JBPanel<JBPanelWithEmptyText> {
         }
         this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
 
-        this.actions = actions;
         ApplicationManager.getApplication().invokeAndWait(() -> {
             final ActionToolbar toolbar = ActionManager.getInstance().createActionToolbar(ActionPlaces.POPUP, new DefaultActionGroup(actions), horizontal);
             toolbar.setTargetComponent(this);

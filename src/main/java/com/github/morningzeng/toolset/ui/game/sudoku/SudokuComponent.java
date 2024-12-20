@@ -25,8 +25,9 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
     public SudokuComponent(final Project project) {
         super();
         this.table = new SudokuTable();
-        this.operationPanel = new OperationPanel(project, this.table::eraseSelected, this.table::replay, this::renderSudoku);
+        this.operationPanel = new OperationPanel(project, this.table::eraseSelected, this.table::replay, this.table::switchNoteMode, this::renderSudoku);
         this.table.operationPanel(this.operationPanel);
+        this.table.newSudoku(this::renderSudoku);
 
         this.initEvent();
         this.initLayout();
@@ -76,6 +77,9 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
         final int height = this.getHeight();
         final int width = this.getWidth();
         final int firstBoxSize = Math.min(height, width);
+        if (firstBoxSize < 27) {
+            return;
+        }
         final Dimension dimension = new Dimension(firstBoxSize, firstBoxSize);
         this.table.setPreferredSize(dimension);
         this.table.setMinimumSize(dimension);
@@ -85,10 +89,8 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
         final int secondBoxSize = firstBoxSize / 3;
 
         final int thirdBoxSize = secondBoxSize / 3;
-        if (thirdBoxSize > 1) {
-            this.table.setRowHeight(thirdBoxSize);
-        }
-
+        this.table.setRowHeight(thirdBoxSize);
+        this.table.resetNotePanelSize(thirdBoxSize);
     }
 
 }

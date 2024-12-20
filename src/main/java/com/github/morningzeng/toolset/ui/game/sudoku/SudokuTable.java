@@ -3,6 +3,7 @@ package com.github.morningzeng.toolset.ui.game.sudoku;
 import com.github.morningzeng.toolset.model.PairVariable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.table.JBTable;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
@@ -20,7 +22,9 @@ import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 @Getter
 @Accessors(fluent = true)
@@ -44,6 +48,8 @@ class SudokuTable extends JBTable {
     private volatile JBColor errorColor = JBColor.RED;
     @Setter
     private volatile OperationPanel operationPanel;
+    @Setter
+    private volatile Runnable newSudoku;
 
     private int[][] origins = new int[9][9];
     private int[][] sudoku = new int[9][9];
@@ -64,21 +70,28 @@ class SudokuTable extends JBTable {
                 if (keyChar < '1' || keyChar > '9') {
                     return;
                 }
-                final String value = getSelectedValue();
+                final Integer value = getSelectedValue();
                 if (Objects.isNull(value)) {
                     return;
                 }
+
                 final int row = getSelectedRow();
                 final int column = getSelectedColumn();
+                final int digit = keyChar - '0';
+
+                final NotePanel notePanel = getNoteMode(row, column);
+                if (Objects.nonNull(notePanel)) {
+                    notePanel.switchNumber(digit);
+                    return;
+                }
+
                 final int origin = origins[row][column];
                 if (origin != 0) {
                     return;
                 }
-                final int digit = keyChar - '0';
-                setValueAt(digit, row, column);
-                sudoku[row][column] = digit;
-                verifyUnique();
-                callbackOperationPanel(digit, Integer.parseInt(value));
+                setSudokuColumnValue(row, column, digit);
+                verifyNoteMode(digit);
+                showCompleteDialog();
             }
         });
     }
@@ -123,7 +136,7 @@ class SudokuTable extends JBTable {
     }
 
     void setColor(final JBLabel label, JBColor foreground, JBColor background, final int row, final int column) {
-        if (label.getText().equals(this.getSelectedValue())) {
+        if (label.getText().equals(String.valueOf(this.getSelectedValue()))) {
             background = this.valueSameForegroundColor;
         }
         if (row > -1 && column > -1) {
@@ -142,13 +155,13 @@ class SudokuTable extends JBTable {
         label.setBackground(background);
     }
 
-    String getSelectedValue() {
-        final int selectedRow = this.getSelectedRow();
-        final int selectedColumn = this.getSelectedColumn();
-        if (selectedRow < 0 || selectedColumn < 0) {
+    Integer getSelectedValue() {
+        final int row = this.getSelectedRow();
+        final int column = this.getSelectedColumn();
+        if (row < 0 || column < 0) {
             return null;
         }
-        return this.getValueAt(selectedRow, selectedColumn).toString();
+        return this.sudoku[row][column];
     }
 
     void verifyUnique() {
@@ -181,6 +194,27 @@ class SudokuTable extends JBTable {
         }
     }
 
+    void sameGroup(final BiConsumer<Integer, Integer> consumer) {
+        final int row = this.getSelectedRow();
+        final int col = this.getSelectedColumn();
+        if (row < 0 || col < 0) {
+            return;
+        }
+        for (int i = 0; i < 9; i++) {
+            consumer.accept(row, i);
+            consumer.accept(i, col);
+        }
+        int blockRow = row / 3, blockCol = col / 3;
+        for (int i = 0; i < 3; i++) {
+            // Iterate over the rows of a 3x3 block
+            for (int j = 0; j < 3; j++) {
+                // Iterate over the columns of a 3x3 block
+                consumer.accept(blockRow * 3 + i, blockCol * 3 + j);
+            }
+        }
+    }
+
+
     void eraseSelected() {
         final int selectedRow = this.getSelectedRow();
         final int selectedColumn = this.getSelectedColumn();
@@ -201,6 +235,84 @@ class SudokuTable extends JBTable {
         this.origins(this.origins);
     }
 
+    void switchNoteMode() {
+        final Integer value = this.getSelectedValue();
+        if (Objects.isNull(value)) {
+            return;
+        }
+        final int row = this.getSelectedRow();
+        final int column = this.getSelectedColumn();
+
+        if (this.origins[row][column] != 0) {
+            return;
+        }
+
+        final Map<Integer, NotePanel> map = this.noteMap.computeIfAbsent(row, $row -> Maps.newHashMap());
+        if (!map.containsKey(column)) {
+            final NotePanel panel = new NotePanel(value);
+            panel.resetSize(this.getRowHeight());
+            map.put(column, panel);
+            this.setSudokuColumnValue(row, column, 0);
+            return;
+        }
+        this.exitNoteMode(row, column);
+    }
+
+    @Nullable NotePanel getNoteMode(final int row, final int column) {
+        final Map<Integer, NotePanel> map = this.noteMap.get(row);
+        if (Objects.isNull(map)) {
+            return null;
+        }
+        return map.get(column);
+    }
+
+    void exitNoteMode(final int row, final int col) {
+        final Map<Integer, NotePanel> map = this.noteMap.computeIfAbsent(row, $row -> Maps.newHashMap());
+        if (map.containsKey(col)) {
+            final NotePanel notePanel = map.remove(col);
+            final int[] ints = notePanel.nonZeroCount();
+            if (ints.length == 1) {
+                this.setSudokuColumnValue(row, col, ints[0]);
+            }
+        }
+    }
+
+    void exitNoteMode(final int row, final int col, final int[] ints) {
+        final Map<Integer, NotePanel> map = this.noteMap.computeIfAbsent(row, $row -> Maps.newHashMap());
+        map.remove(col);
+        if (ints.length == 1) {
+            this.setSudokuColumnValue(row, col, ints[0]);
+        }
+    }
+
+    void verifyNoteMode(final int value) {
+        this.sameGroup((i, j) -> Optional.ofNullable(this.getNoteMode(i, j))
+                .ifPresent(notePanel -> {
+                    notePanel.removeNumber(value);
+                    final int[] ints = notePanel.nonZeroCount();
+                    if (ints.length < 2) {
+                        this.exitNoteMode(i, j, ints);
+                    }
+                }));
+    }
+
+    void resetNotePanelSize(final int size) {
+        this.noteMap.values().stream()
+                .flatMap(map -> map.values().stream())
+                .forEach(notePanel -> {
+                    notePanel.setFont(this.getFont().deriveFont(1F));
+                    notePanel.resetSize(size);
+                });
+    }
+
+    void setSudokuColumnValue(final int row, final int col, final int value) {
+        final Integer oldValue = this.getSelectedValue();
+        this.sudoku[row][col] = value;
+        setValueAt(value, row, col);
+        this.verifyUnique();
+        callbackOperationPanel(value, Optional.ofNullable(oldValue).orElse(0));
+    }
+
     private void verifyUniqueValue(final int i, final int j) {
         final int value = this.sudoku[i][j];
         if (value == 0) {
@@ -216,9 +328,25 @@ class SudokuTable extends JBTable {
     }
 
     private void callbackOperationPanel(final int newValue, final int oldValue) {
-        this.operationPanel.getNumberPanel(newValue).ifPresent(NumberPanel::minus);
+        this.operationPanel.minus(newValue);
         if (0 != oldValue) {
-            this.operationPanel.getNumberPanel(oldValue).ifPresent(NumberPanel::plus);
+            this.operationPanel.plus(oldValue);
+        }
+    }
+
+    private void showCompleteDialog() {
+        if (this.operationPanel.complete()) {
+            final int res = Messages.showYesNoDialog(
+                    "Congratulations on completing this sudoku, move on to the next one?",
+                    "Complete Sudoku", "Yes, New Sudoku", "No, Replay", Messages.getQuestionIcon()
+            );
+            if (res == Messages.YES) {
+                // new sudoku
+                this.newSudoku.run();
+            } else if (res == Messages.NO) {
+                // replay
+                this.replay();
+            }
         }
     }
 }
