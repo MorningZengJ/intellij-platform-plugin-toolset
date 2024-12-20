@@ -8,22 +8,18 @@ public class SudokuUtils {
     private static final int SIZE = 9;
     private static final int SUBGRID_SIZE = 3;
     private static final int EMPTY = 0;
-    private final int[][] board;
+    private int[][] board;
 
-    public SudokuUtils() {
-        board = new int[SIZE][SIZE];
+    public static SudokuUtils getInstance() {
+        final SudokuUtils utils = new SudokuUtils();
+        utils.board = new int[SIZE][SIZE];
+        return utils;
     }
 
-    public static void main(String[] args) {
-        SudokuUtils generator = new SudokuUtils();
-        generator.generate();
-        generator.printBoard();
-    }
-
-    public int[][] generate() {
+    public int[][] generate(final int absentCount) {
         fillDiagonal();
         fillRemaining(0, SUBGRID_SIZE);
-        removeDigits(20);
+        removeDigits(absentCount);
         return board;
     }
 
