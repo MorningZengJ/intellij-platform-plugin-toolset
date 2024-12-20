@@ -6,7 +6,6 @@ import com.github.morningzeng.toolset.utils.GridBagUtils;
 import com.github.morningzeng.toolset.utils.GridBagUtils.GridBagFill;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBBox;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPanelWithEmptyText;
@@ -53,7 +52,7 @@ class OperationPanel extends JBPanel<JBPanelWithEmptyText> {
 
     private int[] numberCount = new int[9];
 
-    public OperationPanel(final Project project, final Runnable eraseRunnable, final Runnable replayRunnable, final Runnable noteRunnable, final Runnable newRunnable) {
+    public OperationPanel(final Runnable eraseRunnable, final Runnable replayRunnable, final Runnable noteRunnable, final Runnable newRunnable) {
         super();
         this.eraseRunnable = eraseRunnable;
         this.replayRunnable = replayRunnable;

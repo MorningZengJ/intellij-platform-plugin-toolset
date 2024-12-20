@@ -40,7 +40,7 @@ public final class SudokuComponent extends JBPanel<JBPanelWithEmptyText> {
         super();
         this.project = project;
         this.table = new SudokuTable();
-        this.operationPanel = new OperationPanel(project, this.table::eraseSelected, this.table::replay, this.table::switchNoteMode, this::renderSudoku);
+        this.operationPanel = new OperationPanel(this.table::eraseSelected, this.table::replay, this.table::switchNoteMode, this::renderSudoku);
         this.table.operationPanel(this.operationPanel);
         this.table.newSudoku(this::renderSudoku);
 
