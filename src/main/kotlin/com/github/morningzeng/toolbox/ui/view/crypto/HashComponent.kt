@@ -44,26 +44,16 @@ class HashComponent(
         encryptArea.readOnly = true
         cryptoManageBtn.isEnabled = false
         cryptoPropComboBox.isEnabled = false
-        GridBagUtils.builder(this)
-            .row {
-                it.fill(GridBagFill.HORIZONTAL)
-                    .cell().weightX(1.0).add(cryptoPropComboBox)
-                    .cell().weightX(0.0).add(cryptoManageBtn)
-                    .cell().add(cryptoComboBox)
-            }
-            .row {
-                it.fill(GridBagFill.BOTH)
-                    .cell().weightY(1.0).gridWidth(3).add(decryptArea.withRightBar())
-            }
+        GridBagUtils.builder(this).fill(GridBagFill.HORIZONTAL)
+            .row { optionRow(it) { cit -> cit.cell().add(cryptoComboBox) } }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(decryptArea.withRightBar()) }
             .row {
                 GridBagUtils.builder()
                     .row { r -> r.fill(GridBagFill.HORIZONTAL).cell().add(calculation) }
                     .build()
-                    .apply { it.fill(GridBagFill.HORIZONTAL).cell().weightY(0.0).gridWidth(3).add(this) }
+                    .apply { it.fill(GridBagFill.HORIZONTAL).cell().weightY(0.0).add(this) }
             }
-            .row {
-                it.fill(GridBagFill.BOTH).cell().weightY(1.0).gridWidth(3).add(encryptArea.withRightBar())
-            }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(encryptArea.withRightBar()) }
     }
 
     override fun initAction() {

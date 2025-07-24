@@ -46,17 +46,9 @@ class AsymmetricComponent(
     override fun isDirectory(t: CryptoAsymmetric): Boolean = t.directory
 
     override fun initLayout() {
-        GridBagUtils.builder(this)
-            .row {
-                it.fill(GridBagFill.HORIZONTAL)
-                    .cell().weightX(1.0).add(cryptoPropComboBox)
-                    .cell().weightX(0.0).add(cryptoManageBtn)
-                    .cell().add(cryptoComboBox)
-            }
-            .row {
-                it.fill(GridBagFill.BOTH)
-                    .cell().weightY(1.0).gridWidth(3).add(encryptArea.withRightBar())
-            }
+        GridBagUtils.builder(this).fill(GridBagFill.HORIZONTAL)
+            .row { optionRow(it) { cit -> cit.cell().add(cryptoComboBox) } }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(encryptArea.withRightBar()) }
             .row {
                 GridBagUtils.builder()
                     .row { r ->
@@ -66,15 +58,10 @@ class AsymmetricComponent(
                             .cell().add(signBtn)
                             .cell().add(verifyBtn)
                     }
-                    .build().apply {
-                        it.fill(GridBagFill.HORIZONTAL)
-                            .cell().weightY(0.0).gridWidth(3).add(this)
-                    }
+                    .build()
+                    .apply { it.fill(GridBagFill.HORIZONTAL).cell().weightY(0.0).add(this) }
             }
-            .row {
-                it.fill(GridBagFill.BOTH)
-                    .cell().weightY(1.0).gridWidth(3).add(decryptArea.withRightBar())
-            }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(decryptArea.withRightBar()) }
     }
 
     override fun initAction() {

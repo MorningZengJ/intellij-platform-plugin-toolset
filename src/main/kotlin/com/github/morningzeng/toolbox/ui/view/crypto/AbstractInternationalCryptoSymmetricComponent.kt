@@ -5,6 +5,7 @@ import com.github.morningzeng.toolbox.model.CryptoSymmetric
 import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
+import javax.swing.JComponent
 
 /**
  * @author Morning Zeng
@@ -14,10 +15,8 @@ abstract class AbstractInternationalCryptoSymmetricComponent(
     project: Project
 ) : AbstractCryptoSymmetricComponent(project) {
 
-    private val cryptoComboBox: ComboBox<CryptoSymmetricEnum> =
-        CryptoSymmetricEnum.entries.filter { getType() == it.type }.toTypedArray().let {
-            ComboBox(it).apply { selectedItem = CryptoSymmetricEnum.AES_CBC_PKCS5 }
-        }
+    protected val cryptoComboBox: ComboBox<CryptoSymmetricEnum> =
+        ComboBox(CryptoSymmetricEnum.entries.filter { getType() == it.type }.toTypedArray())
 
     init {
         initLayout()
@@ -26,7 +25,7 @@ abstract class AbstractInternationalCryptoSymmetricComponent(
 
     abstract fun getType(): String
 
-    override fun cryptoRow(row: GridBagUtils.Row<AbstractCryptoSymmetricComponent>) {
+    override fun cryptoRow(row: GridBagUtils.Row<out JComponent>) {
         row.cell().add(cryptoComboBox)
     }
 
@@ -38,6 +37,9 @@ abstract class AbstractInternationalCryptoSymmetricComponent(
     override fun decrypt(prop: CryptoSymmetric): String {
         val data = decryptedContentComboBox.component.item.bytes(encryptArea.text)
         return cryptoComboBox.item?.crypto(prop.key, prop.keyType, prop.iv, prop.ivType)?.decrypt(data) ?: ""
+    }
+
+    open fun defaultSelected() {
     }
 
 }

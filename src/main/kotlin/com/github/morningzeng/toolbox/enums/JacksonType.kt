@@ -20,7 +20,7 @@ import java.lang.reflect.Type
  * @since 2025-05-16
  */
 enum class JacksonType(
-    val suffix: String
+    val suffix: String,
 ) : JacksonSupport {
 
     CSV("csv"),
@@ -49,7 +49,6 @@ enum class JacksonType(
                 }
             }
         }
-
     }
 
     fun mapper(): ObjectMapper {

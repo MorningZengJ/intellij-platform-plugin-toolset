@@ -6,6 +6,7 @@ import com.github.morningzeng.toolbox.enums.DataToBinaryTypeEnum
 import com.github.morningzeng.toolbox.model.CryptoSymmetric
 import com.github.morningzeng.toolbox.ui.dialog.PropertySymmetricDialog
 import com.github.morningzeng.toolbox.utils.GridBagUtils
+import com.github.morningzeng.toolbox.utils.GridBagUtils.GridBagFill
 import com.github.morningzeng.toolbox.utils.HumanUtils.maskSensitive
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
@@ -13,6 +14,7 @@ import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.Messages
 import java.awt.BorderLayout
 import javax.swing.JButton
+import javax.swing.JComponent
 
 /**
  * @author Morning Zeng
@@ -43,35 +45,21 @@ abstract class AbstractCryptoSymmetricComponent(
     override fun isDirectory(t: CryptoSymmetric): Boolean = t.directory
 
     override fun initLayout() {
-        GridBagUtils.builder(this)
-            .row {
-                it.fill(GridBagUtils.GridBagFill.HORIZONTAL)
-                    .cell().weightX(1.0).add(cryptoPropComboBox)
-                    .cell().weightX(0.0).add(cryptoManageBtn)
-                cryptoRow(it)
-            }
-            .row {
-                it.fill(GridBagUtils.GridBagFill.BOTH)
-                    .cell().weightY(1.0).gridWidth(3).add(decryptArea.withRightBar())
-            }
+        GridBagUtils.builder(this).fill(GridBagFill.HORIZONTAL)
+            .row { optionRow(it) { cit -> cryptoRow(cit) } }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(decryptArea.withRightBar()) }
             .row {
                 GridBagUtils.builder()
                     .row { r ->
-                        r.fill(GridBagUtils.GridBagFill.HORIZONTAL)
+                        r.fill(GridBagFill.HORIZONTAL)
                             .cell().add(encryptedContentComboBox)
                             .cell().add(encryptBtn)
                             .cell().add(decryptBtn)
                             .cell().add(decryptedContentComboBox)
                     }
-                    .build().apply {
-                        it.fill(GridBagUtils.GridBagFill.HORIZONTAL)
-                            .cell().weightY(0.0).gridWidth(3).add(this)
-                    }
+                    .build().apply { it.fill(GridBagFill.HORIZONTAL).cell().weightY(0.0).add(this) }
             }
-            .row {
-                it.fill(GridBagUtils.GridBagFill.BOTH)
-                    .cell().weightY(1.0).gridWidth(3).add(encryptArea.withRightBar())
-            }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(encryptArea.withRightBar()) }
     }
 
     override fun initAction() {
@@ -114,7 +102,7 @@ abstract class AbstractCryptoSymmetricComponent(
         }
     }
 
-    abstract fun cryptoRow(row: GridBagUtils.Row<AbstractCryptoSymmetricComponent>)
+    abstract fun cryptoRow(row: GridBagUtils.Row<out JComponent>)
 
     abstract fun encrypt(prop: CryptoSymmetric): String
 

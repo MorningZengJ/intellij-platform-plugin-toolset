@@ -16,6 +16,7 @@ import com.intellij.util.containers.stream
 import java.io.File
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import java.lang.reflect.WildcardType
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.function.Consumer
@@ -37,12 +38,12 @@ object ScratchFileUtils {
         write(filename, content) { open(project, it) }
     }
 
-    fun <T> write(t: T, typeReference: TypeReference<T>) {
+    fun <T> write(t: T, typeReference: TypeReference<T>, type: JacksonType) {
         t?.let {
             getConfig(typeReference).also {
-                val filename = it.outputType.fullName(it.value)
+                val filename = type.fullName(it.value)
                 val file = findOrCreate(it.directory, filename)
-                write(file, it.outputType, t)
+                write(file, type, t)
             }
         }
     }
@@ -52,7 +53,7 @@ object ScratchFileUtils {
     }
 
     fun <T> write(file: VirtualFile, type: JacksonType, data: T) = write(
-        file, type.serialize(data) ?: ""
+        file, type.prettySerialize(data) ?: ""
     )
 
     fun write(filename: String, content: String) = write(
@@ -77,16 +78,16 @@ object ScratchFileUtils {
         }
     }
 
-    fun <T> read(clazz: Class<T>): T? = getConfig(clazz).let {
-        read(it.directory, it.value, it.outputType, clazz)
+    fun <T> read(clazz: Class<T>, type: JacksonType): T? = getConfig(clazz).let {
+        read(it.directory, it.value, type, clazz)
     }
 
-    fun <T> read(typeReference: TypeReference<T>): T? = getConfig(typeReference).let {
-        read(it.directory, it.value, it.outputType, typeReference)
+    fun <T> read(typeReference: TypeReference<T>, type: JacksonType): T? = getConfig(typeReference).let {
+        read(it.directory, it.value, type, typeReference)
     }
 
-    fun <T> read(typeParameter: Type): T? = getConfig(typeParameter).let {
-        read(it.directory, it.value, it.outputType, typeParameter)
+    fun <T> read(typeParameter: Type, type: JacksonType): T? = getConfig(typeParameter).let {
+        read(it.directory, it.value, type, typeParameter)
     }
 
     fun <T> read(directory: String?, filename: String, type: JacksonType, clazz: Class<T>): T? {
@@ -196,7 +197,12 @@ object ScratchFileUtils {
             return type.getAnnotation(ScratchConfig::class.java)
         }
         if (type is ParameterizedType) {
-            return (type.actualTypeArguments[0] as Class<*>).getAnnotation(ScratchConfig::class.java)
+            val typeArgument = type.actualTypeArguments[0]
+            return if (typeArgument is WildcardType) {
+                typeArgument.upperBounds[0] as Class<*>
+            } else {
+                typeArgument as Class<*>
+            }.getAnnotation(ScratchConfig::class.java)
         }
         throw IllegalArgumentException("ScratchConfig annotation is missing")
     }

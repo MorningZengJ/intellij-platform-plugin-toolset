@@ -18,6 +18,10 @@
         <notificationGroup displayType="STICKY_BALLOON" id="remind-notify"
                            toolWindowId="com.github.MorningZengJ.Toolset" bundle="messages.MyBundle"
                            key="notification.group.remind-notify"/>
+
+        <applicationConfigurable parentId="tools" instance="com.github.morningzeng.toolbox.config.PluginConfigurable"
+                                 id="com.github.morningzeng.toolbox.config.PluginConfigurable"
+                                 bundle="messages.MyBundle" key="application.configurable.display-name"/>
     </extensions>
 
     <applicationListeners>

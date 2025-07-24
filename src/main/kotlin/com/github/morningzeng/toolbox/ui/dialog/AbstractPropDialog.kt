@@ -2,6 +2,7 @@ package com.github.morningzeng.toolbox.ui.dialog
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.github.morningzeng.toolbox.Constants
+import com.github.morningzeng.toolbox.config.PluginConfig
 import com.github.morningzeng.toolbox.model.Children
 import com.github.morningzeng.toolbox.ui.ScrollSupport
 import com.github.morningzeng.toolbox.ui.action.SingleTextFieldDialogAction
@@ -55,7 +56,7 @@ abstract class AbstractPropDialog<T : Children<T>, P : AbstractPropDialog.Abstra
 
     init {
         tree.clearSelectionIfClickedOutside()
-        val ts = ScratchFileUtils.read(typeReference())?.apply {
+        val ts = ScratchFileUtils.read(typeReference(), PluginConfig.getInstance().state.cryptoFileFormat)?.apply {
             sortWith(Children.comparable())
             forEach { it.children.sortWith(Children.comparable()) }
         } ?: mutableListOf()
@@ -128,7 +129,7 @@ abstract class AbstractPropDialog<T : Children<T>, P : AbstractPropDialog.Abstra
         rightPanelMap.forEach { (t, p) -> writeProp(t, p) }
         tree.lastSelectedPathComponent?.let { it as DefaultMutableTreeNode }
             ?.also { tree.reloadTree(it) }
-        ScratchFileUtils.write(tree.data(), typeReference())
+        ScratchFileUtils.write(tree.data(), typeReference(), PluginConfig.getInstance().state.cryptoFileFormat)
         okAfter(tree.data())
         tree.getSelectedValue()?.let { selectedAfter(it) }
     }

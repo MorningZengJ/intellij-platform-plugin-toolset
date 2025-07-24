@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolbox.ui.view.crypto
 
+import com.github.morningzeng.toolbox.enums.CryptoSymmetricEnum
 import com.intellij.openapi.project.Project
 
 /**
@@ -12,4 +13,7 @@ class AESComponent(
 
     override fun getType(): String = "AES"
 
+    override fun defaultSelected() {
+        cryptoComboBox.selectedItem = CryptoSymmetricEnum.AES_CBC_PKCS5
+    }
 }

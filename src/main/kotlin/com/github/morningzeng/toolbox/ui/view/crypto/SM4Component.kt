@@ -8,6 +8,7 @@ import com.github.morningzeng.toolbox.model.CryptoSymmetric
 import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
+import javax.swing.JComponent
 
 /**
  * @author Morning Zeng
@@ -25,7 +26,7 @@ class SM4Component(
         initAction()
     }
 
-    override fun cryptoRow(row: GridBagUtils.Row<AbstractCryptoSymmetricComponent>) {
+    override fun cryptoRow(row: GridBagUtils.Row<out JComponent>) {
         GridBagUtils.builder()
             .row {
                 it.fill(GridBagUtils.GridBagFill.HORIZONTAL)
