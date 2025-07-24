@@ -4,7 +4,12 @@
 
 ## [Unreleased]
 
-## [2511.7.1]
+## [2512.7.1]
+
+### Added
+
+- Added the Open File button: You can now click the button to open the configuration file.
+- Added configuration: You can now choose to use Json, Yaml, and Properties as configuration file formats.
 
 ### Changed
 
