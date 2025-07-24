@@ -4,6 +4,14 @@
 
 ## [Unreleased]
 
+## [2431.7.1]
+
+### Changed
+
+- Improved encryption and decryption, and optional data content format during symmetric encryption and decryption.
+- Refactored the timestamp widget.
+- Removed some features.
+
 ## [2431.6.1]
 
 ### Added
@@ -13,7 +21,6 @@
 ### Fixed
 
 - Fixed some known bugs.
-
 
 ## [2431.5.9]
 

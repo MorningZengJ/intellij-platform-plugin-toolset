@@ -1,24 +1,24 @@
 [versions]
 # libraries
-annotations = "24.1.0"
+junit = "4.13.2"
+opentest4j = "1.3.0"
 jacksons = "2.17.2"
-okhttps = "5.0.0-alpha.14"
-jjwts = "0.12.5"
-lomboks = "1.18.32"
 zxing = "3.5.3"
 thumbnailator = "0.4.20"
 hutool = "5.8.32"
-
+okhttps = "5.0.0-alpha.14"
+jjwts = "0.12.5"
 
 # plugins
-kotlin = "1.9.23"
-changelog = "2.2.0"
-gradleIntelliJPlugin = "1.17.2"
-qodana = "2023.3.1"
-kover = "0.7.6"
+intelliJPlatform = "2.5.0"
+kotlin = "2.1.20"
+changelog = "2.2.1"
+qodana = "2024.3.4"
+kover = "0.9.1"
 
 [libraries]
-annotations = { group = "org.jetbrains", name = "annotations", version.ref = "annotations" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+opentest4j = { group = "org.opentest4j", name = "opentest4j", version.ref = "opentest4j" }
 
 # jackson
 libraries-jackson-databind = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jacksons" }
@@ -41,9 +41,6 @@ libraries-jjwt-api = { group = "io.jsonwebtoken", name = "jjwt-api", version.ref
 libraries-jjwt-impl = { group = "io.jsonwebtoken", name = "jjwt-impl", version.ref = "jjwts" }
 libraries-jjwt-jackson = { group = "io.jsonwebtoken", name = "jjwt-jackson", version.ref = "jjwts" }
 
-# lombok
-libraries-lombok = { group = "org.projectlombok", name = "lombok", version.ref = "lomboks" }
-
 # zxing
 libraries-zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
 libraries-zxing-javase = { group = "com.google.zxing", name = "javase", version.ref = "zxing" }
@@ -56,7 +53,7 @@ libraries-hutool-crypto = { group = "cn.hutool", name = "hutool-crypto", version
 
 [plugins]
 changelog = { id = "org.jetbrains.changelog", version.ref = "changelog" }
-gradleIntelliJPlugin = { id = "org.jetbrains.intellij", version.ref = "gradleIntelliJPlugin" }
+intelliJPlatform = { id = "org.jetbrains.intellij.platform", version.ref = "intelliJPlatform" }
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 qodana = { id = "org.jetbrains.qodana", version.ref = "qodana" }

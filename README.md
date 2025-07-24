@@ -23,11 +23,6 @@ the [repository][gh:template] ).
 - Hash. eg: `MD5`, `SHA`, `SM3`.
 - Encoding & Decoding. eg: URL encoding and decoding, Base64 encoding and decoding.
 - Timestamp formatter.
-- UUID.
-- HTTP. Import the CURL command and invoke the http/https request.
-- To-do reminders.
-- QR code generation
-- Game. eg: Sudoku.
 
 ## Privacy Notice
 

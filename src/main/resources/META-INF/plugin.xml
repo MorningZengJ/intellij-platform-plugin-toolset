@@ -13,22 +13,15 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Toolset" icon="/images/svg/box.svg" anchor="bottom"
-                    factoryClass="com.github.morningzeng.toolset.ToolsetWindow"/>
+                    factoryClass="com.github.morningzeng.toolbox.ToolboxWindow"/>
 
-        <notificationGroup displayType="BALLOON" id="virtual-file-notify"
-                           toolWindowId="com.github.MorningZengJ.Toolset"/>
         <notificationGroup displayType="STICKY_BALLOON" id="remind-notify"
-                           toolWindowId="com.github.MorningZengJ.Toolset"/>
+                           toolWindowId="com.github.MorningZengJ.Toolset" bundle="messages.MyBundle"
+                           key="notification.group.remind-notify"/>
     </extensions>
 
     <applicationListeners>
         <!--        <listener class="org.jetbrains.plugins.template.listeners.MyApplicationActivationListener"-->
         <!--                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>-->
     </applicationListeners>
-    <actions>
-        <action id="com.github.morningzeng.toolset.popup.ReformatPopupMenuAction"
-                class="com.github.morningzeng.toolset.popup.ReformatPopupMenuAction" text="Reformat"
-                description="Reformat">
-        </action>
-    </actions>
 </idea-plugin>
