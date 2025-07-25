@@ -2,7 +2,6 @@ package com.github.morningzeng.toolbox.ui.view.gadget
 
 import com.github.morningzeng.toolbox.ui.TabSupport
 import com.intellij.openapi.wm.ToolWindow
-import com.intellij.ui.components.JBPanelWithEmptyText
 import javax.swing.Icon
 import javax.swing.JComponent
 
@@ -20,9 +19,7 @@ enum class GadgetEnum(
         override fun component(toolWindow: ToolWindow): JComponent = TimestampComponent(toolWindow.project)
     },
     UUID("UUID", null, "UUID") {
-        override fun component(toolWindow: ToolWindow): JComponent {
-            return JBPanelWithEmptyText()
-        }
+        override fun component(toolWindow: ToolWindow): JComponent = UUIDComponent(toolWindow.project)
     },
     ;
 

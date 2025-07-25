@@ -5,8 +5,10 @@ import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.lang.Language
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.editor.SpellCheckingEditorCustomizationProvider
@@ -22,7 +24,7 @@ import com.intellij.util.textCompletion.TextCompletionUtil
  * @author Morning Zeng
  * @since 2025-05-19
  */
-class LanguageTextArea(
+open class LanguageTextArea(
     project: Project,
     value: String = "",
     var language: Language = PlainTextLanguage.INSTANCE,
@@ -83,21 +85,27 @@ class LanguageTextArea(
             .build()
     }
 
-    fun defaultRightBarActions(): Array<AnAction> {
+    open fun defaultRightBarActions(): Array<AnAction> {
         return arrayOf(softWrapAction(), scrollToEndAction(), clearAllAction())
     }
 
-    private fun softWrapAction(): AnAction {
-        return object : AnAction("Soft-Wrap", "Soft-Wrap", AllIcons.Actions.ToggleSoftWrap) {
-            override fun actionPerformed(e: AnActionEvent) {
-                editor?.settings?.apply {
-                    isUseSoftWraps = !isUseSoftWraps
-                }
+    protected fun softWrapAction(): ToggleAction {
+        return object : ToggleAction("Soft-Wrap", "Soft-Wrap", AllIcons.Actions.ToggleSoftWrap) {
+            override fun getActionUpdateThread(): ActionUpdateThread {
+                return super.getActionUpdateThread()
+            }
+
+            override fun isSelected(e: AnActionEvent): Boolean {
+                return editor?.settings?.isUseSoftWraps ?: false
+            }
+
+            override fun setSelected(e: AnActionEvent, state: Boolean) {
+                editor?.settings?.isUseSoftWraps = state
             }
         }
     }
 
-    private fun scrollToEndAction(): AnAction {
+    protected fun scrollToEndAction(): AnAction {
         return object : AnAction("Scroll to End", "Scroll to End", AllIcons.RunConfigurations.Scroll_down) {
             override fun actionPerformed(e: AnActionEvent) {
                 editor?.document?.apply {
@@ -110,7 +118,7 @@ class LanguageTextArea(
         }
     }
 
-    private fun clearAllAction(): AnAction {
+    protected fun clearAllAction(): AnAction {
         return object : AnAction("Clear All", "Clear all", AllIcons.Actions.GC) {
             override fun actionPerformed(e: AnActionEvent) {
                 text = ""

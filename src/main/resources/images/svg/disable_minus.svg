@@ -1,0 +1,7 @@
+<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <!-- 中划线 -->
+    <rect x="2" y="7" width="12" height="2" fill="#6E6E6E"/>
+    <!-- 禁用斜线 -->
+    <line x1="3" y1="2" x2="13" y2="14" stroke="#6E6E6E" stroke-width="2" stroke-linecap="round"/>
+
+</svg>

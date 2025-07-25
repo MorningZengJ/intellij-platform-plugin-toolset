@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [2512.7.2]
+
+### Added
+
+- Add UUID.
+
+### Changed
+
+- Some UI has been adjusted, and some buttons have added status.
+
 ## [2512.7.1]
 
 ### Added

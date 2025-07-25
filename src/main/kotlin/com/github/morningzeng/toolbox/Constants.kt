@@ -1,6 +1,7 @@
 package com.github.morningzeng.toolbox
 
 import com.intellij.openapi.util.IconLoader.getIcon
+import com.intellij.ui.IconManager
 import java.time.format.DateTimeFormatter
 import javax.swing.Icon
 
@@ -19,13 +20,30 @@ object Constants {
 
     @Suppress("unused")
     object IconC {
+
         val CLASS_LOADER: ClassLoader = IconC::class.java.getClassLoader()
+
+        @Suppress("UnstableApiUsage")
+        fun getIcon(path: String, cacheKey: Int, flags: Int): Icon {
+            return IconManager.getInstance().loadRasterizedIcon(path, CLASS_LOADER, cacheKey, flags)
+        }
+
+        @Suppress("UnstableApiUsage")
+        fun getIcon(expUIPath: String, path: String, cacheKey: Int, flags: Int): Icon {
+            return IconManager.getInstance().loadRasterizedIcon(path, expUIPath, CLASS_LOADER, cacheKey, flags)
+        }
 
         val ADD: Icon = getIcon("/images/svg/add.svg", CLASS_LOADER)
         val ADD_DRAWER: Icon = getIcon("/images/svg/add_drawer.svg", CLASS_LOADER)
         val AUTORENEW: Icon = getIcon("/images/svg/autorenew.svg", CLASS_LOADER)
         val BOX: Icon = getIcon("/images/svg/box.svg", CLASS_LOADER)
         val CLOCK_COLOR: Icon = getIcon("/images/svg/clock_color.svg", CLASS_LOADER)
+        val DISABLE_MINUS: Icon = getIcon(
+            "images/svg/disable_minus_dark.svg",
+            "images/svg/disable_minus.svg",
+            "disable_minus_dark".hashCode(),
+            2
+        )
         val DOUBLE_ANGLES_DOWN: Icon = getIcon("/images/svg/double_angles_down.svg", CLASS_LOADER)
         val DOUBLE_ANGLES_UP: Icon = getIcon("/images/svg/double_angles_up.svg", CLASS_LOADER)
         val DOUBLE_ANGLES_RIGHT: Icon = getIcon("/images/svg/double_angles_right.svg", CLASS_LOADER)
