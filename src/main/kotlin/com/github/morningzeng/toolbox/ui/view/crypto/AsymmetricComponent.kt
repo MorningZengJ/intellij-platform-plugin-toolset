@@ -48,7 +48,7 @@ class AsymmetricComponent(
     override fun initLayout() {
         GridBagUtils.builder(this).fill(GridBagFill.HORIZONTAL)
             .row { optionRow(it) { cit -> cit.cell().add(cryptoComboBox) } }
-            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(encryptArea.withRightBar()) }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(decryptArea.withRightBar()) }
             .row {
                 GridBagUtils.builder()
                     .row { r ->
@@ -61,7 +61,7 @@ class AsymmetricComponent(
                     .build()
                     .apply { it.fill(GridBagFill.HORIZONTAL).cell().weightY(0.0).add(this) }
             }
-            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(decryptArea.withRightBar()) }
+            .row { it.fill(GridBagFill.BOTH).cell().weightY(1.0).add(encryptArea.withRightBar()) }
     }
 
     override fun initAction() {

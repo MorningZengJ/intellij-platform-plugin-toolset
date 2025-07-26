@@ -14,6 +14,10 @@
 
 - Some UI has been adjusted, and some buttons have added status.
 
+### Fixed
+
+- Fix asymmetric encrypted text box order
+
 ## [2512.7.1]
 
 ### Added
