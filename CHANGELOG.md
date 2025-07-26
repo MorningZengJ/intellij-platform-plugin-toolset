@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [2512.7.2]
+
+### Fixed
+
+- Fix asymmetric encrypted text box order
+
 ## [2512.7.1]
 
 ### Added
