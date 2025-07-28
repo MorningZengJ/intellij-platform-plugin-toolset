@@ -21,6 +21,7 @@ abstract class AbstractInternationalCryptoSymmetricComponent(
     init {
         initLayout()
         initAction()
+        defaultSelected()
     }
 
     abstract fun getType(): String
@@ -31,7 +32,8 @@ abstract class AbstractInternationalCryptoSymmetricComponent(
 
     override fun encrypt(prop: CryptoSymmetric): String {
         val data = encryptedContentComboBox.component.item.bytes(decryptArea.text)
-        return cryptoComboBox.item?.crypto(prop.key, prop.keyType, prop.iv, prop.ivType)?.encrypt(data) ?: ""
+        val bytes = cryptoComboBox.item?.crypto(prop.key, prop.keyType, prop.iv, prop.ivType)?.encrypt(data)
+        return bytes?.let { decryptedContentComboBox.component.item.toString(it) } ?: ""
     }
 
     override fun decrypt(prop: CryptoSymmetric): String {

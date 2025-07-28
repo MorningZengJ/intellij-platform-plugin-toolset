@@ -1,7 +1,6 @@
 package com.github.morningzeng.toolbox.enums
 
 import java.nio.charset.StandardCharsets
-import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
@@ -29,11 +28,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            return cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).let {
-                val bytes = it.doFinal(data)
-                Base64.getEncoder().encodeToString(bytes)
-            }
+        ): ByteArray {
+            return cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -58,10 +54,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -88,10 +82,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -113,10 +105,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -138,10 +128,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -163,10 +151,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -188,10 +174,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -213,10 +197,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -238,10 +220,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -263,10 +243,8 @@ enum class CryptoSymmetricEnum(
             keyType: DataToBinaryTypeEnum,
             iv: String?,
             ivType: DataToBinaryTypeEnum?
-        ): String {
-            val cipher = this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType)
-            val encryptedValue = cipher.doFinal(data)
-            return Base64.getEncoder().encodeToString(encryptedValue)
+        ): ByteArray {
+            return this.cipher(Cipher.ENCRYPT_MODE, key, keyType, iv, ivType).doFinal(data)
         }
 
         override fun decrypt(
@@ -307,7 +285,7 @@ enum class CryptoSymmetricEnum(
 
     fun encrypt(
         data: ByteArray, key: String, iv: String?,
-    ): String = encrypt(data, key, DataToBinaryTypeEnum.TEXT, iv, DataToBinaryTypeEnum.TEXT)
+    ): ByteArray = encrypt(data, key, DataToBinaryTypeEnum.TEXT, iv, DataToBinaryTypeEnum.TEXT)
 
     open fun secretKey(
         key: String,
@@ -320,7 +298,7 @@ enum class CryptoSymmetricEnum(
         keyType: DataToBinaryTypeEnum,
         iv: String?,
         ivType: DataToBinaryTypeEnum?
-    ): String = encrypt(DataToBinaryTypeEnum.TEXT.bytes(data), key, keyType, iv, ivType)
+    ): ByteArray = encrypt(DataToBinaryTypeEnum.TEXT.bytes(data), key, keyType, iv, ivType)
 
     abstract fun encrypt(
         data: ByteArray,
@@ -328,7 +306,7 @@ enum class CryptoSymmetricEnum(
         keyType: DataToBinaryTypeEnum,
         iv: String?,
         ivType: DataToBinaryTypeEnum?
-    ): String
+    ): ByteArray
 
     fun decrypt(
         data: ByteArray, key: String, iv: String?
@@ -364,7 +342,7 @@ enum class CryptoSymmetricEnum(
         companion object {
             fun crypto(crypto: CryptoSymmetricEnum, key: String, iv: String?): Support {
                 return object : Support {
-                    override fun encrypt(data: ByteArray): String = crypto.encrypt(data, key, iv)
+                    override fun encrypt(data: ByteArray): ByteArray = crypto.encrypt(data, key, iv)
 
                     override fun decrypt(data: ByteArray): String = crypto.decrypt(data, key, iv)
                 }
@@ -378,18 +356,18 @@ enum class CryptoSymmetricEnum(
                 ivType: DataToBinaryTypeEnum?
             ): Support {
                 return object : Support {
-                    override fun encrypt(data: ByteArray): String = crypto.encrypt(data, key, keyType, iv, ivType)
+                    override fun encrypt(data: ByteArray): ByteArray = crypto.encrypt(data, key, keyType, iv, ivType)
 
                     override fun decrypt(data: ByteArray): String = crypto.decrypt(data, key, keyType, iv, ivType)
                 }
             }
         }
 
-        fun encrypt(data: String): String {
+        fun encrypt(data: String): ByteArray {
             return encrypt(DataToBinaryTypeEnum.TEXT.bytes(data))
         }
 
-        fun encrypt(data: ByteArray): String
+        fun encrypt(data: ByteArray): ByteArray
 
         fun decrypt(data: String): String {
             return decrypt(DataToBinaryTypeEnum.BASE64.bytes(data))

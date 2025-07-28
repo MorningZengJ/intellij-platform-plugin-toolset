@@ -3,7 +3,6 @@ package com.github.morningzeng.toolbox.ui.view.gadget
 import com.github.morningzeng.toolbox.Constants
 import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
 import com.github.morningzeng.toolbox.utils.GridBagUtils
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -25,7 +24,10 @@ class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
                 softWrapAction(),
                 scrollToEndAction(),
                 shortAction(),
-                upperCaseAction(),
+                upperCaseAction {
+                    render()
+                    upperCase = it
+                },
                 generateAction(),
                 clearAllAction()
             )
@@ -54,21 +56,6 @@ class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
 
             override fun setSelected(e: AnActionEvent, state: Boolean) {
                 short = state
-                render()
-            }
-        }
-    }
-
-    fun upperCaseAction(): ToggleAction {
-        return object : ToggleAction("Upper Case", "Upper Case UUID", AllIcons.Actions.MatchCase) {
-            override fun getActionUpdateThread(): ActionUpdateThread {
-                return super.getActionUpdateThread()
-            }
-
-            override fun isSelected(e: AnActionEvent): Boolean = upperCase
-
-            override fun setSelected(e: AnActionEvent, state: Boolean) {
-                upperCase = state
                 render()
             }
         }

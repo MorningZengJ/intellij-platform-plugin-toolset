@@ -32,6 +32,7 @@ class AsymmetricComponent(
         initLayout()
         initAction()
         reloadCryptoProps()
+        cryptoComboBox.selectedItem = CryptoAsymmetricEnum.RSA
     }
 
     override fun typeReference(): TypeReference<MutableList<CryptoAsymmetric>> {

@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [2512.7.3]
+
+### Changed
+
+- Adjust the default options.
+
+### Fixed
+
+- Symmetrically encrypted output text handles binary according to options.
+
 ## [2512.7.2]
 
 ### Added

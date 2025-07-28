@@ -73,7 +73,9 @@ abstract class AbstractCryptoSymmetricComponent(
                         Messages.showErrorDialog(this, "Please select the correct crypto item")
                         return@addActionListener
                     }
-                    this.encryptArea.text = encrypt(item)
+                    this.encryptArea.text = encrypt(item).let {
+                        if (encUpperCase) it.uppercase() else it.lowercase()
+                    }
                 }
             } catch (e: Exception) {
                 Messages.showErrorDialog(this, e.message)
@@ -87,7 +89,9 @@ abstract class AbstractCryptoSymmetricComponent(
                         Messages.showErrorDialog(this, "Please select the correct crypto item")
                         return@addActionListener
                     }
-                    this.decryptArea.text = decrypt(item)
+                    this.decryptArea.text = decrypt(item).let {
+                        if (decUpperCase) it.uppercase() else it.lowercase()
+                    }
                 }
             } catch (e: Exception) {
                 Messages.showErrorDialog(this, e.message)

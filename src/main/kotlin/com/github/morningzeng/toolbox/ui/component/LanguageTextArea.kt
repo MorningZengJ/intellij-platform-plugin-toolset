@@ -126,4 +126,20 @@ open class LanguageTextArea(
         }
     }
 
+    protected fun upperCaseAction(callback: (state: Boolean) -> Unit = {}): ToggleAction {
+        var upperCase = true
+        return object : ToggleAction("Upper Case", "Upper Case UUID", AllIcons.Actions.MatchCase) {
+            override fun getActionUpdateThread(): ActionUpdateThread {
+                return super.getActionUpdateThread()
+            }
+
+            override fun isSelected(e: AnActionEvent): Boolean = upperCase
+
+            override fun setSelected(e: AnActionEvent, state: Boolean) {
+                upperCase = state
+                callback(upperCase)
+            }
+        }
+    }
+
 }
