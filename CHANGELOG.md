@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [2512.7.3]
+## [2512.8.1]
 
 ### Changed
 
@@ -13,6 +13,7 @@
 ### Fixed
 
 - Symmetrically encrypted output text handles binary according to options.
+- Fixed some known bugs.
 
 ## [2512.7.2]
 

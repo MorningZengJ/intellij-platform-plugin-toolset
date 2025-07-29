@@ -75,6 +75,8 @@ class AsymmetricComponent(
                     }
                     cryptoComboBox.item?.let {
                         encryptArea.text = crypto().encrypt(decryptArea.text)
+                        encHistoryAction.addItem(encryptArea.text)
+                        decHistoryAction.addItem(decryptArea.text)
                     }
                 }
             } catch (ex: Exception) {
@@ -89,6 +91,8 @@ class AsymmetricComponent(
                     }
                     cryptoComboBox.item?.let {
                         decryptArea.text = crypto().decrypt(encryptArea.text)
+                        encHistoryAction.addItem(encryptArea.text)
+                        decHistoryAction.addItem(decryptArea.text)
                     }
                 }
             } catch (ex: Exception) {

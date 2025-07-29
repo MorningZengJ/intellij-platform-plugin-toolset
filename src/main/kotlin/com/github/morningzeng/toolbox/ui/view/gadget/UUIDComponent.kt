@@ -1,8 +1,10 @@
 package com.github.morningzeng.toolbox.ui.view.gadget
 
 import com.github.morningzeng.toolbox.Constants
+import com.github.morningzeng.toolbox.ui.action.HistoryAction
 import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
 import com.github.morningzeng.toolbox.utils.GridBagUtils
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -18,6 +20,7 @@ import java.util.*
  */
 class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
 
+    private val historyAction: HistoryAction<UUID> = HistoryAction(text = "History", icon = AllIcons.General.History)
     private val content = object : LanguageTextArea(project, "") {
         override fun defaultRightBarActions(): Array<AnAction> {
             return arrayOf(
@@ -29,6 +32,7 @@ class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
                     upperCase = it
                 },
                 generateAction(),
+                historyAction,
                 clearAllAction()
             )
         }
@@ -44,6 +48,10 @@ class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
     init {
         GridBagUtils.builder(this).fill(GridBagUtils.GridBagFill.BOTH)
             .row { it.cell().weightX(1.0).weightY(1.0).add(content.withRightBar()) }
+        historyAction.addItemClickedListener { uuid = it; render() }
+        historyAction.addItemHoverListener { render(it) }
+        historyAction.addPopupClosedListener { render() }
+        historyAction.addPopupCanceledListener { render() }
     }
 
     fun shortAction(): ToggleAction {
@@ -65,12 +73,13 @@ class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
         return object : AnAction("Generate", "Generate UUID", Constants.IconC.AUTORENEW) {
             override fun actionPerformed(e: AnActionEvent) {
                 uuid = UUID.randomUUID()
+                historyAction.addItem(uuid!!)
                 render()
             }
         }
     }
 
-    fun render() {
+    fun render(uuid: UUID? = this.uuid) {
         uuid?.let {
             var text = it.toString()
             if (short) {

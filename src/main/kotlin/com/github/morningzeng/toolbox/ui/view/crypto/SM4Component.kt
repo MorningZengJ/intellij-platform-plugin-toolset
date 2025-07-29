@@ -4,6 +4,7 @@ import cn.hutool.core.util.HexUtil
 import cn.hutool.crypto.Mode
 import cn.hutool.crypto.Padding
 import cn.hutool.crypto.symmetric.SM4
+import com.github.morningzeng.toolbox.enums.DataToBinaryTypeEnum
 import com.github.morningzeng.toolbox.model.CryptoSymmetric
 import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.intellij.openapi.project.Project
@@ -38,11 +39,15 @@ class SM4Component(
     }
 
     override fun encrypt(prop: CryptoSymmetric): String {
-        return sm4(prop).encryptHex(encryptedContentComboBox.component.item.bytes(decryptArea.text))
+        return when (decryptedContentComboBox.component.item) {
+            DataToBinaryTypeEnum.HEX -> sm4(prop).encryptHex(decryptArea.text)
+            DataToBinaryTypeEnum.BASE64 -> sm4(prop).encryptBase64(decryptArea.text)
+            DataToBinaryTypeEnum.TEXT -> String(sm4(prop).encrypt(decryptArea.text.toByteArray()), Charsets.UTF_8)
+        }
     }
 
     override fun decrypt(prop: CryptoSymmetric): String {
-        return sm4(prop).decryptStr(decryptedContentComboBox.component.item.bytes(encryptArea.text))
+        return sm4(prop).decryptStr(encryptArea.text)
     }
 
     private fun sm4(prop: CryptoSymmetric): SM4 {

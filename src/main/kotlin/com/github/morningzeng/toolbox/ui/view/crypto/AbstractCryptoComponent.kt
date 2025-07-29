@@ -1,7 +1,9 @@
 package com.github.morningzeng.toolbox.ui.view.crypto
 
 import com.github.morningzeng.toolbox.model.Children
+import com.github.morningzeng.toolbox.ui.action.HistoryAction
 import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.project.Project
 import java.util.stream.Stream
@@ -14,18 +16,27 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
     project: Project,
 ) : AbstractCryptoPropComponent<T>(project) {
 
-    protected var encUpperCase = true
-    protected var decUpperCase = true
+    private val regex = Regex("(?<=^.{10}).+?(?=.{10}$)")
+    var placeholderString = " ...... "
+
+    protected val encHistoryAction = HistoryAction<String>(text = "History", icon = AllIcons.General.History).apply {
+        historyRender { it.replace(regex, placeholderString) }
+    }
+    protected val decHistoryAction = HistoryAction<String>(text = "History", icon = AllIcons.General.History).apply {
+        historyRender { it.replace(regex, placeholderString) }
+    }
+
+    init {
+        historyActionEvent(encHistoryAction) { encryptArea }
+        historyActionEvent(decHistoryAction) { decryptArea }
+    }
 
     protected val encryptArea: LanguageTextArea = object : LanguageTextArea(project) {
         override fun defaultRightBarActions(): Array<AnAction> {
             return arrayOf(
                 softWrapAction(),
                 scrollToEndAction(),
-                upperCaseAction {
-                    text = if (it) text.uppercase() else text.lowercase()
-                    encUpperCase = it
-                },
+                encHistoryAction,
                 clearAllAction()
             )
         }
@@ -36,16 +47,12 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
             return arrayOf(
                 softWrapAction(),
                 scrollToEndAction(),
-                upperCaseAction {
-                    text = if (it) text.uppercase() else text.lowercase()
-                    decUpperCase = it
-                },
+                decHistoryAction,
                 clearAllAction()
             )
         }
     }
         .also { it.setPlaceholder("Decrypted text content") }
-
 
     override fun flatProps(props: MutableList<T>?): Stream<T> {
         return props?.stream()
@@ -58,5 +65,31 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
                     .forEach { consumer.accept(it) }
             }
             ?: Stream.empty()
+    }
+
+    protected open fun historyActionEvent(action: HistoryAction<String>, textArea: () -> LanguageTextArea) {
+        var temp: String? = null
+        action.addItemClickedListener {
+            temp = null
+            textArea().text = it
+        }
+        action.addItemHoverListener {
+            if (temp == null) {
+                temp = textArea().text
+            }
+            textArea().text = it
+        }
+        action.addPopupClosedListener {
+            temp?.let {
+                textArea().text = it
+                temp = null
+            }
+        }
+        action.addPopupCanceledListener {
+            temp?.let {
+                textArea().text = it
+                temp = null
+            }
+        }
     }
 }
