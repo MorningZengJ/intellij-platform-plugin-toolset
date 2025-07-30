@@ -27,6 +27,7 @@ import com.intellij.ui.components.JBPanelWithEmptyText
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.Alarm
+import kotlinx.datetime.Clock
 import java.awt.*
 import java.awt.datatransfer.StringSelection
 import java.time.LocalDateTime
@@ -60,10 +61,16 @@ class TimestampComponent(val project: Project) : JBPanel<JBPanelWithEmptyText>()
         RadioBar(TimeUnit.SECONDS, listOf(TimeUnit.SECONDS, TimeUnit.MILLISECONDS)),
         "Timeunit", BorderLayout.WEST
     )
-    private val area = LanguageTextArea(project, "", oneline = true)
-
     private val formatterMap: MutableMap<String, DateTimeFormatter> =
         formatterModel.items.associateWith { DateTimeFormatter.ofPattern(it) }.toMutableMap()
+
+    private val area = LanguageTextArea(project, "", oneline = true).apply {
+        setPlaceholder(
+            "${Clock.System.now().toEpochMilliseconds()} or ${
+                LocalDateTime.now().format(formatterMap[formatterModel.selectedItem])
+            }"
+        )
+    }
     private var currentInlay: Inlay<*>? = null
     private val zoneOffset = ZoneId.systemDefault().rules.getOffset(LocalDateTime.now())
 
