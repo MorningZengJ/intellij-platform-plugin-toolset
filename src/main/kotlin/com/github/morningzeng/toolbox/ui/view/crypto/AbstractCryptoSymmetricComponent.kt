@@ -69,7 +69,7 @@ abstract class AbstractCryptoSymmetricComponent(
             try {
                 val item = this.cryptoPropComboBox.item
                 item?.let {
-                    if (item.directory || item.key.isBlank() || item.iv.isBlank()) {
+                    if (item.directory || item.key.isBlank()) {
                         Messages.showErrorDialog(this, "Please select the correct crypto item")
                         return@addActionListener
                     }
@@ -85,7 +85,7 @@ abstract class AbstractCryptoSymmetricComponent(
             try {
                 val item = this.cryptoPropComboBox.item
                 item?.let {
-                    if (item.directory || item.key.isBlank() || item.iv.isBlank()) {
+                    if (item.directory || item.key.isBlank()) {
                         Messages.showErrorDialog(this, "Please select the correct crypto item")
                         return@addActionListener
                     }

@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [2512.8.2]
+
+### Fixed
+
+- Fix Crypto, allowing IV to be empty.
+
 ## [2512.8.1]
 
 ### Changed

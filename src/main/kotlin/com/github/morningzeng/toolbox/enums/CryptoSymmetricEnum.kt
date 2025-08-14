@@ -271,14 +271,14 @@ enum class CryptoSymmetricEnum(
     ): Cipher {
         return Cipher.getInstance(algorithm).apply {
             val secretKey = secretKey(key, keyType)
-            if (iv?.isEmpty() == true) {
-                init(encryptMode, secretKey)
-            } else {
+            if (iv?.isNotBlank() == true) {
                 init(
                     encryptMode,
                     secretKey,
-                    IvParameterSpec(ivType?.bytes(iv!!))
+                    IvParameterSpec(ivType?.bytes(iv))
                 )
+            } else {
+                init(encryptMode, secretKey)
             }
         }
     }
