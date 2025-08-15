@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolbox.ui.action
 
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.popup.JBPopupFactory
@@ -16,8 +17,8 @@ import javax.swing.Timer
  */
 @Suppress("unused")
 open class HistoryAction<T>(
-    text: String? = null,
-    icon: Icon? = null,
+    text: String? = "History",
+    icon: Icon? = AllIcons.General.History,
     description: String? = null,
 ) : AnAction(text, description, icon) {
 

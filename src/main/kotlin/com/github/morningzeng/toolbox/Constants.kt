@@ -42,6 +42,7 @@ object Constants {
         val DOUBLE_ANGLES_RIGHT: Icon = getIcon("/images/svg/double_angles_right.svg", CLASS_LOADER)
         val DOUBLE_ANGLES_LEFT: Icon = getIcon("/images/svg/double_angles_left.svg", CLASS_LOADER)
         val FOLDER_COLOR: Icon = getIcon("/images/svg/folder_color.svg", CLASS_LOADER)
+        val FORMAT_CODE: Icon = getIcon("/images/svg/format_code.svg", CLASS_LOADER)
         val GENERATE: Icon = getIcon("/images/svg/generate.svg", CLASS_LOADER)
         val INK_ERASER: Icon = getIcon("/images/svg/ink_eraser.svg", CLASS_LOADER)
         val REMOVE_RED: Icon = getIcon("/images/svg/remove.svg", CLASS_LOADER)

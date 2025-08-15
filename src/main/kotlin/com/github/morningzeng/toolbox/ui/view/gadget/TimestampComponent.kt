@@ -13,8 +13,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorCustomElementRenderer
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.colors.EditorFontType
-import com.intellij.openapi.editor.event.DocumentEvent
-import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.ComboBox
@@ -102,7 +100,7 @@ class TimestampComponent(val project: Project) : JBPanel<JBPanelWithEmptyText>()
         scheduleNextUpdate()
 
         ApplicationManager.getApplication().invokeLater {
-            delayDocumentListener()
+            area.delayDocumentListener { updateInlineDisplay() }
         }
         formatter.component.addItemListener {
             updateInlineDisplay()
@@ -137,21 +135,6 @@ class TimestampComponent(val project: Project) : JBPanel<JBPanelWithEmptyText>()
                 }
             }
         }
-    }
-
-    fun delayDocumentListener() {
-        if (area.editor == null) {
-            ApplicationManager.getApplication().invokeLater {
-                delayDocumentListener()
-            }
-            return
-        }
-        area.editor?.document?.addDocumentListener(object : DocumentListener {
-            override fun documentChanged(event: DocumentEvent) {
-                updateInlineDisplay()
-            }
-        })
-
     }
 
     fun updateInlineDisplay() {

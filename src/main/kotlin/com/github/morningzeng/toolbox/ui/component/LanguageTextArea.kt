@@ -12,6 +12,8 @@ import com.intellij.openapi.actionSystem.ToggleAction
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.editor.SpellCheckingEditorCustomizationProvider
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.fileTypes.PlainTextLanguage
 import com.intellij.openapi.project.Project
@@ -71,6 +73,20 @@ open class LanguageTextArea(
         if (showHint) TextCompletionUtil.installCompletionHint(editorEx)
         this.editor = editorEx
         return editorEx
+    }
+
+    fun delayDocumentListener(listener: (event: DocumentEvent) -> Unit) {
+        if (editor == null) {
+            ApplicationManager.getApplication().invokeLater {
+                delayDocumentListener(listener)
+            }
+            return
+        }
+        editor?.document?.addDocumentListener(object : DocumentListener {
+            override fun documentChanged(event: DocumentEvent) {
+                listener(event)
+            }
+        })
     }
 
     fun withRightBar(vararg actions: AnAction): JBPanel<JBPanelWithEmptyText> {

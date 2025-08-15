@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [2512.8.3]
+
+### Added
+
+- Added format button: In Crypto, a format button switch is added to the right of the Decrypted input area to
+  automatically format text content.
+
 ## [2512.8.2]
 
 ### Fixed

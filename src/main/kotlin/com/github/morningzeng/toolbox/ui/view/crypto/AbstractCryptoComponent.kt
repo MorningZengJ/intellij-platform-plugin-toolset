@@ -1,9 +1,9 @@
 package com.github.morningzeng.toolbox.ui.view.crypto
 
 import com.github.morningzeng.toolbox.model.Children
+import com.github.morningzeng.toolbox.ui.action.AutoFormatAction
 import com.github.morningzeng.toolbox.ui.action.HistoryAction
 import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.project.Project
 import java.util.stream.Stream
@@ -19,10 +19,10 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
     private val regex = Regex("(?<=^.{10}).+?(?=.{10}$)")
     var placeholderString = " ...... "
 
-    protected val encHistoryAction = HistoryAction<String>(text = "History", icon = AllIcons.General.History).apply {
+    protected val encHistoryAction = HistoryAction<String>().apply {
         historyRender { it.replace(regex, placeholderString) }
     }
-    protected val decHistoryAction = HistoryAction<String>(text = "History", icon = AllIcons.General.History).apply {
+    protected val decHistoryAction = HistoryAction<String>().apply {
         historyRender { it.replace(regex, placeholderString) }
     }
 
@@ -48,6 +48,7 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
                 softWrapAction(),
                 scrollToEndAction(),
                 decHistoryAction,
+                AutoFormatAction(this),
                 clearAllAction()
             )
         }

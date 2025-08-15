@@ -4,7 +4,6 @@ import com.github.morningzeng.toolbox.Constants
 import com.github.morningzeng.toolbox.ui.action.HistoryAction
 import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
 import com.github.morningzeng.toolbox.utils.GridBagUtils
-import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -20,7 +19,7 @@ import java.util.*
  */
 class UUIDComponent(project: Project) : JBPanel<JBPanelWithEmptyText>() {
 
-    private val historyAction: HistoryAction<UUID> = HistoryAction(text = "History", icon = AllIcons.General.History)
+    private val historyAction: HistoryAction<UUID> = HistoryAction()
     private val content = object : LanguageTextArea(project, "") {
         override fun defaultRightBarActions(): Array<AnAction> {
             return arrayOf(
