@@ -2,7 +2,6 @@ import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import java.io.ByteArrayOutputStream
-import java.util.stream.Collectors
 
 fun executeCommand(command: String, workingDir: File = File(".")): String {
     val output = ByteArrayOutputStream()
@@ -14,7 +13,7 @@ fun executeCommand(command: String, workingDir: File = File(".")): String {
     return output.toString().trim()
 }
 
-tasks.register("setPluginVersion") {
+tasks.register<DefaultTask>("setPluginVersion") {
     doLast {
         val branchName = executeCommand("git rev-parse --abbrev-ref HEAD")
 
@@ -25,15 +24,14 @@ tasks.register("setPluginVersion") {
             val version = matchResult.groupValues[1]
 
             val propertiesFile = file("gradle.properties")
-            val contents = propertiesFile.readLines().stream()
-                .map {
+            val contents = propertiesFile.readLines()
+                .joinToString("\r\n") {
                     if (it.startsWith("pluginVersion=")) {
                         "pluginVersion=$version"
                     } else {
                         it
                     }
                 }
-                .collect(Collectors.joining("\r\n"))
             propertiesFile.writeText(contents)
             println("Plugin version updated to $version")
         } else {
