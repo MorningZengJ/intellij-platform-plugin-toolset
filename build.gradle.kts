@@ -35,7 +35,7 @@ tasks.register<DefaultTask>("setPluginVersion") {
             propertiesFile.writeText(contents)
             println("Plugin version updated to $version")
         } else {
-            throw GradleException("Branch name does not match pattern 'feature-版本号'")
+            throw GradleException("Branch name does not match pattern 'feature-version'")
         }
     }
 }
