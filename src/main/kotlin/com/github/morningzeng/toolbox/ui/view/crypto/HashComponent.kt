@@ -4,8 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.github.morningzeng.toolbox.Constants
 import com.github.morningzeng.toolbox.enums.CryptoHashEnum
 import com.github.morningzeng.toolbox.model.CryptoHash
-import com.github.morningzeng.toolbox.ui.action.HistoryAction
-import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
 import com.github.morningzeng.toolbox.ui.dialog.PropertyHashDialog
 import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.github.morningzeng.toolbox.utils.GridBagUtils.GridBagFill
@@ -76,8 +74,8 @@ class HashComponent(
                     else -> crypto.encrypt(decryptArea.text)
                 }.apply {
                     encryptArea.text = this
-                    encHistoryAction.addItem("${decryptArea.text} - ${encryptArea.text}")
-                    encHistoryAction.addItem("${decryptArea.text} - ${encryptArea.text}")
+                    decHistoryAction.addItem(textConvert()())
+                    encHistoryAction.addItem(textConvert()())
                 }
             } catch (e: Exception) {
                 Messages.showErrorDialog(project, e.message, "HASH Error")
@@ -100,41 +98,17 @@ class HashComponent(
         }
     }
 
-    override fun historyActionEvent(action: HistoryAction<String>, textArea: () -> LanguageTextArea) {
-        var temp: String? = null
-        action.addItemClickedListener {
-            temp = null
-            it.split("-").apply {
+    override fun textConvert(): (String) -> String {
+        return { "${decryptArea.text} - ${encryptArea.text}" }
+    }
+
+    override fun tConvert(): (String) -> String? {
+        return {
+            it.split(" - ").apply {
                 decryptArea.text = this[0]
                 encryptArea.text = this[1]
             }
-        }
-        action.addItemHoverListener {
-            if (temp == null) {
-                temp = "${decryptArea.text} - ${encryptArea.text}"
-            }
-            it.split("-").apply {
-                decryptArea.text = this[0]
-                encryptArea.text = this[1]
-            }
-        }
-        action.addPopupClosedListener {
-            temp?.let {
-                it.split("-").apply {
-                    decryptArea.text = this[0]
-                    encryptArea.text = this[1]
-                }
-                temp = null
-            }
-        }
-        action.addPopupCanceledListener {
-            temp?.let {
-                it.split("-").apply {
-                    decryptArea.text = this[0]
-                    encryptArea.text = this[1]
-                }
-                temp = null
-            }
+            null
         }
     }
 

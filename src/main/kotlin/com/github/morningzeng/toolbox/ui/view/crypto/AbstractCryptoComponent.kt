@@ -26,17 +26,15 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
         historyRender { it.replace(regex, placeholderString) }
     }
 
-    init {
-        historyActionEvent(encHistoryAction) { encryptArea }
-        historyActionEvent(decHistoryAction) { decryptArea }
-    }
-
     protected val encryptArea: LanguageTextArea = object : LanguageTextArea(project) {
         override fun defaultRightBarActions(): Array<AnAction> {
             return arrayOf(
                 softWrapAction(),
                 scrollToEndAction(),
-                encHistoryAction,
+                encHistoryAction.also {
+                    it.setTextArea(this)
+                    it.textAreaEvent(textConvert(), tConvert())
+                },
                 clearAllAction()
             )
         }
@@ -47,7 +45,10 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
             return arrayOf(
                 softWrapAction(),
                 scrollToEndAction(),
-                decHistoryAction,
+                decHistoryAction.also {
+                    it.setTextArea(this)
+                    it.textAreaEvent(textConvert(), tConvert())
+                },
                 AutoFormatAction(this),
                 clearAllAction()
             )
@@ -68,29 +69,12 @@ abstract class AbstractCryptoComponent<T : Children<T>>(
             ?: Stream.empty()
     }
 
-    protected open fun historyActionEvent(action: HistoryAction<String>, textArea: () -> LanguageTextArea) {
-        var temp: String? = null
-        action.addItemClickedListener {
-            temp = null
-            textArea().text = it
-        }
-        action.addItemHoverListener {
-            if (temp == null) {
-                temp = textArea().text
-            }
-            textArea().text = it
-        }
-        action.addPopupClosedListener {
-            temp?.let {
-                textArea().text = it
-                temp = null
-            }
-        }
-        action.addPopupCanceledListener {
-            temp?.let {
-                textArea().text = it
-                temp = null
-            }
-        }
+    open fun textConvert(): (String) -> String {
+        return { it }
     }
+
+    open fun tConvert(): (String) -> String? {
+        return { it }
+    }
+
 }

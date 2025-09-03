@@ -1,5 +1,6 @@
 package com.github.morningzeng.toolbox.ui.action
 
+import com.github.morningzeng.toolbox.ui.component.LanguageTextArea
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -28,6 +29,7 @@ open class HistoryAction<T>(
     private val popupClosedCallback: MutableList<() -> Unit> = mutableListOf()
     private val popupCanceledCallback: MutableList<() -> Unit> = mutableListOf()
     private var historyRender: (T) -> String = { it.toString() }
+    private var textArea: LanguageTextArea? = null
 
     override fun actionPerformed(e: AnActionEvent) {
         this.showPopup(e)
@@ -134,6 +136,38 @@ open class HistoryAction<T>(
 
     fun removePopupCanceledListener(callback: () -> Unit) {
         this.popupCanceledCallback.remove(callback)
+    }
+
+    fun setTextArea(textArea: LanguageTextArea) {
+        this.textArea = textArea
+    }
+
+    fun textAreaEvent(textConvert: (String) -> T, tConvert: (T) -> String?) {
+        textArea?.let { area ->
+            var temp: T? = null
+            this.addItemClickedListener { t ->
+                temp = null
+                tConvert(t)?.let { area.text = it }
+            }
+            this.addItemHoverListener { t ->
+                if (temp == null) {
+                    temp = textConvert(area.text)
+                }
+                tConvert(t)?.let { area.text = it }
+            }
+            this.addPopupClosedListener {
+                temp?.let { t ->
+                    tConvert(t)?.let { area.text = it }
+                    temp = null
+                }
+            }
+            this.addPopupCanceledListener {
+                temp?.let { t ->
+                    tConvert(t)?.let { area.text = it }
+                    temp = null
+                }
+            }
+        }
     }
 
 }

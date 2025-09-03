@@ -4,6 +4,16 @@
 
 ## [Unreleased]
 
+## [2512.9.1]
+
+### Added
+
+- Add History feature to Base64 and URLs.
+
+### Fixed
+
+- Fixed bugs in Hash's History feature.
+
 ## [2512.8.3]
 
 ### Added
