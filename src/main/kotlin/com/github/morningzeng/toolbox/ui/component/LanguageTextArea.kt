@@ -5,6 +5,7 @@ import com.github.morningzeng.toolbox.utils.GridBagUtils
 import com.intellij.icons.AllIcons
 import com.intellij.ide.highlighter.HighlighterFactory
 import com.intellij.lang.Language
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -34,7 +35,7 @@ open class LanguageTextArea(
     var showLineNumber: Boolean = true,
     var showHint: Boolean = false,
     var oneline: Boolean = false,
-) : LanguageTextField(language, project, value, false) {
+) : LanguageTextField(language, project, value, false), Disposable {
 
     init {
         isOneLineMode = oneline
@@ -86,7 +87,7 @@ open class LanguageTextArea(
             override fun documentChanged(event: DocumentEvent) {
                 listener(event)
             }
-        })
+        }, this)
     }
 
     fun withRightBar(vararg actions: AnAction): JBPanel<JBPanelWithEmptyText> {
@@ -156,6 +157,9 @@ open class LanguageTextArea(
                 callback(upperCase)
             }
         }
+    }
+
+    override fun dispose() {
     }
 
 }

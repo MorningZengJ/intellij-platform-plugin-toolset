@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+## [2512.12.1]
+
+### Changed
+
+- Avoid calling deprecated methods.
+
 ## [2512.9.1]
 
 ### Added
